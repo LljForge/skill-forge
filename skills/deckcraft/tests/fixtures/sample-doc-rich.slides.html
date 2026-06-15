@@ -1,0 +1,41 @@
+<section class="slide" data-tier="main">
+  <div class="kicker"><span>AI 编程的工程化纪律</span></div>
+  <h1>用确定性纪律，<span class="accent">驯服概率性能力</span></h1>
+  <p class="body">AI 能高速产出代码，但它是概率性的——看起来对、不一定真对。没有确定性的闸门，速度只会更快地累积返工。纪律的作用，是把概率性的能力约束进可验收的轨道。</p>
+</section>
+<section class="slide" data-tier="main">
+  <div class="kicker"><span>核心机制</span></div>
+  <h2>三道闸门</h2>
+  <ul>
+    <li><span class="lead-in">规范（SDD）</span>：先写清楚要做什么、边界在哪，再让 AI 动手——规范既是输入，也是验收基准。</li>
+    <li><span class="lead-in">测试（TDD）</span>：用先写的失败测试卡住"看起来对"，测试通过才算数，而不是 AI 自述完成。</li>
+    <li><span class="lead-in">审查（Review）</span>：人对着 diff 看，尤其安全、权限、外部副作用这些 AI 容易乐观的地方。</li>
+  </ul>
+</section>
+<section class="slide" data-tier="main">
+  <div class="kicker"><span>第一 meta 技能</span></div>
+  <h2>上下文工程</h2>
+  <ul>
+    <li><span class="lead-in">给够</span>：它看不到但需要的事实——约束、既有约定、目标。</li>
+    <li><span class="lead-in">砍噪</span>：无关文件、过时信息会稀释注意力。</li>
+    <li><span class="lead-in">小单元</span>：边界清晰的小单元比大而全的提示更可靠。
+      <ul>
+        <li>你能 hold 住的上下文，它也更能 hold 住。</li>
+        <li>文件过大，往往是职责过多的信号。</li>
+      </ul>
+    </li>
+  </ul>
+</section>
+<section class="slide" data-tier="main">
+  <div class="kicker"><span>避坑</span></div>
+  <h2>三个常见坑</h2>
+  <div class="cols">
+    <div class="card"><h3>假完成</h3><p>把"它说完成了"当真——必须有外部闸门。</p></div>
+    <div class="card"><h3>目标漂移</h3><p>一次塞太多目标，它在目标间漂移。</p></div>
+    <div class="card"><h3>无验收</h3><p>没有验收标准就让它自由发挥。</p></div>
+  </div>
+</section>
+<section class="slide" data-tier="main">
+  <h2>一句话总纲</h2>
+  <blockquote class="quote">你的角色是给上下文、定契约、做验收的人；用确定性的纪律，驯服概率性的能力。</blockquote>
+</section>
