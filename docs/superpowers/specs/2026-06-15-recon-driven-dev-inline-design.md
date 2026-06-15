@@ -1,17 +1,17 @@
-# 设计：recon-dev-standalone（侦察驱动开发 · 轻量自包含版）
+# 设计：recon-driven-dev-inline（侦察驱动开发 · 轻量自包含版）
 
 - **日期**：2026-06-15
 - **状态**：已确认，待落地
-- **类型**：新建 Skill（fork 自 `recon-driven-development`）
-- **关系**：与 `recon-driven-development` **并存**，不替换
+- **类型**：新建 Skill（fork 自 `recon-driven-dev`）
+- **关系**：与 `recon-driven-dev` **并存**，不替换
 
 ---
 
 ## 1. 背景与动机
 
-`recon-driven-development`（下称"原版"）当前是一个**编排者**：四阶段里 ② 委托 `superpowers:brainstorming`、④ 全委托 superpowers 实现链（writing-plans → using-git-worktrees → executing/subagent → finishing），① 软依赖 `feature-dev:code-explorer`。**唯一硬前置是 superpowers**——会话里没装就拒绝开轨。
+`recon-driven-dev`（下称"原版"）当前是一个**编排者**：四阶段里 ② 委托 `superpowers:brainstorming`、④ 全委托 superpowers 实现链（writing-plans → using-git-worktrees → executing/subagent → finishing），① 软依赖 `feature-dev:code-explorer`。**唯一硬前置是 superpowers**——会话里没装就拒绝开轨。
 
-**动机：可移植性。** 要在**没有 superpowers 插件**的环境里也能跑完整条轨。因此 `recon-dev-standalone` 去掉"编排外部 Skill"的角色，把 ②④ 的能力**内联自包含**，做到**零外部 Skill 依赖**。
+**动机：可移植性。** 要在**没有 superpowers 插件**的环境里也能跑完整条轨。因此 `recon-driven-dev-inline` 去掉"编排外部 Skill"的角色，把 ②④ 的能力**内联自包含**，做到**零外部 Skill 依赖**。
 
 **保留的能力（区别于"编排外部 Skill"）**：内置 sub-agent 派发（`Task`/`Explore`/原生 worktree 工具如 `EnterWorktree`）属于 harness 自带，**不影响可移植性**，予以保留，并一律配主上下文降级。
 
@@ -26,8 +26,8 @@
 | D3 | ④ 落地范围 | **较全复刻**（worktree/TDD/实现期评审/收口全保留） |
 | D4 | ④ 内联粒度 | **契约式 + 留护栏**：保留 gates + 非显性陷阱块，**砍掉机制教学** |
 | D5 | 文件组织 | **方案 A**：镜像原结构，只把"委托点"换成内联契约 |
-| D6 | Skill 名 | **`recon-dev-standalone`** |
-| D7 | 产物目录 | **自己的命名空间** `docs/recon-dev-standalone/`（与原版零撞车） |
+| D6 | Skill 名 | **`recon-driven-dev-inline`** |
+| D7 | 产物目录 | **自己的命名空间** `docs/recon-driven-dev-inline/`（与原版零撞车） |
 
 ---
 
@@ -35,7 +35,7 @@
 
 这些是设计必须吸收的、容易被漏掉的点：
 
-1. **🚨 隐藏依赖（最高风险）**：原版 `references/review-agent.md:18` 与 `references/templates/review.md:4` 各含一条**硬编码绝对路径指回 `recon-driven-development`**。grep `superpowers`/`feature-dev` **扫不到**。若直接"拷贝"这两个文件，standalone 会在运行时**静默读取源 Skill 的文件**——直接证伪"零依赖"。→ 必须**改写**这两条路径，并把整棵 fork 树 grep `recon-driven-development` 作为发布门。
+1. **🚨 隐藏依赖（最高风险）**：原版 `references/review-agent.md:18` 与 `references/templates/review.md:4` 各含一条**硬编码绝对路径指回 `recon-driven-dev`**。grep `superpowers`/`feature-dev` **扫不到**。若直接"拷贝"这两个文件，standalone 会在运行时**静默读取源 Skill 的文件**——直接证伪"零依赖"。→ 必须**改写**这两条路径，并把整棵 fork 树 grep `recon-driven-dev` 作为发布门。
 
 2. **🚨 ② 丢的是"内容生产者"，不只是编排者**：brainstorming 是真正**产出** `design.md` 的架构/数据流/决策/风险的人。原版**故意不设** design 骨架（护栏 142）正因为 brainstorming 来填。去掉 brainstorming 后 design.md **无人生产**。→ 必须内联 `design.md` **内容契约**，并**反转护栏 142**（保留"不设僵化骨架"的精神，去掉"那是 brainstorming 的活/第二权威源"的理由）。
 
@@ -51,7 +51,7 @@
 
 ## 4. 架构总览
 
-四阶段，每阶段结束 ⏸ 等用户确认；产物落 `docs/recon-dev-standalone/<YYYY-MM-DD>-<change-name>/`，收尾归档进 `docs/recon-dev-standalone/_archived/`。**零外部 Skill 依赖**；①③④ 的派发都配主上下文降级。
+四阶段，每阶段结束 ⏸ 等用户确认；产物落 `docs/recon-driven-dev-inline/<YYYY-MM-DD>-<change-name>/`，收尾归档进 `docs/recon-driven-dev-inline/_archived/`。**零外部 Skill 依赖**；①③④ 的派发都配主上下文降级。
 
 ```
 ① 定向分析   一句话粗需求 → 内置 sub-agent 钻落点+消费面(全集) → directed-report.md
@@ -90,7 +90,7 @@
 ### ③ 评审 → `review.md`（已自包含，只需清路径）
 
 - **保留**：派发评审 sub-agent、以 `review-agent.md` 正文作 prompt；主上下文降级；模板填空。判据单一权威仍住 `review-agent.md`。
-- **必做编辑**：改写 `review-agent.md` 与 `templates/review.md` 里两条硬编码 `recon-driven-development` 路径（发现 #1）。
+- **必做编辑**：改写 `review-agent.md` 与 `templates/review.md` 里两条硬编码 `recon-driven-dev` 路径（发现 #1）。
 
 ### ④ 落地（内联实现链 · gates + 陷阱块，砍机制）
 
@@ -102,7 +102,7 @@
 5. **per-task 两阶段评审**（按序）：①先 spec 符合性（不缺、**不过度造**）②再代码质量；有问题 → 改 → **复评**直到干净，未清不进下一任务。**区别于 ② 自评、也区别于 ③**（③ 评设计，这里评每个已实现任务对设计的符合度）。
 6. **continuous execution**：开跑后一路做完，只在 blocker/歧义/计划错时停（计划错 → 上报人、别静默绕过）。
 7. **FINISH 闭合菜单**：先复验全测试绿 → 检测工作区/分支态 → 给**固定闭合菜单**（本地合并 / push+PR / 保留 / 丢弃；detached 则去掉"本地合并"）→ 精确执行所选一项。**绝不在收尾抛开放式"接下来干嘛？"**
-8. **归档**（链外）：分支收口后移目录进 `docs/recon-dev-standalone/_archived/`，**⏸ 收尾前确认**。
+8. **归档**（链外）：分支收口后移目录进 `docs/recon-driven-dev-inline/_archived/`，**⏸ 收尾前确认**。
 
 **非显性陷阱块（不可派生，保留）：**
 - worktree 检测假阳性：`GIT_DIR != GIT_COMMON` 在 **submodule** 里也成立 → 用 `git rev-parse --show-superproject-working-tree` 排除。
@@ -131,9 +131,9 @@
 ## 7. 文件结构与去编排清单
 
 ```
-skills/recon-dev-standalone/
+skills/recon-driven-dev-inline/
 ├── SKILL.md                 # 四阶段；②④ 内联契约（最大改动面）
-├── README.md                # 总览/导航（自己的，名字全部 recon-dev-standalone）
+├── README.md                # 总览/导航（自己的，名字全部 recon-driven-dev-inline）
 ├── CHANGELOG.md             # v0.1.0 初版；诚实定性=工程收益(可移植)，非能力跃升；冻结快照声明
 └── references/
     ├── review-agent.md      # ③ 判据单一权威（拷贝 + 路径改写）
@@ -144,24 +144,24 @@ skills/recon-dev-standalone/
 
 **去编排 / 自包含编辑清单（逐条核）：**
 
-1. **frontmatter + H1 改名** → `recon-dev-standalone`。
+1. **frontmatter + H1 改名** → `recon-driven-dev-inline`。
 2. **删除 line-26 硬前置门**（"没 superpowers 就不开轨"）——standalone 无外部前置。
 3. **流程图 line 17/21 改写**：去掉"委托 brainstorming"/"全委托 superpowers"措辞，改内联表述。
 4. **① line 48-51**：删 `code-explorer` 分支，收成"内置 sub-agent 派发 + 主上下文 grep 降级"三级阶梯。
 5. **② line 91-103 重写**：内联 brainstorming-lite 流程契约 + HARD GATE + "太简单"override + 范围分解触发器 + `design.md` 内容契约 + ② 接棒纪律 + 轻量自评；委托边界 3 条降为普通 ② 产物规则。
-6. **③**：派发措辞保留；**改写 `review-agent.md` 与 `templates/review.md` 两条硬编码路径**（指向 fork 自身：优先 skill-root 相对引用，若加载器需绝对则 `~/.claude/skills/recon-dev-standalone/...`）。
+6. **③**：派发措辞保留；**改写 `review-agent.md` 与 `templates/review.md` 两条硬编码路径**（指向 fork 自身：优先 skill-root 相对引用，若加载器需绝对则 `~/.claude/skills/recon-driven-dev-inline/...`）。
 7. **④ 整节重写**：heading 去"全委托 superpowers"；按 §5 写 gates + 陷阱块；保留子仓 caveat、false-① pause、分支集成是用户决定、归档（改目录到 standalone 命名空间）。
 8. **护栏 142 反转**：去 brainstorming 归属，留"design 内容由 ② 谈出、别预设僵化骨架"。
 9. **护栏 146 反转**：原"别在 ④ 驱动/重排 superpowers 链"→"④ 步骤本 Skill 内联拥有；别再委托外部技能、别在既定停点外加冗余评审"（保留事实订正 carve-out）。
-10. **产物目录全改** `docs/recon-dev/` → `docs/recon-dev-standalone/`（含 `_archived/`）。
-11. **README/CHANGELOG/description** 所有 `recon-driven-development` 自引用改名（避免两 Skill 触发撞名；保留"不自动触发、用户显式调用"姿态）。
+10. **产物目录全改** `docs/recon-dev/` → `docs/recon-driven-dev-inline/`（含 `_archived/`）。
+11. **README/CHANGELOG/description** 所有 `recon-driven-dev` 自引用改名（避免两 Skill 触发撞名；保留"不自动触发、用户显式调用"姿态）。
 
 ---
 
 ## 8. 验收门（声明 done 前）
 
-- [ ] `grep -rn 'recon-driven-development' skills/recon-dev-standalone/` → **0 命中**（body 文件）。
-- [ ] `grep -rniE 'superpowers|feature-dev' skills/recon-dev-standalone/` → 正文 0 命中（这两词只允许出现在 CHANGELOG 的 provenance 叙述）。
+- [ ] `grep -rn 'recon-driven-dev' skills/recon-driven-dev-inline/` → **0 命中**（body 文件）。
+- [ ] `grep -rniE 'superpowers|feature-dev' skills/recon-driven-dev-inline/` → 正文 0 命中（这两词只允许出现在 CHANGELOG 的 provenance 叙述）。
 - [ ] **委托措辞** body 0 命中：`委托`/`delegate`/`superpowers:brainstorming`/`feature-dev:code-explorer` 等"交给外部技能"的表述一处不留（`brainstorming` 作为方法描述词若出现，须无委托语义；SKILL.md 正文建议直接写"内联需求设计对话"以免歧义）。
 - [ ] `references/` + `references/templates/` 整棵子树齐全（`review-agent.md`、`templates/requirements.md`、`templates/review.md` 三件都在）。
 - [ ] 两条原硬编码路径已改写、指向 fork 自身。
@@ -173,7 +173,7 @@ skills/recon-dev-standalone/
 
 ## 9. 非目标（YAGNI）
 
-- ❌ 不替换、不改动原版 `recon-driven-development`。
+- ❌ 不替换、不改动原版 `recon-driven-dev`。
 - ❌ 不内联 Visual Companion、不内联 spec-document-reviewer sub-agent（② 轻量自评 + ③ 已覆盖）。
 - ❌ 不携带原版的 `SKILL-DESIGN-PHILOSOPHY.md` / `MAINTAINING.md` / `BACKLOG.md`（除非后续证明有用）——保持轻量。
 - ❌ ④ 不内联 TDD/git 机制教学。
@@ -183,4 +183,4 @@ skills/recon-dev-standalone/
 
 ## 10. 待澄清 / 实现期再定的小项
 
-- **路径引用形式**：fork 内对 `review-agent.md`/模板的引用，优先 **skill-root 相对**（位置无关、最抗重绑）；若 Skill 加载器只可靠解析绝对路径，则退回 `~/.claude/skills/recon-dev-standalone/...`。落地时按实际加载行为定，二者都满足"指向 fork 自身"。
+- **路径引用形式**：fork 内对 `review-agent.md`/模板的引用，优先 **skill-root 相对**（位置无关、最抗重绑）；若 Skill 加载器只可靠解析绝对路径，则退回 `~/.claude/skills/recon-driven-dev-inline/...`。落地时按实际加载行为定，二者都满足"指向 fork 自身"。

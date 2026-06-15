@@ -1,23 +1,23 @@
-# recon-dev-standalone Implementation Plan
+# recon-driven-dev-inline Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
 > **本计划是 Skill 创作（markdown 文档），非代码项目。** 没有 pytest——每个任务的"测试"就是规格 §8 的**验收门**（grep / 存在性 / 内容检查）。"先写失败测试"在此读作"先跑会失败的验收门，确认目标文件/字符串尚不存在，再产出使其通过"。
 
-**Goal:** 把 `recon-driven-development` fork 成 `recon-dev-standalone`——一个零外部 Skill 依赖、自包含的轻量四阶段开发轨。
+**Goal:** 把 `recon-driven-dev` fork 成 `recon-driven-dev-inline`——一个零外部 Skill 依赖、自包含的轻量四阶段开发轨。
 
 **Architecture:** 镜像原 Skill 结构（方案 A）。① 和 ③ 近乎原样拷贝（仅做派发降级措辞与路径清理），② 和 ④ 把原来"委托 superpowers"的点改写成内联契约（gates + 非显性陷阱块）。内置 sub-agent 派发（Task/Explore/原生 worktree 工具）予以保留并配主上下文降级，因其是 harness 内置、不影响可移植性。
 
-**Tech Stack:** Markdown。源文件在 `skills/recon-driven-development/`，产物在 `skills/recon-dev-standalone/`。规格：[docs/superpowers/specs/2026-06-15-recon-dev-standalone-design.md](../specs/2026-06-15-recon-dev-standalone-design.md)。
+**Tech Stack:** Markdown。源文件在 `skills/recon-driven-dev/`，产物在 `skills/recon-driven-dev-inline/`。规格：[docs/superpowers/specs/2026-06-15-recon-driven-dev-inline-design.md](../specs/2026-06-15-recon-driven-dev-inline-design.md)。
 
-**路径改写口径（贯穿全计划）:** fork 内对自身 reference 的引用，统一改写为 fork 自身的绝对路径 `~/.claude/skills/recon-dev-standalone/...`（与原 Skill 用绝对路径的惯例一致、最稳）。
+**路径改写口径（贯穿全计划）:** fork 内对自身 reference 的引用，统一改写为 fork 自身的绝对路径 `~/.claude/skills/recon-driven-dev-inline/...`（与原 Skill 用绝对路径的惯例一致、最稳）。
 
 ---
 
 ## File Structure
 
 ```
-skills/recon-dev-standalone/
+skills/recon-driven-dev-inline/
 ├── SKILL.md                      # 四阶段正文；①③ 拷贝+小改，②④ 重写为内联契约（Task 4）
 ├── README.md                     # 自己的总览/导航，全部改名（Task 5）
 ├── CHANGELOG.md                  # v0.1.0；诚实定性=工程收益(可移植)、冻结快照（Task 6）
@@ -30,46 +30,46 @@ skills/recon-dev-standalone/
 
 **任务顺序理由:** 先建目录骨架 + 干净拷贝（Task 1），再处理两个含隐藏路径依赖的拷贝（Task 2-3），再写最大的 SKILL.md（Task 4），然后 README/CHANGELOG（Task 5-6），最后整树验收门扫一遍（Task 7）。
 
-源文件绝对根：`/Users/lilongjian/Projects/AI/skill-forge/skills/recon-driven-development`（下称 `$SRC`）
-产物绝对根：`/Users/lilongjian/Projects/AI/skill-forge/skills/recon-dev-standalone`（下称 `$DST`）
+源文件绝对根：`/Users/lilongjian/Projects/AI/skill-forge/skills/recon-driven-dev`（下称 `$SRC`）
+产物绝对根：`/Users/lilongjian/Projects/AI/skill-forge/skills/recon-driven-dev-inline`（下称 `$DST`）
 
 ---
 
 ### Task 1: 骨架 + 干净拷贝 requirements 模板
 
 **Files:**
-- Create: `skills/recon-dev-standalone/references/templates/requirements.md`
+- Create: `skills/recon-driven-dev-inline/references/templates/requirements.md`
 
 `$SRC/references/templates/requirements.md` 内部**无任何跨 skill 路径**（只引用"同目录 design.md / review.md"，是通用相对措辞），可原样拷贝。
 
 - [ ] **Step 1: 跑会失败的验收门（确认目标尚不存在）**
 
-Run: `ls skills/recon-dev-standalone/references/templates/requirements.md 2>&1`
+Run: `ls skills/recon-driven-dev-inline/references/templates/requirements.md 2>&1`
 Expected: `No such file or directory`
 
 - [ ] **Step 2: 建目录并拷贝**
 
 ```bash
-mkdir -p skills/recon-dev-standalone/references/templates
-cp skills/recon-driven-development/references/templates/requirements.md \
-   skills/recon-dev-standalone/references/templates/requirements.md
+mkdir -p skills/recon-driven-dev-inline/references/templates
+cp skills/recon-driven-dev/references/templates/requirements.md \
+   skills/recon-driven-dev-inline/references/templates/requirements.md
 ```
 
 - [ ] **Step 3: 验收门——文件在、无外部/源 skill 引用**
 
 Run:
 ```bash
-ls skills/recon-dev-standalone/references/templates/requirements.md && \
-grep -rniE 'recon-driven-development|superpowers|feature-dev' \
-  skills/recon-dev-standalone/references/templates/requirements.md; echo "exit=$?"
+ls skills/recon-driven-dev-inline/references/templates/requirements.md && \
+grep -rniE 'recon-driven-dev|superpowers|feature-dev' \
+  skills/recon-driven-dev-inline/references/templates/requirements.md; echo "exit=$?"
 ```
 Expected: 文件路径打印出来；grep **无任何输出**（`exit=1` 表示 0 命中）。
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add skills/recon-dev-standalone/references/templates/requirements.md
-git commit -m "recon-dev-standalone: requirements 模板（干净拷贝）"
+git add skills/recon-driven-dev-inline/references/templates/requirements.md
+git commit -m "recon-driven-dev-inline: requirements 模板（干净拷贝）"
 ```
 
 ---
@@ -77,47 +77,47 @@ git commit -m "recon-dev-standalone: requirements 模板（干净拷贝）"
 ### Task 2: 拷贝 + 改写 review-agent.md（③ 判据，隐藏路径依赖 #1）
 
 **Files:**
-- Create: `skills/recon-dev-standalone/references/review-agent.md`
+- Create: `skills/recon-driven-dev-inline/references/review-agent.md`
 
 `$SRC/references/review-agent.md` 第 18 行含硬编码绝对路径**指回源 skill**：
-`~/.claude/skills/recon-driven-development/references/templates/review.md`
+`~/.claude/skills/recon-driven-dev/references/templates/review.md`
 ——必须改写为 fork 自身，否则运行时静默读源 skill 的文件。
 
 - [ ] **Step 1: 跑会失败的验收门**
 
-Run: `ls skills/recon-dev-standalone/references/review-agent.md 2>&1`
+Run: `ls skills/recon-driven-dev-inline/references/review-agent.md 2>&1`
 Expected: `No such file or directory`
 
 - [ ] **Step 2: 拷贝**
 
 ```bash
-cp skills/recon-driven-development/references/review-agent.md \
-   skills/recon-dev-standalone/references/review-agent.md
+cp skills/recon-driven-dev/references/review-agent.md \
+   skills/recon-driven-dev-inline/references/review-agent.md
 ```
 
 - [ ] **Step 3: 改写硬编码模板路径**
 
-在 `skills/recon-dev-standalone/references/review-agent.md` 中精确替换：
+在 `skills/recon-driven-dev-inline/references/review-agent.md` 中精确替换：
 
 old:
 ```
-- 写 `review.md`，落三份输入文档的同目录（模板：`~/.claude/skills/recon-driven-development/references/templates/review.md`；四块判据结论 + 逐条发现 + 三档总体结论 + 修订清单）。
+- 写 `review.md`，落三份输入文档的同目录（模板：`~/.claude/skills/recon-driven-dev/references/templates/review.md`；四块判据结论 + 逐条发现 + 三档总体结论 + 修订清单）。
 ```
 new:
 ```
-- 写 `review.md`，落三份输入文档的同目录（模板：`~/.claude/skills/recon-dev-standalone/references/templates/review.md`；四块判据结论 + 逐条发现 + 三档总体结论 + 修订清单）。
+- 写 `review.md`，落三份输入文档的同目录（模板：`~/.claude/skills/recon-driven-dev-inline/references/templates/review.md`；四块判据结论 + 逐条发现 + 三档总体结论 + 修订清单）。
 ```
 
 - [ ] **Step 4: 验收门——本文件 0 处指回源 skill**
 
-Run: `grep -n 'recon-driven-development' skills/recon-dev-standalone/references/review-agent.md; echo "exit=$?"`
+Run: `grep -n 'recon-driven-dev' skills/recon-driven-dev-inline/references/review-agent.md; echo "exit=$?"`
 Expected: 无输出，`exit=1`（0 命中）。
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add skills/recon-dev-standalone/references/review-agent.md
-git commit -m "recon-dev-standalone: review-agent.md（拷贝+路径改写）"
+git add skills/recon-driven-dev-inline/references/review-agent.md
+git commit -m "recon-driven-dev-inline: review-agent.md（拷贝+路径改写）"
 ```
 
 ---
@@ -125,21 +125,21 @@ git commit -m "recon-dev-standalone: review-agent.md（拷贝+路径改写）"
 ### Task 3: 拷贝 + 改写 review.md 模板（隐藏路径依赖 #2）
 
 **Files:**
-- Create: `skills/recon-dev-standalone/references/templates/review.md`
+- Create: `skills/recon-driven-dev-inline/references/templates/review.md`
 
 `$SRC/references/templates/review.md` 第 4 行含硬编码绝对路径指回源 skill：
-`~/.claude/skills/recon-driven-development/references/review-agent.md`。
+`~/.claude/skills/recon-driven-dev/references/review-agent.md`。
 
 - [ ] **Step 1: 跑会失败的验收门**
 
-Run: `ls skills/recon-dev-standalone/references/templates/review.md 2>&1`
+Run: `ls skills/recon-driven-dev-inline/references/templates/review.md 2>&1`
 Expected: `No such file or directory`
 
 - [ ] **Step 2: 拷贝**
 
 ```bash
-cp skills/recon-driven-development/references/templates/review.md \
-   skills/recon-dev-standalone/references/templates/review.md
+cp skills/recon-driven-dev/references/templates/review.md \
+   skills/recon-driven-dev-inline/references/templates/review.md
 ```
 
 - [ ] **Step 3: 改写硬编码判据指针**
@@ -148,23 +148,23 @@ cp skills/recon-driven-development/references/templates/review.md \
 
 old:
 ```
-> 判据与结论档位见 `~/.claude/skills/recon-driven-development/references/review-agent.md`，本表只填结论与发现。
+> 判据与结论档位见 `~/.claude/skills/recon-driven-dev/references/review-agent.md`，本表只填结论与发现。
 ```
 new:
 ```
-> 判据与结论档位见 `~/.claude/skills/recon-dev-standalone/references/review-agent.md`，本表只填结论与发现。
+> 判据与结论档位见 `~/.claude/skills/recon-driven-dev-inline/references/review-agent.md`，本表只填结论与发现。
 ```
 
 - [ ] **Step 4: 验收门**
 
-Run: `grep -n 'recon-driven-development' skills/recon-dev-standalone/references/templates/review.md; echo "exit=$?"`
+Run: `grep -n 'recon-driven-dev' skills/recon-driven-dev-inline/references/templates/review.md; echo "exit=$?"`
 Expected: 无输出，`exit=1`。
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add skills/recon-dev-standalone/references/templates/review.md
-git commit -m "recon-dev-standalone: review.md 模板（拷贝+路径改写）"
+git add skills/recon-driven-dev-inline/references/templates/review.md
+git commit -m "recon-driven-dev-inline: review.md 模板（拷贝+路径改写）"
 ```
 
 ---
@@ -172,31 +172,31 @@ git commit -m "recon-dev-standalone: review.md 模板（拷贝+路径改写）"
 ### Task 4: SKILL.md（fork：①③ 小改、②④ 重写、护栏反转、命名空间）
 
 **Files:**
-- Create: `skills/recon-dev-standalone/SKILL.md`（先整文件拷贝自源，再施加下列精确编辑）
+- Create: `skills/recon-driven-dev-inline/SKILL.md`（先整文件拷贝自源，再施加下列精确编辑）
 
 这是核心任务。先拷贝整份原 SKILL.md，再按 **E1–E10** 逐条编辑。每条给 old→new；②④ 给完整新正文。
 
 - [ ] **Step 1: 跑会失败的验收门**
 
-Run: `ls skills/recon-dev-standalone/SKILL.md 2>&1`
+Run: `ls skills/recon-driven-dev-inline/SKILL.md 2>&1`
 Expected: `No such file or directory`
 
 - [ ] **Step 2: 整文件拷贝**
 
 ```bash
-cp skills/recon-driven-development/SKILL.md skills/recon-dev-standalone/SKILL.md
+cp skills/recon-driven-dev/SKILL.md skills/recon-driven-dev-inline/SKILL.md
 ```
 
 - [ ] **Step 3 (E1): frontmatter 改名 + 描述**
 
 old:
 ```
-name: recon-driven-development
+name: recon-driven-dev
 description: 开发任务的轻量四阶段流程(定向分析→需求设计→评审→落地) **本 Skill 不自动触发，由用户显式调用。**
 ```
 new:
 ```
-name: recon-dev-standalone
+name: recon-driven-dev-inline
 description: 开发任务的轻量四阶段流程(定向分析→需求设计→评审→落地) · 自包含零外部依赖。**本 Skill 不自动触发，由用户显式调用。**
 ```
 
@@ -204,13 +204,13 @@ description: 开发任务的轻量四阶段流程(定向分析→需求设计→
 
 old:
 ```
-# recon-driven-development（侦察驱动开发 · 轻量四阶段工作流）
+# recon-driven-dev（侦察驱动开发 · 轻量四阶段工作流）
 
 一条**即时开发轨**:开头做一份只针对本次改动的"摸底",喂给后面的需求、设计、评审、实现。
 ```
 new:
 ```
-# recon-dev-standalone（侦察驱动开发 · 轻量自包含四阶段工作流）
+# recon-driven-dev-inline（侦察驱动开发 · 轻量自包含四阶段工作流）
 
 一条**即时开发轨**:开头做一份只针对本次改动的"摸底",喂给后面的需求、设计、评审、实现。**自包含、零外部 Skill 依赖**——②④ 的能力内联在本 Skill 内,丢到任何环境都能独立跑。
 ```
@@ -295,7 +295,7 @@ new（整段）:
 - **范围分解触发器**:若请求横跨多个独立子系统,**先分解**(列独立块、关系、build 顺序),别花澄清问题去细化一个该拆的项目;分解后逐个子项目走本轨。
 
 **两份产物**:
-- `requirements.md` —— 业务视角:要做成什么、约束、验收标准。形态见 `~/.claude/skills/recon-dev-standalone/references/templates/requirements.md`。
+- `requirements.md` —— 业务视角:要做成什么、约束、验收标准。形态见 `~/.claude/skills/recon-driven-dev-inline/references/templates/requirements.md`。
 - `design.md` —— **本 Skill 自己产出设计内容**(没有外部技能代劳):
   - **设计本体**:架构 / 数据流 / 关键决策 + 取舍 / 风险——在此对话谈出,按复杂度伸缩(简单的几句、有讲究的多写),扎根现有代码模式,只改服务本次目标的代码、不顺手大重构。
   - **① 锚定层**:圈定要改的契约子集 + 自行补探到 ① 没列的新发现(③ 的"定向报告验收"要拿这层跟 ① 的实答逐条对)。
@@ -326,7 +326,7 @@ new（整段）:
 5. **per-task 两阶段评审(按序)**:每个任务实现 + commit 后——**① 先 spec 符合性评审**(不缺、**不过度造**额外没要的东西)**② 再代码质量评审**;有发现 → 改 → **复评**,任一阶段未清不进下一任务。**这道评审区别于 ② 自评、也区别于 ③**(③ 评设计,这里评每个已实现任务对设计的符合度)。
 6. **continuous execution**:开跑后一路做到底,**别在任务间反复问"要继续吗"**;只在 blocker(缺依赖 / 反复验证失败 / 指令不清 / 计划有洞)时**停下**——计划错**上报用户**、别静默绕过。
 7. **FINISH 闭合菜单**:全部任务做完后——**先复验全测试绿 → 检测工作区 / 分支态 → 给固定闭合菜单**(本地合并 / push+PR / 保留原样 / 丢弃;若 detached-HEAD / 外部托管则**去掉"本地合并"**)**→ 精确执行所选一项**。**绝不在收尾抛开放式"接下来干嘛"**。
-8. **归档**(链外):分支收口后把本次目录移进 `docs/recon-dev-standalone/_archived/`(目录名已带日期、直接移;产物文档是否 commit 按所在仓惯例一并定)。**⏸ 收尾前确认**。
+8. **归档**(链外):分支收口后把本次目录移进 `docs/recon-driven-dev-inline/_archived/`(目录名已带日期、直接移;产物文档是否 commit 按所在仓惯例一并定)。**⏸ 收尾前确认**。
 
 **非显性陷阱(模型不会主动想到,保留)**:
 - **worktree 检测假阳性**:`GIT_DIR != GIT_COMMON` 在 **submodule** 里也成立 → 下结论前用 `git rev-parse --show-superproject-working-tree` 排除(返回路径 = 在 submodule、按普通仓处理)。
@@ -367,9 +367,9 @@ new:
 
 ```bash
 # 产物目录命名空间（含 _archived 子串一并改到）
-perl -0pi -e 's{docs/recon-dev/}{docs/recon-dev-standalone/}g' skills/recon-dev-standalone/SKILL.md
+perl -0pi -e 's{docs/recon-dev/}{docs/recon-driven-dev-inline/}g' skills/recon-driven-dev-inline/SKILL.md
 # 兜底：SKILL.md 内任何残留的源 skill 名（如还有相对/绝对引用）
-perl -0pi -e 's{recon-driven-development}{recon-dev-standalone}g' skills/recon-dev-standalone/SKILL.md
+perl -0pi -e 's{recon-driven-dev}{recon-driven-dev-inline}g' skills/recon-driven-dev-inline/SKILL.md
 ```
 注：原 ③ 节对 `references/review-agent.md` 是**相对引用**，无需改；上面第二条 perl 是兜底，确保 frontmatter 之外无残留。
 
@@ -377,20 +377,20 @@ perl -0pi -e 's{recon-driven-development}{recon-dev-standalone}g' skills/recon-d
 
 Run:
 ```bash
-echo "--- 源 skill 名残留（期望 0）---"; grep -n 'recon-driven-development' skills/recon-dev-standalone/SKILL.md; echo "exit=$?"
-echo "--- 委托措辞残留（期望 0）---"; grep -nE '委托|全委托|superpowers|feature-dev' skills/recon-dev-standalone/SKILL.md; echo "exit=$?"
-echo "--- 旧目录残留（期望 0）---"; grep -n 'docs/recon-dev/' skills/recon-dev-standalone/SKILL.md; echo "exit=$?"
-echo "--- ② 硬规则在（期望 命中）---"; grep -nE 'HARD GATE|太简单|范围分解触发器' skills/recon-dev-standalone/SKILL.md
-echo "--- ④ gates 在（期望 命中）---"; grep -nE 'clean-baseline|ISOLATE gate|两阶段评审|FINISH 闭合菜单' skills/recon-dev-standalone/SKILL.md
-echo "--- 事实订正在（期望 命中）---"; grep -n '事实订正' skills/recon-dev-standalone/SKILL.md
+echo "--- 源 skill 名残留（期望 0）---"; grep -n 'recon-driven-dev' skills/recon-driven-dev-inline/SKILL.md; echo "exit=$?"
+echo "--- 委托措辞残留（期望 0）---"; grep -nE '委托|全委托|superpowers|feature-dev' skills/recon-driven-dev-inline/SKILL.md; echo "exit=$?"
+echo "--- 旧目录残留（期望 0）---"; grep -n 'docs/recon-dev/' skills/recon-driven-dev-inline/SKILL.md; echo "exit=$?"
+echo "--- ② 硬规则在（期望 命中）---"; grep -nE 'HARD GATE|太简单|范围分解触发器' skills/recon-driven-dev-inline/SKILL.md
+echo "--- ④ gates 在（期望 命中）---"; grep -nE 'clean-baseline|ISOLATE gate|两阶段评审|FINISH 闭合菜单' skills/recon-driven-dev-inline/SKILL.md
+echo "--- 事实订正在（期望 命中）---"; grep -n '事实订正' skills/recon-driven-dev-inline/SKILL.md
 ```
 Expected: 前三个 grep **无输出**（`exit=1`）；后三个 grep **有命中**。
 
 - [ ] **Step 14: Commit**
 
 ```bash
-git add skills/recon-dev-standalone/SKILL.md
-git commit -m "recon-dev-standalone: SKILL.md（①③ 小改、②④ 内联重写、护栏反转、命名空间）"
+git add skills/recon-driven-dev-inline/SKILL.md
+git commit -m "recon-driven-dev-inline: SKILL.md（①③ 小改、②④ 内联重写、护栏反转、命名空间）"
 ```
 
 ---
@@ -398,21 +398,21 @@ git commit -m "recon-dev-standalone: SKILL.md（①③ 小改、②④ 内联重
 ### Task 5: README.md（自己的总览/导航）
 
 **Files:**
-- Create: `skills/recon-dev-standalone/README.md`
+- Create: `skills/recon-driven-dev-inline/README.md`
 
 不拷贝原版 README（它含 superpowers 硬前置说明、版本表、谱系措辞，且引用原名）。新写一份精简的。
 
 - [ ] **Step 1: 跑会失败的验收门**
 
-Run: `ls skills/recon-dev-standalone/README.md 2>&1`
+Run: `ls skills/recon-driven-dev-inline/README.md 2>&1`
 Expected: `No such file or directory`
 
 - [ ] **Step 2: 写 README.md（完整内容）**
 
-写入 `skills/recon-dev-standalone/README.md`：
+写入 `skills/recon-driven-dev-inline/README.md`：
 
 ```markdown
-# recon-dev-standalone（侦察驱动开发 · 轻量自包含四阶段工作流）
+# recon-driven-dev-inline（侦察驱动开发 · 轻量自包含四阶段工作流）
 
 开发任务的**轻量四阶段流程**：定向分析 → 需求设计 → 评审 → 落地。开头做一份只针对本次改动的"摸底"，喂给后面的需求、设计、评审、实现。
 
@@ -426,7 +426,7 @@ Expected: `No such file or directory`
 
 **自包含 · 零外部 Skill 依赖**：②（需求设计）和 ④（落地）的能力都**内联在本 Skill 内**——不依赖 superpowers / feature-dev 等外部插件，丢到任何环境都能独立跑。①③④ 用到的 sub-agent 派发都是 harness 内置能力（`Task`/`Explore`/原生 worktree 工具），且一律配主上下文降级。
 
-四阶段，每阶段结束**暂停**等用户确认。产物落本次改动目录 `docs/recon-dev-standalone/<YYYY-MM-DD>-<change-name>/`，收尾时连目录一起归档进 `docs/recon-dev-standalone/_archived/`。
+四阶段，每阶段结束**暂停**等用户确认。产物落本次改动目录 `docs/recon-driven-dev-inline/<YYYY-MM-DD>-<change-name>/`，收尾时连目录一起归档进 `docs/recon-driven-dev-inline/_archived/`。
 
 ```
 ① 定向分析   一句话粗需求 → 钻落点 + 消费面(全集) → directed-report.md
@@ -445,7 +445,7 @@ Expected: `No such file or directory`
 ## 目录结构
 
 ```
-recon-dev-standalone/
+recon-driven-dev-inline/
 ├── SKILL.md                 # 流程正文（权威规则）
 ├── README.md                # 本文件 · 总览与导航
 ├── CHANGELOG.md             # 变更日志
@@ -458,25 +458,25 @@ recon-dev-standalone/
 
 ---
 
-## 与 recon-driven-development 的关系
+## 与 recon-driven-dev 的关系
 
-本 Skill 是 `recon-driven-development` 的**自包含 fork**：去掉"编排外部 Skill"的角色，把 ②④ 委托 superpowers 的点改写成内联契约，做到零外部依赖、可移植。①③ 的判据与四样报告契约沿用原版。这是**冻结快照**，不追踪上游演进；详见 [CHANGELOG.md](CHANGELOG.md)。
+本 Skill 是 `recon-driven-dev` 的**自包含 fork**：去掉"编排外部 Skill"的角色，把 ②④ 委托 superpowers 的点改写成内联契约，做到零外部依赖、可移植。①③ 的判据与四样报告契约沿用原版。这是**冻结快照**，不追踪上游演进；详见 [CHANGELOG.md](CHANGELOG.md)。
 ```
 
 - [ ] **Step 3: 验收门**
 
 Run:
 ```bash
-ls skills/recon-dev-standalone/README.md && \
-grep -nE '委托 (superpowers|brainstorming)|全委托|硬前置' skills/recon-dev-standalone/README.md; echo "委托措辞 exit=$?"
+ls skills/recon-driven-dev-inline/README.md && \
+grep -nE '委托 (superpowers|brainstorming)|全委托|硬前置' skills/recon-driven-dev-inline/README.md; echo "委托措辞 exit=$?"
 ```
-Expected: 文件在；委托措辞 grep 无输出（`exit=1`）。（README "与…的关系"一节提到 `recon-driven-development` 与 `superpowers` 属 provenance 叙述，允许出现——见 Task 7 的精确门。）
+Expected: 文件在；委托措辞 grep 无输出（`exit=1`）。（README "与…的关系"一节提到 `recon-driven-dev` 与 `superpowers` 属 provenance 叙述，允许出现——见 Task 7 的精确门。）
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add skills/recon-dev-standalone/README.md
-git commit -m "recon-dev-standalone: README"
+git add skills/recon-driven-dev-inline/README.md
+git commit -m "recon-driven-dev-inline: README"
 ```
 
 ---
@@ -484,16 +484,16 @@ git commit -m "recon-dev-standalone: README"
 ### Task 6: CHANGELOG.md（v0.1.0 · 诚实定性 + 冻结快照）
 
 **Files:**
-- Create: `skills/recon-dev-standalone/CHANGELOG.md`
+- Create: `skills/recon-driven-dev-inline/CHANGELOG.md`
 
 - [ ] **Step 1: 跑会失败的验收门**
 
-Run: `ls skills/recon-dev-standalone/CHANGELOG.md 2>&1`
+Run: `ls skills/recon-driven-dev-inline/CHANGELOG.md 2>&1`
 Expected: `No such file or directory`
 
 - [ ] **Step 2: 写 CHANGELOG.md（完整内容）**
 
-写入 `skills/recon-dev-standalone/CHANGELOG.md`：
+写入 `skills/recon-driven-dev-inline/CHANGELOG.md`：
 
 ```markdown
 # CHANGELOG
@@ -502,31 +502,31 @@ Expected: `No such file or directory`
 
 ## v0.1.0 — 初版（自包含 fork）
 
-**主题**：从 `recon-driven-development` fork 出零外部依赖的自包含版。
+**主题**：从 `recon-driven-dev` fork 出零外部依赖的自包含版。
 
 **what**：
 - 去掉"编排外部 Skill"的角色。② 把"委托 `superpowers:brainstorming`"改写成**内联对话契约**（一次一问 → 2-3 方案 → 分节呈现；HARD GATE / "太简单"override / 范围分解触发器；`design.md` 内容由本 Skill 自产）。④ 把"全委托 superpowers 实现链"改写成**内联 gates + 非显性陷阱块**（拆计划⏸ → clean-baseline → ISOLATE（优先原生 worktree 工具）→ TDD 铁律 → per-task 两阶段评审 → continuous execution → FINISH 闭合菜单 → 归档）。
 - ① 去掉 `feature-dev:code-explorer` 软依赖，收成"内置 Explore/Task 派发 → 主上下文 grep"三级降级。③ 沿用评审 sub-agent + 判据单一权威（`review-agent.md`），并**改写两条原指回源 skill 的硬编码路径**为 fork 自身。
-- 产物目录改用自有命名空间 `docs/recon-dev-standalone/`，与原版零撞车。
+- 产物目录改用自有命名空间 `docs/recon-driven-dev-inline/`，与原版零撞车。
 - 护栏：反转"design.md 骨架"与"④ 实现链"两条（原版理由建于 superpowers 存在，fork 已无外部链可委托）。
 
 **why**：可移植性——要在没装 superpowers 的环境里也能跑完整条轨。
 
 **诚实定性**：本版相对原版是**工程收益（可移植 / 零依赖 / 自包含），非能力跃升**。流程编排件、触发稳定，不跑定量 benchmark。
 
-**冻结快照**：①③ 与模板是从 `recon-driven-development`（v1.5.x 期）复制而来——这违背"超集应共用一份文件"的去重原则，是**可移植性 vs 单一权威源的有意取舍**（零依赖就无法与宿主共享一份文件）。本 fork 定位为**冻结快照，不自动追踪上游**；上游若有重要演进，按需手动回灌。
+**冻结快照**：①③ 与模板是从 `recon-driven-dev`（v1.5.x 期）复制而来——这违背"超集应共用一份文件"的去重原则，是**可移植性 vs 单一权威源的有意取舍**（零依赖就无法与宿主共享一份文件）。本 fork 定位为**冻结快照，不自动追踪上游**；上游若有重要演进，按需手动回灌。
 ```
 
 - [ ] **Step 3: 验收门——诚实定性与冻结快照都在**
 
-Run: `grep -nE '工程收益|冻结快照|可移植' skills/recon-dev-standalone/CHANGELOG.md`
+Run: `grep -nE '工程收益|冻结快照|可移植' skills/recon-driven-dev-inline/CHANGELOG.md`
 Expected: 三个词都有命中。
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add skills/recon-dev-standalone/CHANGELOG.md
-git commit -m "recon-dev-standalone: CHANGELOG v0.1.0"
+git add skills/recon-driven-dev-inline/CHANGELOG.md
+git commit -m "recon-driven-dev-inline: CHANGELOG v0.1.0"
 ```
 
 ---
@@ -538,18 +538,18 @@ git commit -m "recon-dev-standalone: CHANGELOG v0.1.0"
 
 - [ ] **Step 1: 隐藏依赖防线——全树 0 处指回源 skill**
 
-Run: `grep -rn 'recon-driven-development' skills/recon-dev-standalone/ ; echo "exit=$?"`
-Expected: **无输出，`exit=1`**。（README "与…的关系"一节会提到原名——若此处仅 README 命中，需判定：provenance 叙述允许保留原名。若希望 0 命中，把 README 那句的 `recon-driven-development` 用反引号包成纯名词引用即可；本计划允许 README 的 provenance 句保留原名，故此门只对 **SKILL.md / references/** 必须 0 命中。）
+Run: `grep -rn 'recon-driven-dev' skills/recon-driven-dev-inline/ ; echo "exit=$?"`
+Expected: **无输出，`exit=1`**。（README "与…的关系"一节会提到原名——若此处仅 README 命中，需判定：provenance 叙述允许保留原名。若希望 0 命中，把 README 那句的 `recon-driven-dev` 用反引号包成纯名词引用即可；本计划允许 README 的 provenance 句保留原名，故此门只对 **SKILL.md / references/** 必须 0 命中。）
 
 精确版（必须 0 命中的范围）:
 ```bash
-grep -rn 'recon-driven-development' skills/recon-dev-standalone/SKILL.md skills/recon-dev-standalone/references/; echo "exit=$?"
+grep -rn 'recon-driven-dev' skills/recon-driven-dev-inline/SKILL.md skills/recon-driven-dev-inline/references/; echo "exit=$?"
 ```
 Expected: 无输出，`exit=1`。
 
 - [ ] **Step 2: 外部依赖措辞——仅允许出现在 CHANGELOG/README 的 provenance 叙述**
 
-Run: `grep -rnE 'superpowers|feature-dev' skills/recon-dev-standalone/SKILL.md skills/recon-dev-standalone/references/; echo "exit=$?"`
+Run: `grep -rnE 'superpowers|feature-dev' skills/recon-driven-dev-inline/SKILL.md skills/recon-driven-dev-inline/references/; echo "exit=$?"`
 Expected: 无输出，`exit=1`（SKILL.md 与 references 正文 0 命中）。
 
 - [ ] **Step 3: 文件集齐全**
@@ -557,24 +557,24 @@ Expected: 无输出，`exit=1`（SKILL.md 与 references 正文 0 命中）。
 Run:
 ```bash
 for f in SKILL.md README.md CHANGELOG.md references/review-agent.md references/templates/requirements.md references/templates/review.md; do
-  test -f "skills/recon-dev-standalone/$f" && echo "OK $f" || echo "MISSING $f"
+  test -f "skills/recon-driven-dev-inline/$f" && echo "OK $f" || echo "MISSING $f"
 done
 ```
 Expected: 6 行全部 `OK`。
 
 - [ ] **Step 4: 两条路径已指向 fork 自身**
 
-Run: `grep -rn 'recon-dev-standalone/references' skills/recon-dev-standalone/references/`
-Expected: `review-agent.md` 命中 templates/review.md 路径、`templates/review.md` 命中 review-agent.md 路径，均含 `recon-dev-standalone`。
+Run: `grep -rn 'recon-driven-dev-inline/references' skills/recon-driven-dev-inline/references/`
+Expected: `review-agent.md` 命中 templates/review.md 路径、`templates/review.md` 命中 review-agent.md 路径，均含 `recon-driven-dev-inline`。
 
 - [ ] **Step 5: 关键契约存在性（②④ + 事实订正）**
 
 Run:
 ```bash
-grep -qE 'HARD GATE' skills/recon-dev-standalone/SKILL.md && echo "② HARD GATE OK"
-grep -qE 'clean-baseline|ISOLATE gate|两阶段评审|FINISH 闭合菜单' skills/recon-dev-standalone/SKILL.md && echo "④ gates OK"
-grep -qE 'show-superproject-working-tree|先合并|provenance' skills/recon-dev-standalone/SKILL.md && echo "④ traps OK"
-grep -q '事实订正' skills/recon-dev-standalone/SKILL.md && echo "事实订正 OK"
+grep -qE 'HARD GATE' skills/recon-driven-dev-inline/SKILL.md && echo "② HARD GATE OK"
+grep -qE 'clean-baseline|ISOLATE gate|两阶段评审|FINISH 闭合菜单' skills/recon-driven-dev-inline/SKILL.md && echo "④ gates OK"
+grep -qE 'show-superproject-working-tree|先合并|provenance' skills/recon-driven-dev-inline/SKILL.md && echo "④ traps OK"
+grep -q '事实订正' skills/recon-driven-dev-inline/SKILL.md && echo "事实订正 OK"
 ```
 Expected: 四行 OK 全打印。
 
@@ -583,7 +583,7 @@ Expected: 四行 OK 全打印。
 ```bash
 git status --porcelain
 # 若前面校验触发了修复，统一提交：
-# git add -A skills/recon-dev-standalone/ && git commit -m "recon-dev-standalone: 验收门修订"
+# git add -A skills/recon-driven-dev-inline/ && git commit -m "recon-driven-dev-inline: 验收门修订"
 ```
 Expected: 干净（无未提交改动）或仅含本次修订的提交。
 
@@ -618,11 +618,11 @@ Expected: 干净（无未提交改动）或仅含本次修订的提交。
 **2. Placeholder scan:** 计划内无 TBD/TODO/"类似 Task N"/"加适当错误处理"。新材料（②④/README/CHANGELOG）均给完整正文；拷贝/编辑部分均给 old→new 精确串或源行范围 + cp 命令。✅
 
 **3. Type/名称一致性:**
-- 目录命名空间全程 `docs/recon-dev-standalone/`（E3 流程图、E7 ④ gate8 归档、E10 replace-all、README、Task 7）一致 ✅
-- 路径改写目标全程 `~/.claude/skills/recon-dev-standalone/...`（Task 2/3 + E6 requirements 模板引用）一致 ✅
+- 目录命名空间全程 `docs/recon-driven-dev-inline/`（E3 流程图、E7 ④ gate8 归档、E10 replace-all、README、Task 7）一致 ✅
+- 路径改写目标全程 `~/.claude/skills/recon-driven-dev-inline/...`（Task 2/3 + E6 requirements 模板引用）一致 ✅
 - gate 名（clean-baseline / ISOLATE / FINISH）在 E7、E9、Task 7 Step 5 用词一致 ✅
-- frontmatter `name: recon-dev-standalone`（E1）与全文一致 ✅
+- frontmatter `name: recon-driven-dev-inline`（E1）与全文一致 ✅
 
-发现一处需注意（已在计划内说明、非缺陷）：Task 7 Step 1 的全树 grep 会命中 README 的 provenance 句中的 `recon-driven-development`；计划已明确**必须 0 命中的范围限定为 SKILL.md + references/**，README 的 provenance 引用允许保留原名。口径自洽。
+发现一处需注意（已在计划内说明、非缺陷）：Task 7 Step 1 的全树 grep 会命中 README 的 provenance 句中的 `recon-driven-dev`；计划已明确**必须 0 命中的范围限定为 SKILL.md + references/**，README 的 provenance 引用允许保留原名。口径自洽。
 ```
 

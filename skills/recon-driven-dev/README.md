@@ -1,4 +1,4 @@
-# recon-driven-development（侦察驱动开发 · 轻量四阶段工作流）
+# recon-driven-dev（侦察驱动开发 · 轻量四阶段工作流）
 
 开发任务的**轻量四阶段流程**：定向分析 → 需求设计 → 评审 → 落地。开头做一份只针对本次改动的"摸底"，喂给后面的需求、设计、评审、实现。
 
@@ -31,7 +31,7 @@
 ## 目录结构
 
 ```
-recon-driven-development/
+recon-driven-dev/
 ├── SKILL.md                      # 流程正文（权威规则，只写当下规则）
 ├── README.md                     # 本文件 · 总览与导航
 ├── CHANGELOG.md                  # 变更日志（版本演进 + 改动的 why）
@@ -72,7 +72,7 @@ recon-driven-development/
 
 - **走 `/skill-creator`**，动手前先读 `SKILL-DESIGN-PHILOSOPHY.md` 对齐，每处改动拿它的判别尺自检。
 - **大改先确认、小改直接做**：结构性大改（动骨架 / 流程 / 产物形态）先呈现方案、能用真实数据就验证再动手；措辞/补漏类小改可直接做。
-- **改前必备份**：把当前文件整套拷进同级目录 `~/.claude/skills/recon-driven-development-workspace/skill-snapshot-pre-v<新版本号>/`。
+- **改前必备份**：把当前文件整套拷进同级目录 `~/.claude/skills/recon-driven-dev-workspace/skill-snapshot-pre-v<新版本号>/`。
 - **验证三条**：① 改动→消费者映射，只重验受影响阶段（如改 ③ 维度名必须同步改 `references/templates/review.md`，否则静默失配）；② 落地前多 agent 对抗评审（哲学薄度 / 一致性 / 盲区 / 可执行性四维度）；③ 诚实定性"能力 vs 工程收益"。
 - **守住"薄"**：别给定向分析加规则表、别复述子技能本职、别读写长期文档或发持久编号。
 - **版本号（semver）**：MAJOR = 稳定里程碑 / 不兼容大改；MINOR = 行为改动 / 新能力 / 产物形态变化；PATCH = 纯修订 / 可执行性补漏；纯文档整理类不改行为的可**不发版**（备份照做）。

@@ -1,15 +1,15 @@
 ---
-name: recon-dev-standalone
+name: recon-driven-dev-inline
 description: 开发任务的轻量四阶段流程(定向分析→需求设计→评审→落地) · 自包含零外部依赖。**本 Skill 不自动触发，由用户显式调用。**
 ---
 
-# recon-dev-standalone（侦察驱动开发 · 轻量自包含四阶段工作流）
+# recon-driven-dev-inline（侦察驱动开发 · 轻量自包含四阶段工作流）
 
 一条**即时开发轨**:开头做一份只针对本次改动的"摸底",喂给后面的需求、设计、评审、实现。**自包含、零外部 Skill 依赖**——②④ 的能力内联在本 Skill 内,丢到任何环境都能独立跑。
 
 ## 核心流程
 
-四阶段,每阶段结束**暂停**等用户确认。产物都落本次改动目录 `docs/recon-dev-standalone/<YYYY-MM-DD>-<change-name>/`,收尾时连目录一起归档。
+四阶段,每阶段结束**暂停**等用户确认。产物都落本次改动目录 `docs/recon-driven-dev-inline/<YYYY-MM-DD>-<change-name>/`,收尾时连目录一起归档。
 
 ```
 ① 定向分析   一句话粗需求 → 钻落点 + 消费面(全集) → directed-report.md
@@ -25,7 +25,7 @@ description: 开发任务的轻量四阶段流程(定向分析→需求设计→
 
 **自包含**:本 Skill **不依赖任何外部插件、无硬前置**。①③④ 用到的 sub-agent 派发都是 harness 内置能力(`Task`/`Explore`/原生 worktree 工具),且一律配主上下文降级——环境没有就降级、不阻断开轨。
 
-**起步**:AI 直接为本次改动定个 kebab-case 短名(无需问用户),冠以当天日期,创建 `docs/recon-dev-standalone/<YYYY-MM-DD>-<change-name>/`;**该目录已存在(活跃或归档)就换名 / 加后缀,别覆盖前一次的产物**。
+**起步**:AI 直接为本次改动定个 kebab-case 短名(无需问用户),冠以当天日期,创建 `docs/recon-driven-dev-inline/<YYYY-MM-DD>-<change-name>/`;**该目录已存在(活跃或归档)就换名 / 加后缀,别覆盖前一次的产物**。
 
 **每阶段暂停模板**:
 ```
@@ -142,7 +142,7 @@ description: 开发任务的轻量四阶段流程(定向分析→需求设计→
 5. **per-task 两阶段评审(按序)**:每个任务实现 + commit 后——**① 先 spec 符合性评审**(不缺、**不过度造**额外没要的东西)**② 再代码质量评审**;有发现 → 改 → **复评**,任一阶段未清不进下一任务。**这道评审区别于 ② 自评、也区别于 ③**(③ 评设计,这里评每个已实现任务对设计的符合度)。
 6. **continuous execution**:开跑后一路做到底,**别在任务间反复问"要继续吗"**;只在 blocker(缺依赖 / 反复验证失败 / 指令不清 / 计划有洞)时**停下**——计划错**上报用户**、别静默绕过。
 7. **FINISH 闭合菜单**:全部任务做完后——**先复验全测试绿 → 检测工作区 / 分支态 → 给固定闭合菜单**(本地合并 / push+PR / 保留原样 / 丢弃;若 detached-HEAD / 外部托管则**去掉"本地合并"**)**→ 精确执行所选一项**。**绝不在收尾抛开放式"接下来干嘛"**。
-8. **归档**(链外):分支收口后把本次目录移进 `docs/recon-dev-standalone/_archived/`(目录名已带日期、直接移;产物文档是否 commit 按所在仓惯例一并定)。**⏸ 收尾前确认**。
+8. **归档**(链外):分支收口后把本次目录移进 `docs/recon-driven-dev-inline/_archived/`(目录名已带日期、直接移;产物文档是否 commit 按所在仓惯例一并定)。**⏸ 收尾前确认**。
 
 **非显性陷阱(模型不会主动想到,保留)**:
 - **worktree 检测假阳性**:`GIT_DIR != GIT_COMMON` 在 **submodule** 里也成立 → 下结论前用 `git rev-parse --show-superproject-working-tree` 排除(返回路径 = 在 submodule、按普通仓处理)。

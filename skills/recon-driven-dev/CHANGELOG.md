@@ -1,4 +1,4 @@
-# recon-driven-development 变更日志
+# recon-driven-dev 变更日志
 
 > 记录版本演进与改动的 why；正文（SKILL.md）只写当下规则。
 > 常态（下面不再每版重述）：各版均走 skill-creator、对齐 SKILL-DESIGN-PHILOSOPHY.md、
@@ -7,7 +7,7 @@
 
 ## 改名 + 迁库（2026-06-15 · 非行为改动、不动版本号）
 
-原名 `code-dev-workflow-lite` → `recon-driven-development`。新名直接点出本轨灵魂——① 定向分析（现状侦察 / 摸底）先行、驱动其后需求/设计/评审/实现全程；并借 superpowers 家族的 `*-driven-development` 命名（对齐其 `test-driven-development` / `subagent-driven-development`），以同款"姓氏"标明本 Skill 系骑在 superpowers 上的一脉。源从 `~/.claude/skills/` 迁入 `~/Projects/AI/skill-forge/skills/`、并入 skill-forge 的 git 仓统一管理（旧仓 `.git` 未带过来）。**流程 / 产物形态 / 规则一字未改**，故按本仓「迁移类非行为改动可不发版」惯例不动版本号。
+原名 `code-dev-workflow-lite` → `recon-driven-dev`。新名直接点出本轨灵魂——① 定向分析（现状侦察 / 摸底）先行、驱动其后需求/设计/评审/实现全程；并借 superpowers 家族的 `*-driven-development` 命名（对齐其 `test-driven-development` / `subagent-driven-development`），以同款"姓氏"标明本 Skill 系骑在 superpowers 上的一脉。源从 `~/.claude/skills/` 迁入 `~/Projects/AI/skill-forge/skills/`、并入 skill-forge 的 git 仓统一管理（旧仓 `.git` 未带过来）。**流程 / 产物形态 / 规则一字未改**，故按本仓「迁移类非行为改动可不发版」惯例不动版本号。
 
 ## v1.5.1 — ②④ 派发处接缝收紧：override 显眼化 + 闸对齐子技能原生停点 + ④ 点名链重构（PATCH · 可执行性）
 

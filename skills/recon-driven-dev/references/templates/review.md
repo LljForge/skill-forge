@@ -1,7 +1,7 @@
 # 评审报告 — <change-name>
 
 > 综合评审 requirements.md + design.md，由 ③ 评审 sub-agent 产出。
-> 判据与结论档位见 `~/.claude/skills/recon-dev-standalone/references/review-agent.md`，本表只填结论与发现。
+> 判据与结论档位见 `~/.claude/skills/recon-driven-dev/references/review-agent.md`，本表只填结论与发现。
 
 ## 总体结论
 **[ 通过 / 有条件通过 / 不通过 ]**

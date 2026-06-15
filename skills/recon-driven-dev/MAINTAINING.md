@@ -1,7 +1,7 @@
-# recon-driven-development 版本迭代说明
+# recon-driven-dev 版本迭代说明
 
 > 改本 Skill **自己**（SKILL.md / 模板 / 本流程）时读这份；改业务代码不读——那是 lite 去编排的事，不是改 lite。
-> 本 Skill 已提升个人级（`~/.claude/skills/recon-driven-development/`），改的是这份、跨项目共用。
+> 本 Skill 已提升个人级（`~/.claude/skills/recon-driven-dev/`），改的是这份、跨项目共用。
 
 ## 1. 如何迭代
 
@@ -12,7 +12,7 @@
 
 ## 2. 如何备份（改前必做）
 
-- **固定备份目录**：`~/.claude/skills/recon-driven-development-workspace/`（与 skill 目录同级、不在 skill 内，免得被当成 skill 内容扫描）。
+- **固定备份目录**：`~/.claude/skills/recon-driven-dev-workspace/`（与 skill 目录同级、不在 skill 内，免得被当成 skill 内容扫描）。
 - **版本后缀**：改前把当前 `SKILL.md` / `CHANGELOG.md`（及本次要动的其它文件）整套拷进子目录 `skill-snapshot-pre-v<新版本号>/`。
 - **CHANGELOG 说明**：在 `CHANGELOG.md` 立版本条，只记 **what + why**（改了什么、为什么这么改）；过程流水账（行数核实、agent 计数、每版样板）不写——守不"写日记"。常态（走 skill-creator / 对齐哲学 / 存快照 / 不跑 benchmark）已在 CHANGELOG 开头说一次，每版不重述。
 
