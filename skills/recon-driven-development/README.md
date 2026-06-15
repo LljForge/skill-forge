@@ -10,7 +10,7 @@
 
 一条**即时开发轨**：不先摸清楚就拍方案，十有八九漏掉"原来别处也在用这张表"这类坑，等写代码才发现要返工。lite 用一份用完即弃的定向摸底兜住这类遗漏。
 
-四阶段，每阶段结束**暂停**等用户确认。产物落本次改动目录 `docs/code-dev/<YYYY-MM-DD>-<change-name>/`，收尾时连目录一起归档进 `docs/code-dev/_archived/`。
+四阶段，每阶段结束**暂停**等用户确认。产物落本次改动目录 `docs/recon-dev/<YYYY-MM-DD>-<change-name>/`，收尾时连目录一起归档进 `docs/recon-dev/_archived/`。
 
 **前置**：superpowers 插件是唯一硬前置（②④ 委托它）——会话里没装就不开轨、引导安装。
 
