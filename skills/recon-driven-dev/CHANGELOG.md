@@ -5,9 +5,9 @@
 > 改前在 workspace 存快照；本 Skill 是主观流程编排件、description/触发稳定，故不跑定量 benchmark。
 > 价值定性一律是工程收益（产物可依赖 / 单一权威 / 抗漂移），非能力跃升。
 
-## 改名 + 迁库（2026-06-15 · 非行为改动、不动版本号）
+## 改名 + 迁库（2026-06-15～16 · 非行为改动、不动版本号）
 
-原名 `code-dev-workflow-lite` → `recon-driven-dev`。新名直接点出本轨灵魂——① 定向分析（现状侦察 / 摸底）先行、驱动其后需求/设计/评审/实现全程；并借 superpowers 家族的 `*-driven-development` 命名（对齐其 `test-driven-development` / `subagent-driven-development`），以同款"姓氏"标明本 Skill 系骑在 superpowers 上的一脉。源从 `~/.claude/skills/` 迁入 `~/Projects/AI/skill-forge/skills/`、并入 skill-forge 的 git 仓统一管理（旧仓 `.git` 未带过来）。**流程 / 产物形态 / 规则一字未改**，故按本仓「迁移类非行为改动可不发版」惯例不动版本号。
+原名 `code-dev-workflow-lite` → `recon-driven-development` → 本次缩短为 `recon-driven-dev`（`-development` 缩写作 `-dev`，求短并与自包含变体 `recon-driven-dev-inline` 成对）。名字直接点出本轨灵魂——① 定向分析（现状侦察 / 摸底）先行、驱动其后需求/设计/评审/实现全程；谱系上沿用 superpowers 家族的 `*-driven-development` 命名（对齐其 `test-driven-development` / `subagent-driven-development`），以同款"姓氏"标明本 Skill 系骑在 superpowers 上的一脉。源从 `~/.claude/skills/` 迁入 `~/Projects/AI/skill-forge/skills/`、并入 skill-forge 的 git 仓统一管理（旧仓 `.git` 未带过来）。**流程 / 产物形态 / 规则一字未改**，故按本仓「迁移类非行为改动可不发版」惯例不动版本号。
 
 ## v1.5.1 — ②④ 派发处接缝收紧：override 显眼化 + 闸对齐子技能原生停点 + ④ 点名链重构（PATCH · 可执行性）
 

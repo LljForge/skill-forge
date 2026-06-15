@@ -71,7 +71,7 @@
 
 ### ① 定向分析 → `directed-report.md`（实质不变，已自包含）
 
-- **钻取派发 + 三级降级阶梯**（与 ③ 一致）：内置 `Explore`/`Task` sub-agent（首选，把检索噪声挡在主上下文外）→ 否则主 agent 自己 grep/追链（零依赖地板，尽量不把中间检索灌进主叙事）。**不把 Explore 说成"唯一选项"**（可移植）。
+- **钻取派发 + 两级降级阶梯**（与 ③ 一致）：内置 `Explore`/`Task` sub-agent（首选，把检索噪声挡在主上下文外）→ 否则主 agent 自己 grep/追链（零依赖地板，尽量不把中间检索灌进主叙事）。**不把 Explore 说成"唯一选项"**（可移植）。
 - **删除** `feature-dev:code-explorer` 分支。
 - **原样保留**：四样报告契约（落点现状 / 验收单逐载体实答 / 坑+why+锚点 / 召回地板）、软/硬事实分等 `[未核验]`、① 质量门（机会核验仍是主会话的活）。
 - 报告契约与质量门**与跑在哪一级无关**——派发只是执行方式，输出形态不变。
@@ -147,7 +147,7 @@ skills/recon-driven-dev-inline/
 1. **frontmatter + H1 改名** → `recon-driven-dev-inline`。
 2. **删除 line-26 硬前置门**（"没 superpowers 就不开轨"）——standalone 无外部前置。
 3. **流程图 line 17/21 改写**：去掉"委托 brainstorming"/"全委托 superpowers"措辞，改内联表述。
-4. **① line 48-51**：删 `code-explorer` 分支，收成"内置 sub-agent 派发 + 主上下文 grep 降级"三级阶梯。
+4. **① line 48-51**：删 `code-explorer` 分支，收成"内置 sub-agent 派发 + 主上下文 grep 降级"两级阶梯。
 5. **② line 91-103 重写**：内联 brainstorming-lite 流程契约 + HARD GATE + "太简单"override + 范围分解触发器 + `design.md` 内容契约 + ② 接棒纪律 + 轻量自评；委托边界 3 条降为普通 ② 产物规则。
 6. **③**：派发措辞保留；**改写 `review-agent.md` 与 `templates/review.md` 两条硬编码路径**（指向 fork 自身：优先 skill-root 相对引用，若加载器需绝对则 `~/.claude/skills/recon-driven-dev-inline/...`）。
 7. **④ 整节重写**：heading 去"全委托 superpowers"；按 §5 写 gates + 陷阱块；保留子仓 caveat、false-① pause、分支集成是用户决定、归档（改目录到 standalone 命名空间）。

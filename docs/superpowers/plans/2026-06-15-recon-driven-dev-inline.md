@@ -246,7 +246,7 @@ new:
 **自包含**:本 Skill **不依赖任何外部插件**(无 superpowers / feature-dev 硬前置)。①③④ 用到的 sub-agent 派发都是 harness 内置能力(`Task`/`Explore`/原生 worktree 工具),且一律配主上下文降级——环境没有就降级、不阻断开轨。
 ```
 
-- [ ] **Step 7 (E5): ① 钻取外包子节——去 code-explorer、改三级降级**
+- [ ] **Step 7 (E5): ① 钻取外包子节——去 code-explorer、改两级降级**
 
 替换原 `### 钻取外包（软依赖,内联判断）` 整个子节（从该标题起，至 `这是软依赖:有更强的就用,没有就降级。` 行止）。
 
@@ -263,7 +263,7 @@ old（整段）:
 ```
 new（整段）:
 ```
-### 钻取外包（内置派发,三级降级）
+### 钻取外包（内置派发,两级降级）
 
 翻代码的体力活(实际去搜"谁调用了这个 Service"、追调用链)**优先派给钻取 sub-agent**,别在主上下文亲自 grep——避免主对话被一堆中间检索结果污染。降级阶梯:
 
@@ -506,7 +506,7 @@ Expected: `No such file or directory`
 
 **what**：
 - 去掉"编排外部 Skill"的角色。② 把"委托 `superpowers:brainstorming`"改写成**内联对话契约**（一次一问 → 2-3 方案 → 分节呈现；HARD GATE / "太简单"override / 范围分解触发器；`design.md` 内容由本 Skill 自产）。④ 把"全委托 superpowers 实现链"改写成**内联 gates + 非显性陷阱块**（拆计划⏸ → clean-baseline → ISOLATE（优先原生 worktree 工具）→ TDD 铁律 → per-task 两阶段评审 → continuous execution → FINISH 闭合菜单 → 归档）。
-- ① 去掉 `feature-dev:code-explorer` 软依赖，收成"内置 Explore/Task 派发 → 主上下文 grep"三级降级。③ 沿用评审 sub-agent + 判据单一权威（`review-agent.md`），并**改写两条原指回源 skill 的硬编码路径**为 fork 自身。
+- ① 去掉 `feature-dev:code-explorer` 软依赖，收成"内置 Explore/Task 派发 → 主上下文 grep"两级降级。③ 沿用评审 sub-agent + 判据单一权威（`review-agent.md`），并**改写两条原指回源 skill 的硬编码路径**为 fork 自身。
 - 产物目录改用自有命名空间 `docs/recon-driven-dev-inline/`，与原版零撞车。
 - 护栏：反转"design.md 骨架"与"④ 实现链"两条（原版理由建于 superpowers 存在，fork 已无外部链可委托）。
 
@@ -593,7 +593,7 @@ Expected: 干净（无未提交改动）或仅含本次修订的提交。
 
 **1. Spec coverage（规格 §1-§9 逐条对到任务）:**
 - §2 D1 可移植/零依赖 → E4 删硬前置 + Task 7 Step 2 验收门 ✅
-- §2 D2 派发+降级 → ① E5 三级降级、③ 沿用原文 dispatch+fallback、④ 执行方式段 ✅
+- §2 D2 派发+降级 → ① E5 两级降级、③ 沿用原文 dispatch+fallback、④ 执行方式段 ✅
 - §2 D3/D4 ④ 较全复刻 + gates/陷阱、砍机制 → E7 ✅
 - §2 D5 方案 A 镜像结构 → File Structure + Task 1-4 拷贝/改写 ✅
 - §2 D6 命名 → E1/E2 + Task 5/6 ✅
@@ -604,7 +604,7 @@ Expected: 干净（无未提交改动）或仅含本次修订的提交。
 - §3 #4 原生 worktree 工具优先 → E7 gate3 + 陷阱块 ✅
 - §3 #5 撞车 → E10 命名空间 ✅
 - §3 #6 去重张力/冻结快照 → Task 6 CHANGELOG ✅
-- §5 ① 三级降级、四样、质量门 → E5（改降级）+ 其余 verbatim 拷贝保留 ✅
+- §5 ① 两级降级、四样、质量门 → E5（改降级）+ 其余 verbatim 拷贝保留 ✅
 - §5 ② HARD GATE/太简单/范围分解/接棒纪律/轻量自评/内容契约 → E6 全覆盖 ✅
 - §5 ③ 派发+路径清理 → Task 2/3 + ③ 节 verbatim ✅
 - §5 ④ 8 gates + 陷阱块 + 执行方式 → E7 ✅
