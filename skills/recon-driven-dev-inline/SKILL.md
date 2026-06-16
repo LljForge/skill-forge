@@ -41,7 +41,7 @@ description: 开发任务的轻量四阶段流程(定向分析→需求设计→
 
 输入是用户一句话粗需求,产出一份摸底报告（directed-report.md）——它是 ②③ 共用的上游参考。
 
-### 派发自实现的侦查 agent（去 Explore 化 · 契约单一权威在 recon-agent.md）
+### 派发自实现的侦查 agent（契约单一权威在 recon-agent.md）
 
 翻代码的体力活(实际去搜"谁调用了这个 Service"、追调用链)**派给一个自实现的侦查 sub-agent**,别在主上下文亲自 grep——避免主对话被一堆中间检索结果污染。**Read `references/recon-agent.md`,以其正文作 `Task` 的 prompt、把这几样追加在末尾**:粗需求 + 本次主题 / 落点焦点 + 几条已知坑的方向 + 本次产物目录路径。四样契约 / 软硬分等 / 探查纪律 / 出口自检全住那、本节不复述。
 

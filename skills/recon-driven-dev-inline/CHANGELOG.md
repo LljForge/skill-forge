@@ -2,6 +2,16 @@
 
 记 what + why，不写过程流水账。
 
+## v0.2.1 — review-agent.md 补派发祈使（防空转 · PATCH）
+
+**主题**：`references/review-agent.md` 文件头补一句动作工单,防评审 sub-agent 派发后只待命不开评。
+
+**what**：文件头补 `## 现在执行` 一句（读三份→按判据评→产 review.md→回简短结论;立即开始勿待命;缺档回 RETRY），把出口契约前置到第一眼可见;元注释「prompt 体从 ## 角色起」同步改为「从 ## 现在执行起」。判据/出口/边界正文一字未动。
+
+**why**：本 Skill 的 review-agent.md 与委托版共享同款,委托版实跑（GMZB master-data ehr-promote-echat-sync）暴露其首次派发只回问候、0 工具调用——通篇「角色/判据」陈述体、缺动作指令,LLM 拿到职位说明书式 prompt 合理反应是「待命」。补文件头工单即修。本变体同步该改、与委托版保持一致。
+
+**诚实定性**：纯 prompt 工程补丁（加动作触发 + 出口前置），判据语义未动,非能力变更。
+
 ## v0.2.0 — ① 定向分析自实现为侦查 sub-agent（去内置 Explore 依赖）
 
 **主题**：把 ① 的现状侦察从"派给内置 `Explore`/`Task`"重构成"派一份本 Skill 自带的侦查 agent 本体"，与 ③ 的 `review-agent.md` 范式对称。
