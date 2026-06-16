@@ -10,7 +10,7 @@
 
 一条**即时开发轨**：不先摸清楚就拍方案，十有八九漏掉"原来别处也在用这张表"这类坑，等写代码才发现要返工。用一份用完即弃的定向摸底兜住这类遗漏。
 
-**自包含 · 零外部 Skill 依赖**：②（需求设计）和 ④（落地）的能力都**内联在本 Skill 内**——不依赖外部插件，丢到任何环境都能独立跑。①③④ 用到的 sub-agent 派发都是 harness 内置能力（`Task`/`Explore`/原生 worktree 工具），且一律配主上下文降级。
+**自包含 · 零外部 Skill 依赖**：②（需求设计）和 ④（落地）的能力都**内联在本 Skill 内**——不依赖外部插件，丢到任何环境都能独立跑。①③④ 用到的 sub-agent 派发都是 harness 内置能力（`Task` / 原生 worktree 工具），且一律配主上下文降级；**①③ 派的是本 Skill 自带的 prompt 体**（`recon-agent.md` / `review-agent.md`）、用通用 `Task` 当搬运工，不赖任何特定内置 agent（如 `Explore`）。
 
 四阶段，每阶段结束**暂停**等用户确认。产物落本次改动目录 `docs/recon-driven-dev-inline/<YYYY-MM-DD>-<change-name>/`，收尾时连目录一起归档进 `docs/recon-driven-dev-inline/_archived/`。
 
@@ -36,6 +36,7 @@ recon-driven-dev-inline/
 ├── README.md                # 本文件 · 总览与导航
 ├── CHANGELOG.md             # 变更日志
 └── references/
+    ├── recon-agent.md       # ① 定向侦查 sub-agent 本体（四样契约单一权威）
     ├── review-agent.md      # ③ 评审 sub-agent 本体（判据单一权威）
     └── templates/
         ├── requirements.md  # ② 业务需求模板
@@ -46,4 +47,4 @@ recon-driven-dev-inline/
 
 ## 与 recon-driven-dev 的关系
 
-本 Skill 是 `recon-driven-dev` 的**自包含 fork**。原版是个**编排者**——② 由 `superpowers:brainstorming` 承担、④ 由 superpowers 实现链承担；本 fork 去掉这层编排，把 ②④ 改写为**内联契约**，做到零外部 Skill 依赖、可移植。①③ 的判据与四样报告契约沿用原版。这是**冻结快照**，不追踪上游演进；详见 [CHANGELOG.md](CHANGELOG.md)。
+本 Skill 是 `recon-driven-dev` 的**自包含 fork**。原版是个**编排者**——② 由 `superpowers:brainstorming` 承担、④ 由 superpowers 实现链承担；本 fork 去掉这层编排，把 ②④ 改写为**内联契约**，做到零外部 Skill 依赖、可移植。③ 的判据、① 的四样报告契约沿用原版；① 进一步把现状侦察抽成本 Skill 自带的 `recon-agent.md` 侦查 sub-agent、去内置 `Explore` 依赖（详见 [CHANGELOG.md](CHANGELOG.md) v0.2.0）。这是**冻结快照**，不追踪上游演进。
