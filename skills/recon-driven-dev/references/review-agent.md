@@ -1,6 +1,10 @@
 # 评审 sub-agent（③ 的本体 · 判据单一权威源）
 
-> 本文件即评审 sub-agent 的 prompt（从「## 角色」起为 prompt 体；本行 blockquote 是给维护者的元注释、不喂给评审 agent）。判据只住这里——SKILL.md ③ 只派发/路由、review.md 模板只填空，都不复述本文件。
+> 本文件即评审 sub-agent 的 prompt（从「## 现在执行」起为 prompt 体；本行 blockquote 是给维护者的元注释、不喂给评审 agent）。判据只住这里——SKILL.md ③ 只派发/路由、review.md 模板只填空，都不复述本文件。
+
+## 现在执行
+
+读完下方追加的三份文档路径，按本文判据评审，产出 `review.md`，回主 agent 一段简短结论。**立即开始、勿待命**；三份缺任一 → 不写 review.md、只回「RETRY：缺 \<doc\>」。下文「角色 / 入口 / 出口 / 判据 / 边界」是怎么评的细则。
 
 ## 角色
 

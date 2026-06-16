@@ -9,6 +9,16 @@
 
 原名 `code-dev-workflow-lite` → `recon-driven-development` → 本次缩短为 `recon-driven-dev`（`-development` 缩写作 `-dev`，求短并与自包含变体 `recon-driven-dev-inline` 成对）。名字直接点出本轨灵魂——① 定向分析（现状侦察 / 摸底）先行、驱动其后需求/设计/评审/实现全程；谱系上沿用 superpowers 家族的 `*-driven-development` 命名（对齐其 `test-driven-development` / `subagent-driven-development`），以同款"姓氏"标明本 Skill 系骑在 superpowers 上的一脉。源从 `~/.claude/skills/` 迁入 `~/Projects/AI/skill-forge/skills/`、并入 skill-forge 的 git 仓统一管理（旧仓 `.git` 未带过来）。**流程 / 产物形态 / 规则一字未改**，故按本仓「迁移类非行为改动可不发版」惯例不动版本号。
 
+## v1.5.2 — 实跑回馈：④ 绝对禁绕行岔路 + ② 点破 writing-plans 时序 + review-agent 派发祈使（PATCH · 可执行性）
+
+源自 GMZB master-data「EHR 升职→企微岗位未自动同步」实跑监督（产物归档 `docs/recon-dev/_archived/2026-06-16-ehr-promote-echat-sync` + 执行观察报告）。该次核心两关（① 质量门、③ 隔离评审）各抓出真问题、兑现价值；摩擦集中在「委托 superpowers 的接缝措辞」。逐条讨论后只动三处可执行性补丁，均非流程/产物形态改动：
+
+- **④ 进场绝对规则（堵自创绕行岔路）**：实跑中执行者进 ④ 自创了一张菜单、把「绕过 superpowers 链直接改」列为推荐项（理由「才 3 行小改、按比例」）——原 ④「全委托…别逐步驱动」+ 护栏「别重排实现链」都没**显式禁止自设一条完全跳过链的岔路**。补一句绝对规则到 ④ 进场处：**design 一律交链、进 ④ 不自创执行菜单、不自设「全委托 vs 绕过链直接改」岔路;执行方式只由链原生 handoff（writing-plans 后「选执行方式」）问,再小的改动也走链、要轻量由那步挑、绝不由 lite 替用户拍板绕行**。选「绝对规则」而非「留受控逃生口」——病根是执行者**替用户决定 + 自荐绕行**,留逃生口等于把出错的判断下放一层重开;真要轻量,superpowers 自己的「选执行方式」步就是挑它的地方。
+- **② 点破 brainstorming 终态时序冲突（强化既有 override、不新增条目）**：原「谈完 → 交回 ③（别自跳 writing-plans）」靠这条 override 压住 brainstorming「硬收尾到 writing-plans」的强默认,但报告指此为**最吃重的一条 override、冲突尖锐**。不新增提醒（防多权威源/重复），把已有那条**说透本质——时序差**：writing-plans 不在 ② 末尾、推迟到 ④ 才进,brainstorming 会强力导向立刻调 writing-plans、这步必须拦回 ③。
+- **review-agent.md 补派发祈使（防空转）**：实跑中评审 sub-agent 首次派发只回了句问候、0 工具调用——`review-agent.md` 通篇「角色/判据」**陈述体、缺一句动作指令**,LLM 拿到职位说明书式 prompt 合理反应是「待命」。补**文件头工单**（`## 现在执行`：读三份→按判据评→产 review.md→回简短结论;立即开始勿待命;缺档回 RETRY）,并把出口契约前置到第一眼可见;同步把元注释「prompt 体从 ## 角色起」改为「从 ## 现在执行起」。判据/出口/边界正文一字未动。**inline 变体共享同款 review-agent.md、同步该改**（见其 CHANGELOG）。
+- **讨论后判不动三项**：① 目录冲突「git 删盘留的幽灵路径」分支（边角、现规则以磁盘实存为准已隐含覆盖,过度设计、pass）;④「无单测仓验证手段」（曾拟补,但正确解是「验证受阻→暂停问用户」而非绑 CLAUDE.md;本轮用户决定**暂缓**、留待后议,避免半成品措辞）;using-git-worktrees 子仓接缝（一半属该交 superpowers 的决策路由、碰了「别替它路由」护栏,一半是 worktree「同名分支单检出」物理约束、写了也只是预警,pass）。
+- **诚实定性**：工程收益（堵住一类执行漂移 + 接缝指针更显眼 + 评审派发不再空转）,非能力跃升;**非铁闭**——仍靠执行者读到并照做。
+
 ## v1.5.1 — ②④ 派发处接缝收紧：override 显眼化 + 闸对齐子技能原生停点 + ④ 点名链重构（PATCH · 可执行性）
 
 源自 GMZB-slp「借据关联决议」实跑监督（EXECUTION-REPORT §4.1/§5.3）：lite↔superpowers 接缝处,子技能的「默认终点」需执行者主动压制、但压制指针不够显眼——这是「全委托」模式的「可实施性税」。逐轮讨论收敛出一条统一取向:**lite 只保留 superpowers 导不出的 override / 护栏;可点名子技能的链 / 停点当「挂点」,但不复述它的本职、也不在它的原生停点旁另竖一道门**。

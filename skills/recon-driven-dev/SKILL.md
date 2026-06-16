@@ -97,7 +97,7 @@ description: 开发任务的轻量四阶段流程(定向分析→需求设计→
 
 **委托边界**——只需**压住它这 3 个默认终点**:
 - **产物** → 写成上面两份、落本次目录(别落它默认的单份 spec 位置——那处 ③ 和收尾都够不着)
-- **谈完** → 交回 ③ 评审(别自跳 writing-plans)
+- **谈完** → 停在评审前、交回 ③ 评审——**writing-plans 不在这步、推迟到 ④ 才进**:brainstorming 会强力收尾、导向立刻调 writing-plans,这步**必须拦回 ③**、别被它的硬终态带跑(别自跳 writing-plans)
 - **提交** → 不当场 commit(留待 ④ 按所在仓惯例统一定)
 
 **⏸**——即 brainstorming 谈完让你过目那道停点,别在它之外再叠一道 lite 自己的。
@@ -120,7 +120,7 @@ description: 开发任务的轻量四阶段流程(定向分析→需求设计→
 
 ## ④ 落地（全委托 superpowers 实现链 + 文档归档）
 
-③ 通过的 design 交给 superpowers 的实现链,**顺其原生节奏跑到底、别逐步驱动、别补评审**。这条链它自管:**writing-plans 拆计划 → 停下问「选执行方式」→ using-git-worktrees 起隔离工作区 → executing / subagent 实现(TDD + 多轮评审它自管)→ finishing 收口分支**。lite 只在以下节点挂注意事项(都是 superpowers 导不出的 override / 护栏),其余整条交回它:
+③ 通过的 design **一律**交给 superpowers 的实现链,**顺其原生节奏跑到底、别逐步驱动、别补评审**。**进 ④ 不自创执行菜单、不自设「全委托 vs 绕过链直接改」这道岔路——执行方式只由链的原生 handoff(writing-plans 后那步「选执行方式」)来问;再小的改动也走链,要走轻量路径由那一步去挑、绝不由 lite 替用户拍板绕行。** 这条链它自管:**writing-plans 拆计划 → 停下问「选执行方式」→ using-git-worktrees 起隔离工作区 → executing / subagent 实现(TDD + 多轮评审它自管)→ finishing 收口分支**。lite 只在以下节点挂注意事项(都是 superpowers 导不出的 override / 护栏),其余整条交回它:
 
 1. **writing-plans**:落点指本次目录、命名 `tasks.md`(覆盖它的默认落点)。
    **⏸ 审计划——就在它「选执行方式」那个停点**:先把 tasks.md 给用户审(任务拆分对不对、没写码前最便宜的拦截点),审过再答执行方式往下——**别把这张菜单当技术选型当场答掉、跳过这道审**。
