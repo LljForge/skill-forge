@@ -62,24 +62,32 @@ if event == 'PostToolUse':
         sv = str(tool_input)
         input_digest = (sv[:200] + '...') if len(sv) > 200 else sv
 
-    # tool_response status detection
-    # Actual formats observed:
-    #   Bash/Glob: {"stdout":"...","stderr":"...","interrupted":false,...}
-    #   Read/Grep: {"type":"text","text":"..."} or similar
-    #   Error:     {"type":"error",...}
-    if isinstance(tool_response, dict):
-        resp_type = tool_response.get('type', '')
+    # tool_response / tool_result status detection
+    # Claude Code PostToolUse payloads use different field names per tool type:
+    #   Bash:        tool_response = {"stdout":"...","stderr":"...","interrupted":false,...}
+    #   Read/Glob/Grep/Write/Edit: tool_result = "<string content>" (tool_response absent)
+    #   Error:       tool_response = {"type":"error",...}
+    # Strategy: check tool_response first, fall back to tool_result.
+    # Decision: error flag present → "error"; any non-empty content → "ok"; truly nothing → "empty"
+    raw_response = payload.get('tool_response')
+    raw_result = payload.get('tool_result')
+
+    if isinstance(raw_response, dict):
+        resp_type = raw_response.get('type', '')
         if resp_type == 'error':
             resp_status = 'error'
-        elif 'stdout' in tool_response or 'stderr' in tool_response:
-            # Bash-style response
-            has_out = bool(tool_response.get('stdout', '')) or bool(tool_response.get('stderr', ''))
+        elif 'stdout' in raw_response or 'stderr' in raw_response:
+            has_out = bool(raw_response.get('stdout', '')) or bool(raw_response.get('stderr', ''))
             resp_status = 'ok' if has_out else 'empty'
         else:
-            content = tool_response.get('text', tool_response.get('content', ''))
+            content = raw_response.get('text', raw_response.get('content', ''))
             resp_status = 'ok' if content else 'empty'
-    elif tool_response:
+    elif raw_response:
+        # non-dict, non-None (e.g. string)
         resp_status = 'ok'
+    elif raw_result is not None:
+        # tool_result field present (Read/Glob/Grep/Write/Edit etc.)
+        resp_status = 'ok' if raw_result else 'empty'
     else:
         resp_status = 'empty'
 

@@ -41,7 +41,7 @@ Step 3：报告产出
 **Headless 模式**（`$EVAL_HEADLESS=1`，供批跑评测用）：
 - 用 Bash 执行 `echo "$EVAL_HEADLESS"` 检查是否为 `1`。若是：
   1. 用 Bash 执行 `echo "$EVAL_PRESET"` 读取预设 JSON，从中解析 `module`（模块名）、`module_cn`（中文名）、`scope`（范围）、`exclude`（排除项），直接用这些值定模块名与范围。
-  2. 用 Bash 执行 `echo "$EVAL_OUT"` 读取产物根目录，将 `{{OUTPUT_DIR}}` 设为 `<EVAL_OUT值>/<module>/`。
+  2. `{{OUTPUT_DIR}}` 的值见下方变量表（headless 模式规则）。
   3. **跳过下面的 AskUserQuestion**，直接进 Step 2（传入上述已解析的变量）。
 
 **交互模式**（默认，`$EVAL_HEADLESS` 未设置或非 `1`）：
@@ -56,7 +56,7 @@ Step 3：报告产出
 
 启动**单个** `survey-agent`，传：模块名、后端代码路径（当前工作目录下的后端根）、Step 1 敲定的范围。
 
-它读模块、识别栈、蒸馏认知，按 [references/requirements-format.md](references/requirements-format.md) 和 [references/design-format.md](references/design-format.md) 直接写出两份文档到 `{{OUTPUT_DIR}}`（交互模式 `docs/module-brief/<module>/`；headless 模式 `$EVAL_OUT/<module>/`）。
+它读模块、识别栈、蒸馏认知，按 [references/requirements-format.md](references/requirements-format.md) 和 [references/design-format.md](references/design-format.md) 直接写出两份文档到 `{{OUTPUT_DIR}}`（见变量表）。
 **详见**：[agents/survey-agent.md](agents/survey-agent.md)。
 
 ### Step 3：报告
