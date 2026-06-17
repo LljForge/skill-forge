@@ -121,7 +121,7 @@ python3 $SE/lib/aggregate.py --skill module-brief --run "$RUN" --out "$RUN/aggre
 
 ## 7. 接一个新目标 skill(以 module-spec-baseline 为例)
 
-**结论先说**:run.sh / aggregate.py 引擎**不用动**(run.sh 已用 `$TARGET_SKILL` 调起);要填 3 份清单 + 2 处 skill/引擎适配。逐项:
+**结论先说**:run.sh / aggregate.py / 三个 agent 已**真 skill 无关、不用动**;要做的是 **3 份清单(manifest/corpus/rubric)+ 给目标 skill 加 headless 模式 + 给 `observe.py` 的 B 类补两处**(对齐新产物 + 跑 hard_validators)。逐项:
 
 1. **写 manifest**(引擎侧,**无项目真值**):`$SE/manifests/module-spec-baseline.yml`,照 `module-brief.yml` 改:
    ```yaml
@@ -139,7 +139,10 @@ python3 $SE/lib/aggregate.py --skill module-brief --run "$RUN" --out "$RUN/aggre
 2. **写 corpus**(GMZB 侧,真值只在这):`$G/.skill-eval/corpus/module-spec-baseline.yml`,每模块 `module` + `preset_answers`(含两道门的预设答案)。
 3. **写 rubric**(引擎侧,无真值,`com.<root>` 占位):`$SE/rubrics/module-spec-baseline.md` = 机读 YAML 块(该 skill 声明的契约:章节/禁项/期望子 agent 数…)+ prose(判断指引)。
 4. **给 module-spec-baseline 加 headless 模式**(它有 AskUserQuestion 门):走 **skill-forge eval 流程**改那个 skill,加 `$EVAL_HEADLESS` 分支——读 `$EVAL_PRESET`、跳过门、输出重定向 `$EVAL_OUT`。(module-brief 已有,直接参照它。)
-5. **(引擎补一处)hard_validators 执行**:当前 `observe.py` 还没"跑 manifest.hard_validators"这一步(module-brief 没硬门、用不上)。接 spec-baseline 时要在 `observe.py` 加:对评测产物跑 `openspec validate --strict`,失败 = 毫不含糊的确定性缺陷(design §4 的硬信号)。**这是接第二靶唯一要动的引擎代码**,改完仍然项目无关。
+5. **(引擎要补两处 —— 接第二靶才需要,诚实标注)**:
+   - **5a. observe.py 的 B 类观察对齐新产物**:`observe.py` 的 **A 类**(跑完没/恰 1 子 agent/真读代码/门/耗时)是**真 skill 无关**的,直接复用;但 **B 类**(产物契约)目前是按 module-brief 的两份产物(`design.md`=5 节+陷阱+自标注;`requirements.md`=4 节+禁代码标识)写死了**文件名 + "哪份产物跑哪类检查"的绑定**(`observe.py:19/98/129`)。spec-baseline 的产物是 openspec `spec.md`、检查口径也不同,所以要么让 rubric 把"产物→检查类型"的映射也声明出来 + observe.py 据此跑,要么给 spec-baseline 配自己的 B 类逻辑。**这是接第二靶的主要引擎工作。**(检查的"参数"——节名/禁项/阈值——已经从 rubric 读了,要补的是"结构/绑定"那层。)
+   - **5b. hard_validators 执行**:`observe.py` 还没"跑 `manifest.hard_validators`"这一步(module-brief 没硬门、用不上)。spec-baseline 要加:对评测产物跑 `openspec validate --strict`,失败=毫不含糊的确定性缺陷(design §4 的硬信号)。
+   > 注:run.sh / aggregate.py / 三个 agent 已**真 skill 无关**(2026-06-17 专门扫过一轮 skill-名/产物-名硬编码并清掉);要动的引擎代码集中在 `observe.py` 的 B 类。
 6. 然后照常:`bash run.sh module-spec-baseline` + 会话 `/skill-eval module-spec-baseline`。
 
 > spec-baseline 起 4-5 个子 agent(trace 量大,design §8.2),比 module-brief 的 1 个子 agent 重,先有心理预期。
