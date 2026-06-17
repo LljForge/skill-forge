@@ -213,7 +213,7 @@ print(json.dumps(out, ensure_ascii=False))
       export EVAL_TRACE="$TRACE_FILE"
       export EVAL_PRESET="$PRESET"
 
-      claude -p "/module-brief $MODULE" "${MODEL_FLAG[@]}" \
+      claude -p "/$TARGET_SKILL $MODULE" "${MODEL_FLAG[@]}" \
         --output-format json \
         --settings "$SETTINGS_FILE" \
         --allowedTools 'Read' 'Grep' 'Glob' 'Bash' 'Write' 'Edit' 'Task' \
