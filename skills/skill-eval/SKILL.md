@@ -9,7 +9,9 @@ description: 对一个目标 skill 批跑分析各模块→观察→聚合→产
 
 ## 用法
 
-`/skill-eval <目标skill>`(如 `/skill-eval module-brief`)。先探状态,再决定干哪段。
+`/skill-eval <目标skill> [模块数上限]` —— 如 `/skill-eval module-brief`(全量)、`/skill-eval module-brief 4`(先跑前 4 个模块试信噪比)。先探状态,再决定干哪段。
+> - **目标项目默认 = 你当前所在的项目根**(在哪个项目里调用就评哪个;`git rev-parse --show-toplevel` 取不到就 `pwd`)。要评别的项目才显式 `export SKILL_EVAL_TARGET_PROJECT=<绝对路径>` 覆盖。
+> - **全程 Skill 驱动,用户不碰脚本**:A 段由本 skill 后台起批跑,B 段聚合也由本 skill 编排;`run.sh`/`lib/*.py` 是内部资产。
 
 ---
 
@@ -27,30 +29,32 @@ bash "${SCRIPT_DIR}/run.sh" status <skill>
 
 ---
 
-## A 段:起批跑(无人值守)
+## A 段:起批跑(无人值守,本 skill 自己起,用户不碰脚本)
 
 > 状态探测为 `none` 时进入。
 
-1. **告知估算**:读 `$SKILL_EVAL_TARGET_PROJECT/.skill-eval/corpus/<skill>.yml` 取模块数 N;告知用户:
-   - N 个模块 / 预计耗时(~N×5min,Opus 基准)
-   - 默认模型 Opus(评测效度最高,不加 `--model`);成本敏感可 `export SKILL_EVAL_MODEL=claude-haiku-4-5` 再触发
-   - 日志位置:`$SKILL_EVAL_SCRATCH/skill-eval/<skill>/<run-id>/`
-2. **以 harness 后台任务起批跑**:
+1. **定目标项目 + 范围**:
+   - 目标项目 `TP` = `${SKILL_EVAL_TARGET_PROJECT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}`(用户没显式设就取当前项目根)。
+   - 模块数上限:用户给了命令第二参 `N`(或自然语言"先跑 N 个")→ 批跑时 `export SKILL_EVAL_CORPUS_LIMIT=N`;没给则全量。
+2. **告知估算**:读 `$TP/.skill-eval/corpus/<skill>.yml` 取模块数;告知用户:实际要跑几个模块 / 预计耗时(~模块数×5min,Opus)/ 成本(~$1.9/模块)/ 日志位置 `$SKILL_EVAL_SCRATCH/skill-eval/<skill>/<run-id>/`。默认 Opus(不加 `--model`);成本敏感可先 `export SKILL_EVAL_MODEL=claude-haiku-4-5`。
+3. **后台起批跑**(用**后台 Bash**(run_in_background),不阻塞会话):
    ```bash
-   export SKILL_EVAL_TARGET_PROJECT=<目标项目绝对路径>
-   nohup bash "${SCRIPT_DIR}/run.sh" <skill> \
-     > "${SKILL_EVAL_SCRATCH:-$HOME/.cache/skill-eval}/skill-eval/<skill>/batch.log" 2>&1 &
-   echo "批跑已后台启动,PID=$!;完成后 /skill-eval <skill> 接 B 段"
+   export SKILL_EVAL_TARGET_PROJECT="<TP>"
+   # 仅当有上限:export SKILL_EVAL_CORPUS_LIMIT=<N>
+   bash "${SCRIPT_DIR}/run.sh" <skill>
    ```
-3. **返回,不阻塞**。机器保持开着;批跑完自动写入 `summary` 字段,下次调用探到 `done` 接 B 段。
+   告知用户「已后台起批跑,约 X 分钟;跑完我自动接 B 段聚合,期间别关会话/关机」。
+4. **跑完自动接 B 段**:后台批跑完成(收到完成通知)→ 重走 Step 0 探到 `done` → 进 B 段,不用用户再开口。
+   - 兜底:若用户中途关了会话,之后再 `/skill-eval <skill>` 一次即可——探到 `done` 直接接 B 段(产物在 scratch 等着)。
 
-> 若 `SKILL_EVAL_MODEL` 非空,run.sh 内部 `claude -p` 会附 `--model "$SKILL_EVAL_MODEL"`;空则省略(继承会话=Opus)。
+> 模型旋钮:`SKILL_EVAL_MODEL` 非空时 run.sh 的 `claude -p` 附 `--model "$SKILL_EVAL_MODEL"`;空=继承会话 Opus。
 
 ---
 
 ## B 段:聚合(交互,人判)
 
 > 状态探测为 `done <run-id>` 时进入。`RUN_DIR` = `$SKILL_EVAL_SCRATCH/skill-eval/<skill>/<run-id>`。
+> **目标项目路径**(B3 grounding 要用)从 `RUN_DIR/run-manifest.json` 的 `target_project` 字段读,**不依赖会话 env**——所以接 B 段时无需用户再设环境变量。
 
 ### B1 per-run 观察(确定性)
 
@@ -100,7 +104,7 @@ agent 使用 `--allowedTools Read Grep Glob`(只读,不改产物)。
 
 输入:
 - design.md 路径: ${module_dir}/design.md
-- 目标项目根路径: $SKILL_EVAL_TARGET_PROJECT
+- 目标项目根路径: 从 `RUN_DIR/run-manifest.json` 的 `target_project` 字段读(不依赖会话 env)
 
 可用工具: Read / Grep / Glob(读代码) + mcp__mysql_*(只 SELECT,核对表名/字段真实性)
 

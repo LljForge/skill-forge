@@ -60,15 +60,19 @@ bash $SE/run.sh status module-brief     # → none | running <id> | done <id>
 
 ---
 
-## 3. 跑法 B(全程一个会话,A 模式)
-在 Claude 会话里直接:
+## 3. 跑法 B(全程 Skill 驱动,不碰脚本 —— 推荐)
+**在 GMZB 项目下**开一个 Claude Code 会话(cwd = GMZB),直接:
 ```
-/skill-eval module-brief
+/skill-eval module-brief 4        # 先跑前 4 个模块;全量就去掉那个 4
 ```
-探到 `none` → 它起**后台批跑**(harness 后台任务),报「N 模块/约 $X/日志」,跑完**自动唤醒接聚合**。
-- **要限制模块数**:开 claude **之前**先 `export SKILL_EVAL_CORPUS_LIMIT=4`,或直接跟它说「只跑前 4 个模块」(它会带 `SKILL_EVAL_CORPUS_LIMIT=4` 起 `run.sh`)。
-- **代价**:批跑期间机器保持开着、别杀 claude(后台任务在跑)。
+- **不用 export 任何环境变量**:目标项目默认取当前项目根(你在 GMZB 里调=评 GMZB);命令里的 `4` 就是"模块数上限"。
+- 它探到 `none` → **自己后台起批跑**(你不碰 run.sh),报「跑几个 / 约 $X / 约几分钟」→ 跑完**自动接聚合**(观察→判断→人审探针→聚合→候选报告)→ 给你候选清单,你裁决事实性 + 选真问题。
+- **代价**:批跑期间会话别关、机器别关(后台任务在跑;4 个 ≈ 25 分钟)。
+- 中途关了也没事:重开会话再 `/skill-eval module-brief`,探到 `done` 直接接聚合(产物在 scratch 等着)。
+- 省钱钉便宜模型:开 claude 前 `export SKILL_EVAL_MODEL=claude-haiku-4-5`(慎用,折损效度)。
 - 想彻底无人值守过夜(关机级脱离)= 设计里的 B 模式,v1 不做。
+
+> 跑法 A(终端 `run.sh` + 会话聚合)= 上面 §2,适合你想手动控批跑/排查时;日常用就跑法 B。
 
 ---
 
