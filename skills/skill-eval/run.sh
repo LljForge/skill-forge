@@ -20,6 +20,33 @@
 
 set -euo pipefail
 
+# ── status 子命令 ──────────────────────────────────────────────
+# Usage: bash run.sh status <skill>
+# 打印: none | running <run-id> | done <run-id>
+# done 判据: run-manifest.json 存在且含 "summary" 字段(末尾写入)
+# running 判据: STARTED 标记存在但 summary 尚未写入
+if [[ "${1:-}" = "status" ]]; then
+  skill="${2:-}"
+  if [[ -z "$skill" ]]; then
+    echo "[run.sh] Usage: bash run.sh status <skill>" >&2
+    exit 1
+  fi
+  SCRATCH_STATUS="${SKILL_EVAL_SCRATCH:-$HOME/.cache/skill-eval}"
+  base="${SCRATCH_STATUS}/skill-eval/${skill}"
+  latest=$(ls -dt "${base}"/*/ 2>/dev/null | head -1 || true)
+  if [[ -z "$latest" ]]; then
+    echo "none"
+    exit 0
+  fi
+  rid=$(basename "$latest")
+  if [[ -f "${latest}/run-manifest.json" ]] && grep -q '"summary"' "${latest}/run-manifest.json"; then
+    echo "done ${rid}"
+  else
+    echo "running ${rid}"
+  fi
+  exit 0
+fi
+
 # ── args & paths ─────────────────────────────────────────────
 TARGET_SKILL="${1:-}"
 if [[ -z "$TARGET_SKILL" ]]; then
@@ -96,6 +123,7 @@ fi
 RUN_ID=$(date '+%Y%m%d-%H%M%S')
 RUN_DIR="$SCRATCH/skill-eval/${TARGET_SKILL}/${RUN_ID}"
 mkdir -p "$RUN_DIR/runs"
+touch "$RUN_DIR/STARTED"   # 批跑已启动标记; summary 写入后才算 done
 echo "[run.sh] workspace: $RUN_DIR"
 
 # ── init run-manifest ─────────────────────────────────────────
