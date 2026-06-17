@@ -65,15 +65,7 @@ bash $SE/run.sh status module-brief     # → none | running <id> | done <id>
 ```
 /skill-eval module-brief --limit 4     # 先跑前 4 个;全量就不加 --limit
 ```
-**具名参数**(都可选、顺序随意,以后新能力也走这个风格):
-
-| 参数 | 作用 | 默认 |
-|------|------|------|
-| `--limit N` | 只跑前 N 个模块 | 全量 |
-| `--model M` | 钉模型,如 `--model claude-haiku-4-5`(省钱、折损效度) | Opus |
-| `--project PATH` | 评别的项目 | 当前项目根 |
-
-例:`/skill-eval module-brief` · `/skill-eval module-brief --limit 4` · `/skill-eval module-brief --limit 4 --model claude-haiku-4-5`。
+常用具名参数:`--limit N`(只跑前 N 个)、`--model M`(钉便宜模型)、`--project PATH`(评别的项目)——**完整参数总表见 §4**。例:`/skill-eval module-brief` · `… --limit 4` · `… --limit 4 --model claude-haiku-4-5`。
 
 - **不用 export 任何环境变量**:目标项目默认取当前项目根(你在 GMZB 里调=评 GMZB)。
 - 它探到 `none` → **自己后台起批跑**(你不碰 run.sh),报「跑几个 / 约 $X / 约几分钟」→ 跑完**自动接聚合**(观察→判断→人审探针→聚合→候选报告)→ 给你候选清单,你裁决事实性 + 选真问题。
@@ -85,16 +77,35 @@ bash $SE/run.sh status module-brief     # → none | running <id> | done <id>
 
 ---
 
-## 4. 四个 env 变量(就这四个,都是 shell 环境变量)
+## 4. 参数总表(权威 —— 现在就这些)
 
-| 变量 | 默认 | 怎么设 / 何时用 |
-|------|------|----------------|
-| `SKILL_EVAL_TARGET_PROJECT` | 无(**必填**) | `export SKILL_EVAL_TARGET_PROJECT=/Users/lilongjian/Projects/GMZB/master-data`。run.sh 据此找 corpus、`cd` 进去跑。 |
-| `SKILL_EVAL_CORPUS_LIMIT` | `0`(=全部) | `export SKILL_EVAL_CORPUS_LIMIT=4` → 只跑 corpus 前 4 个模块。**这就是你问的"怎么设"——一行 export,不用去找。** 想全量就别设或设 0。 |
-| `SKILL_EVAL_MODEL` | 不设(=继承会话 Opus) | `export SKILL_EVAL_MODEL=claude-sonnet-4-6` → 钉便宜模型省钱。**慎用**:弱模型会把"模型能力差"误算成"skill 缺陷",折损评测效度。 |
-| `SKILL_EVAL_SCRATCH` | `~/.cache/skill-eval` | 一般不用改;想换产物落点才设。 |
+`/skill-eval` 用**具名 flag**(跑法 B);底层是 shell **环境变量**(跑法 A 终端直接用)。flag 由 SKILL.md 解析成对应 env,两者等价。
 
-> 这些都是**普通环境变量**:在哪个终端跑 `run.sh`,就在哪个终端先 `export`。它们只在那个 shell 会话里生效;新开终端要重设。
+### 4.1 现有参数
+
+| flag(跑法 B) | 等价 env(跑法 A) | 作用 | 默认 |
+|---|---|---|---|
+| `<skill>`(必填,位置) | `run.sh <skill>` 第一参 | 目标 skill 名,如 `module-brief` | 无 |
+| `--limit N` | `SKILL_EVAL_CORPUS_LIMIT=N` | 只跑 corpus 前 N 个模块(试信噪比) | 全量(`0`) |
+| `--model M` | `SKILL_EVAL_MODEL=M` | 钉模型,如 `claude-haiku-4-5`;省钱但折损评测效度 | 不设=继承会话 Opus |
+| `--project PATH` | `SKILL_EVAL_TARGET_PROJECT=PATH` | 目标项目根 | 当前项目根(`git rev-parse --show-toplevel`,取不到 `pwd`) |
+| *(无 flag,仅 env)* | `SKILL_EVAL_SCRATCH=PATH` | 产物落点根(scratch、可弃) | `~/.cache/skill-eval` |
+
+- 例(跑法 B):`/skill-eval module-brief` · `… --limit 4` · `… --limit 4 --model claude-haiku-4-5`。
+- 等价(跑法 A 终端):`export SKILL_EVAL_TARGET_PROJECT=… SKILL_EVAL_CORPUS_LIMIT=4 SKILL_EVAL_MODEL=claude-haiku-4-5; bash run.sh module-brief`。
+- env 只在当前 shell 生效、新开终端要重设;跑法 B 用 flag 就不用你管 env。
+
+### 4.2 计划中(还没实现 —— 别现在用,留着扩展)
+
+| flag | 作用 | 现在缺什么 |
+|---|---|---|
+| `--modules a,b` | 只跑**点名**的模块(不是"前 N 个") | run.sh 当前只支持"前 N 个"(`--limit`);按名筛要加 corpus 过滤 |
+| `--runs K` | 同模块多跑 K 次看一致性 | `runs_per_target` 现写死在 manifest;要让 flag/env 能覆盖它 |
+
+> 新参数一律加 flag、在 SKILL.md A 段同一处解析,**不回退位置参数**。
+
+### 4.3 不是"调用参数"的东西(放 manifest,接新 skill 时才填)
+`manifests/<skill>.yml` 里的 `target_skill` / `corpus_file` / `runs_per_target` / `gates` / `hard_validators` / `rubric_ref` 是**该 skill 的清单配置**(见 §7),不是每次调用传的参数。
 
 ---
 
