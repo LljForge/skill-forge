@@ -9,8 +9,16 @@ description: 对一个目标 skill 批跑分析各模块→观察→聚合→产
 
 ## 用法
 
-`/skill-eval <目标skill> [模块数上限]` —— 如 `/skill-eval module-brief`(全量)、`/skill-eval module-brief 4`(先跑前 4 个模块试信噪比)。先探状态,再决定干哪段。
-> - **目标项目默认 = 你当前所在的项目根**(在哪个项目里调用就评哪个;`git rev-parse --show-toplevel` 取不到就 `pwd`)。要评别的项目才显式 `export SKILL_EVAL_TARGET_PROJECT=<绝对路径>` 覆盖。
+`/skill-eval <目标skill> [具名参数…]`。具名参数都**可选、顺序随意**:
+
+| 参数 | 作用 | 默认 |
+|------|------|------|
+| `--limit N` | 只跑 corpus 前 N 个模块(试信噪比) | 全量 |
+| `--model M` | 钉模型(如 `--model claude-haiku-4-5`),省钱但折损评测效度 | 不设=继承会话 Opus |
+| `--project PATH` | 目标项目根 | 当前项目根(`git rev-parse --show-toplevel`,取不到用 `pwd`) |
+
+例:`/skill-eval module-brief`(全量·Opus·评当前项目)、`/skill-eval module-brief --limit 4`、`/skill-eval module-brief --limit 4 --model claude-haiku-4-5`。先探状态,再决定干哪段。
+> - **新能力一律走具名参数**(未来如 `--modules organization,company` 跑指定模块、`--runs 3` 一致性多跑),在 A 段同一处解析,不破坏现有调用——别再加位置参数。
 > - **全程 Skill 驱动,用户不碰脚本**:A 段由本 skill 后台起批跑,B 段聚合也由本 skill 编排;`run.sh`/`lib/*.py` 是内部资产。
 
 ---
@@ -33,14 +41,16 @@ bash "${SCRIPT_DIR}/run.sh" status <skill>
 
 > 状态探测为 `none` 时进入。
 
-1. **定目标项目 + 范围**:
-   - 目标项目 `TP` = `${SKILL_EVAL_TARGET_PROJECT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}`(用户没显式设就取当前项目根)。
-   - 模块数上限:用户给了命令第二参 `N`(或自然语言"先跑 N 个")→ 批跑时 `export SKILL_EVAL_CORPUS_LIMIT=N`;没给则全量。
-2. **告知估算**:读 `$TP/.skill-eval/corpus/<skill>.yml` 取模块数;告知用户:实际要跑几个模块 / 预计耗时(~模块数×5min,Opus)/ 成本(~$1.9/模块)/ 日志位置 `$SKILL_EVAL_SCRATCH/skill-eval/<skill>/<run-id>/`。默认 Opus(不加 `--model`);成本敏感可先 `export SKILL_EVAL_MODEL=claude-haiku-4-5`。
-3. **后台起批跑**(用**后台 Bash**(run_in_background),不阻塞会话):
+1. **解析具名参数 → 环境变量**(都可选;未来新 flag 在此扩展,不要回退到位置参数):
+   - `--project PATH` → `TP=PATH`;否则 `TP=${SKILL_EVAL_TARGET_PROJECT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}`(取当前项目根)。
+   - `--limit N` → 批跑时 `export SKILL_EVAL_CORPUS_LIMIT=N`;没给则全量。
+   - `--model M` → 批跑时 `export SKILL_EVAL_MODEL=M`;没给则不设(继承会话 Opus)。
+2. **告知估算**:读 `$TP/.skill-eval/corpus/<skill>.yml` 取模块数;告知用户:实际要跑几个模块(有 `--limit` 则 min(N,上限))/ 预计耗时(~模块数×5min)/ 成本(~$1.9/模块·Opus)/ 模型(`--model` 给的 or 默认 Opus)/ 日志位置 `$SKILL_EVAL_SCRATCH/skill-eval/<skill>/<run-id>/`。
+3. **后台起批跑**(用**后台 Bash**(run_in_background),不阻塞会话;只 export 解析到的项):
    ```bash
    export SKILL_EVAL_TARGET_PROJECT="<TP>"
-   # 仅当有上限:export SKILL_EVAL_CORPUS_LIMIT=<N>
+   # 有 --limit 才加:  export SKILL_EVAL_CORPUS_LIMIT=<N>
+   # 有 --model 才加:  export SKILL_EVAL_MODEL=<M>
    bash "${SCRIPT_DIR}/run.sh" <skill>
    ```
    告知用户「已后台起批跑,约 X 分钟;跑完我自动接 B 段聚合,期间别关会话/关机」。
