@@ -179,7 +179,7 @@ print(json.dumps(out, ensure_ascii=False))
     (
       cd "$TARGET_PROJECT"
       export EVAL_HEADLESS=1
-      export EVAL_OUT="$MODULE_RUN_DIR"
+      export EVAL_OUT="$RUN_DIR/runs"
       export EVAL_TRACE="$TRACE_FILE"
       export EVAL_PRESET="$PRESET"
 
