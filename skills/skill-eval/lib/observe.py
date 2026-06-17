@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """per-run 确定性观察器:读 rubric 机读块 + 一个 run 的模块产物,产 findings.json。
 引擎项目无关:所有 skill 特有参数从 rubric 读,本脚本只提供检查原语。"""
-import sys, os, re, json, argparse, glob
+import os, re, json, argparse, glob
 
 def load_rubric_yaml(skill_dir, skill):
     import yaml
     p = os.path.join(skill_dir, "rubrics", f"{skill}.md")
     m = re.search(r'```yaml\n(.*?)\n```', open(p, encoding='utf-8').read(), re.S)
+    if m is None:
+        raise ValueError(f"rubric {p} 缺 ```yaml 机读块")
     return yaml.safe_load(m.group(1))
 
 def resolve_module_dir(run_dir, module):
@@ -97,7 +99,6 @@ def observe_module(run_dir, run_id, module, skill, rub):
     if os.path.exists(dp): design = open(dp,encoding='utf-8').read()
     for sec in rub.get("design_sections",[]):
         # 容前缀匹配(节名后可带补充字)
-        key = sec.split("概览")[0].split("(")[0]
         hit = any(line.startswith(sec[:8]) for line in design.splitlines())
         findings.append(fnd(f"design_section::{sec[:12]}","B","pass" if hit else "flag",
             "info" if hit else "defect-candidate",
