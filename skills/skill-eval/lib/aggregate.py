@@ -8,7 +8,7 @@ def load_findings(run_dirs):
     out=[]
     for rd in run_dirs:
         for fp in glob.glob(os.path.join(rd,"runs","*","findings.json")):
-            mdir=os.path.dirname(fp); f=json.load(open(fp,encoding='utf-8'))
+            f=json.load(open(fp,encoding='utf-8'))
             out.append((f.get("run_id"), f.get("module"), f))
     return out
 
