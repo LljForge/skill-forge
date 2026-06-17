@@ -101,7 +101,8 @@ rubric_ref: rubrics/module-brief.md   # 该 skill 特有观察项
 
 ### 2.3 观察:专用 trace hook
 - 给 `claude -p` 挂一份**专用 `eval-settings.json`**(只含 trace hook),跟用户日常 hooks 完全隔离。
-- PostToolUse + SubagentStop 把每次工具调用落 `trace.jsonl`:`{ts, agent_id, agent_type, tool_name, tool_input_digest, tool_response_status}`。子 agent 工具调用带 `agent_id`/`agent_type`(研究确认会触发 hook)→ 能抓到 module-brief 的 survey-agent 内部行为。
+- PostToolUse + SubagentStop 把每次工具调用落 `trace.jsonl`:`{ts, agent_id, agent_type, tool_name, tool_input_digest, tool_response_status}`。
+- ⚠️【2026-06-17 本机实测 claude 2.1.163,纠正研究假设】**PostToolUse 的 `agent_id`/`agent_type` 主/子 agent 都为空**——研究说"子 agent 工具调用带 agent_id/agent_type"在本机**不成立**。能拿到的:① 全量工具调用序列(但无法区分是主 agent 还是 survey-agent 子 agent 发的);② `SubagentStop` 事件带 `agent_type`(只能证明子 agent 起停、拿不到其内部调用归属)。→ **含义**:2B 观察器的「survey-agent 真读了模块代码吗」**不能靠 trace 工具归属**,改用**产物侧证据兜底**(design.md 是否引用真实类名/方法/表名 = 读过代码的证据)。trace 仍可用于「整体读了多少代码/工具分布/有没有报错」等不依赖归属的检查。
 
 ### 2.4 run.sh 循环
 ```
