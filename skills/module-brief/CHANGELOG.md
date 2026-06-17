@@ -2,6 +2,10 @@
 
 > 正文（SKILL.md / agents / references）只写当下规则；版本演进、为什么这么改记在这。
 
+## v1.0.2
+
+skill-eval 首次真实自举（run `20260618-011357`，交接包 C1）反馈：headless 批跑大模块（mdm-company，关联实体多）时，survey-agent **自行 fan-out 起了 4 个孙子 agent**，孙子不继承 `$EVAL_OUT`，把产物写回交互模式默认落点 `docs/module-brief/<module>/` 而非 `$EVAL_OUT/<module>/`，导致批跑取不到产物、整模块被误判失败（文档其实产出成功）。根因：survey-agent 只说"一个 agent 干完读+写"、**没硬禁再派子 agent**；headless 落点又靠 env 隐式传递、不保证随子 agent 继承。已修：①survey-agent 前言加「绝不再派子 agent」硬禁令 + 落点强约束为「{{OUTPUT_DIR}} 唯一绝对路径、不写 doc/」；②SKILL.md Step 1 headless 明确 `echo "$EVAL_OUT"` 解析**绝对路径**再以绝对值传 survey-agent（不传字面 `$EVAL_OUT`）；③单子 agent 注脚强调 survey-agent 自身亦不得 fan-out。
+
 ## v1.0.1
 
 dogfood（mdm-employee）反馈：survey-agent 把一条偏通用的陷阱（`@MapperScan` 注册新 DAO）保留并自加一句"这条偏通用规范"，而非按模块替换测试删掉。根因是 design-format 的入选测试只说"通用→删"、没堵死"保留+标注"这条折中路径。已收紧 design-format §5 入选测试：**边界性通用项一律直接删、不许保留再标注**，并把 `@MapperScan` 列为通用项示例。

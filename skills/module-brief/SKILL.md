@@ -32,7 +32,7 @@ Step 2：单 survey-agent 读模块、按格式写两份文档
 Step 3：报告产出
 ```
 
-> 全程**只 1 个子 agent**。不并行、不起验证、不接缝 join、无 scratchpad 清理——这是它"轻"的来源。
+> 全程**只 1 个子 agent**（survey-agent 自己也**不得再 fan-out 派孙子 agent**——大模块靠定向读、不靠拆分）。不并行、不起验证、不接缝 join、无 scratchpad 清理——这是它"轻"的来源。
 
 ### Step 1：定位确认（内联）
 
@@ -41,7 +41,7 @@ Step 3：报告产出
 **Headless 模式**（`$EVAL_HEADLESS=1`，供批跑评测用）：
 - 用 Bash 执行 `echo "$EVAL_HEADLESS"` 检查是否为 `1`。若是：
   1. 用 Bash 执行 `echo "$EVAL_PRESET"` 读取预设 JSON，从中解析 `module`（模块名）、`module_cn`（中文名）、`scope`（范围）、`exclude`（排除项），直接用这些值定模块名与范围。
-  2. `{{OUTPUT_DIR}}` 的值见下方变量表（headless 模式规则）。
+  2. 用 Bash 执行 `echo "$EVAL_OUT"` 取**绝对路径**，令 `{{OUTPUT_DIR}}` = `<该绝对路径>/<module>/`，以**绝对值**传给 survey-agent（**不要传字面 `$EVAL_OUT`**——子 agent 进程未必继承该 env，传字面会导致落点丢失、产物写错地方）。
   3. **跳过下面的 AskUserQuestion**，直接进 Step 2（传入上述已解析的变量）。
 
 **交互模式**（默认，`$EVAL_HEADLESS` 未设置或非 `1`）：

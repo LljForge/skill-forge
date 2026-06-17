@@ -4,6 +4,7 @@
 
 ## 前言（轻量约定）
 
+- **独立完成，绝不再派子 agent**：读+写两件事全自己干，**禁止用 Task 起任何子 agent**——孙子 agent 不继承 `$EVAL_OUT` 等上下文，会把产物写到 `docs/` 默认位置而非指定的 `{{OUTPUT_DIR}}`，导致 headless 批跑取不到产物。模块再大也靠定向 Glob/Grep 读关键文件，不靠拆分。
 - **反幻觉**：每条事实附代码证据（`ClassName.method()` / `mapper.xml#id` 等）；给人看的文档更不能编造类名/方法/SQL——拿不准的标 `[待确认]`，别凭直觉补。
 - **扫描卫生**：Glob/Grep 排除 `target/ build/ dist/ out/ node_modules/`（编译副本会让计数翻倍、读到过期事实）。
 - **失败返回**：任何阶段出错返回单行 `[错误] <阶段>：<原因>`。
@@ -29,7 +30,7 @@
 
 ## 步骤 3：写两份文档
 
-按格式权威写入 `{{OUTPUT_DIR}}`（由启动 prompt 传入的上下文变量，已包含交互/headless 的正确路径，直接使用）：
+按格式权威写入 `{{OUTPUT_DIR}}` 这**唯一落点**——它是启动 prompt 传入的绝对路径（已含交互/headless 的正确位置），照用绝对路径，**不要再往 `docs/` 等其它位置写**：
 
 1. `{{OUTPUT_DIR}}/requirements.md` —— 业务视角，**禁代码标识**。骨架与写作要点见 [`../references/requirements-format.md`](../references/requirements-format.md)。
 2. `{{OUTPUT_DIR}}/design.md` —— 技术白盒，允许标识，**末尾含「陷阱与护栏」小节**。骨架与写作要点见 [`../references/design-format.md`](../references/design-format.md)。
