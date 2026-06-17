@@ -15,8 +15,9 @@ description: 对一个目标 skill 批跑分析各模块→观察→聚合→产
 
 ## Step 0:探状态
 
+约定:`SCRIPT_DIR` = 本 skill-eval 目录(SKILL.md 与 run.sh、lib/、agents/ 同处);下文 bash 代码块为模板,Claude 执行时把 `SCRIPT_DIR`/`RUN_DIR`/`<skill>` 替换为实际值。
+
 ```bash
-SCRIPT_DIR="$(dirname "$(realpath "$0")")"   # SKILL.md 所在目录 = run.sh 所在目录
 bash "${SCRIPT_DIR}/run.sh" status <skill>
 ```
 
@@ -56,14 +57,9 @@ bash "${SCRIPT_DIR}/run.sh" status <skill>
 对每个模块运行 observe.py:
 
 ```bash
-SCRIPT_DIR="<run.sh 所在目录>"
-for module_dir in "${RUN_DIR}/runs"/*/; do
-  python3 "${SCRIPT_DIR}/lib/observe.py" \
-    --run-dir "${RUN_DIR}" \
-    --module "$(basename "${module_dir}")" \
-    --skill <skill>
-  # 产出: ${module_dir}/findings.json
-done
+SCRIPT_DIR="<skill-eval 目录,即本 SKILL.md/run.sh 所在目录>"
+python3 "${SCRIPT_DIR}/lib/observe.py" "${RUN_DIR}" --skill <skill>
+# 一次调用自动遍历 ${RUN_DIR}/runs/ 下全部模块;每模块产出 ${RUN_DIR}/runs/<module>/findings.json
 ```
 
 ### B2 软判断(quality-judge agent,per 模块)
@@ -81,14 +77,14 @@ done
 输出 schema(写到此路径): ${module_dir}/judge.json
 {
   "module": "<module>",
-  "trap_quality": [
-    {"trap_text": "...", "verdict": "specific|generic|borderline", "reason": "..."}
+  "traps": [
+    {"text": "<§5 陷阱短文>", "label": "specific|generic|borderline", "reason": "一句理由"}
   ],
-  "hedge_confirmed": [
-    {"finding_id": "...", "confirmed": true|false, "reason": "..."}
+  "hedge_confirmations": [
+    {"evidence": "<design.md 命中行摘录>", "confirmed": true, "reason": "是否真为 v1.0.1 保留+对冲标注"}
   ],
-  "intentional_violations": [
-    {"description": "...", "violated_rule": "..."}
+  "deliberate_dont_violations": [
+    {"item": "<哪条刻意不做>", "violated": true, "evidence": "..."}
   ]
 }
 ```
@@ -112,12 +108,7 @@ agent 使用 `--allowedTools Read Grep Glob`(只读,不改产物)。
 {
   "module": "<module>",
   "assertions": [
-    {
-      "claim": "...",
-      "prescreen": "像真|像错|存疑",
-      "evidence": "文件:行 或 查询结果摘要",
-      "needs_human": true|false
-    }
+    {"claim": "...", "kind": "class|table|callchain|annotation", "prescreen": "像真|像错|存疑", "evidence": "文件:行 或 查询结果摘要", "needs_human": true}
   ]
 }
 ```

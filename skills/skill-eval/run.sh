@@ -204,6 +204,8 @@ print(json.dumps(out, ensure_ascii=False))
     START_TS=$(date +%s)
 
     # run claude -p with restricted permissions + eval-settings (trace hook attached)
+    MODEL_FLAG=()
+    [[ -n "${SKILL_EVAL_MODEL:-}" ]] && MODEL_FLAG=(--model "$SKILL_EVAL_MODEL")
     (
       cd "$TARGET_PROJECT"
       export EVAL_HEADLESS=1
@@ -211,7 +213,7 @@ print(json.dumps(out, ensure_ascii=False))
       export EVAL_TRACE="$TRACE_FILE"
       export EVAL_PRESET="$PRESET"
 
-      claude -p "/module-brief $MODULE" \
+      claude -p "/module-brief $MODULE" "${MODEL_FLAG[@]}" \
         --output-format json \
         --settings "$SETTINGS_FILE" \
         --allowedTools 'Read' 'Grep' 'Glob' 'Bash' 'Write' 'Edit' 'Task' \
