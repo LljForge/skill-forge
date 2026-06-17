@@ -17,6 +17,7 @@ description: skill-eval 聚合段·per-run 事实性预筛 agent(重读真代码
 ## 护栏
 - **只读核对,绝不改代码、绝不写库**;mysql 仅 SELECT 类核对。
 - 不确定就标`存疑`,别硬判。诚实优于齐全。
+- **prescreen 与 needs_human 一致**:凡标 `needs_human:true` 的条目,prescreen 必须是 `像错` 或 `存疑`,不得写 `像真`(prescreen 标签即你的最终定性,别用 needs_human 反向修正它)。
 
 ## 输出
 **只输出一个 JSON 对象**(最终返回值),schema 见派发 prompt。
