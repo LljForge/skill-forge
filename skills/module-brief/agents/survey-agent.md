@@ -29,7 +29,7 @@
 
 ## 步骤 3：写两份文档
 
-按格式权威写入 `{{OUTPUT_DIR}}`：
+按格式权威写入 `{{OUTPUT_DIR}}`（由启动 prompt 传入的上下文变量，已包含交互/headless 的正确路径，直接使用）：
 
 1. `{{OUTPUT_DIR}}/requirements.md` —— 业务视角，**禁代码标识**。骨架与写作要点见 [`../references/requirements-format.md`](../references/requirements-format.md)。
 2. `{{OUTPUT_DIR}}/design.md` —— 技术白盒，允许标识，**末尾含「陷阱与护栏」小节**。骨架与写作要点见 [`../references/design-format.md`](../references/design-format.md)。
