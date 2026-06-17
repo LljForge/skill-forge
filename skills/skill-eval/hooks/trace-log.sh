@@ -1,35 +1,37 @@
 #!/usr/bin/env bash
-# trace-log.sh — skill-eval 专用 trace hook
-# 挂载点：PostToolUse + SubagentStop
-# 作用：把每次工具调用/子 agent 停止追加一行 JSON 到 $EVAL_TRACE
+# trace-log.sh -- skill-eval dedicated trace hook
+# Attach points: PostToolUse + SubagentStop
+# Purpose: append one JSON line to $EVAL_TRACE per tool call / subagent stop
 #
-# stdin 格式（Claude Code hook JSON）:
+# stdin format (Claude Code hook JSON):
 #   PostToolUse:  { hook_event_name, session_id, agent_id, agent_type,
 #                   tool_name, tool_input, tool_response, tool_use_id, ... }
 #   SubagentStop: { hook_event_name, session_id, agent_id, agent_type,
 #                   stop_reason, stop_reason_details, ... }
 #
-# 若 $EVAL_TRACE 未设，静默退出（不干扰正常 claude 会话）
+# If $EVAL_TRACE is not set, exit silently (no effect on normal claude sessions)
 
 set -euo pipefail
 
-# 未配置 EVAL_TRACE 时静默退出，不影响正常使用
+# Silent exit when EVAL_TRACE not configured
 if [[ -z "${EVAL_TRACE:-}" ]]; then
   exit 0
 fi
 
-# 读取 stdin hook payload
-PAYLOAD=$(cat)
+# Read stdin hook payload
+_HOOK_PAYLOAD=$(cat)
 
-# 用 python3 解析并追加 trace 行
-python3 - "$EVAL_TRACE" "$PAYLOAD" <<'PYEOF'
+# Pass payload via env var to avoid shell quoting issues with JSON content
+export _HOOK_PAYLOAD
+
+python3 - "$EVAL_TRACE" <<'PYEOF'
 import sys
 import json
 import time
 import os
 
 trace_file = sys.argv[1]
-payload_str = sys.argv[2]
+payload_str = os.environ.get('_HOOK_PAYLOAD', '')
 
 if not payload_str.strip():
     sys.exit(0)
@@ -50,21 +52,29 @@ if event == 'PostToolUse':
     tool_input = payload.get('tool_input', {})
     tool_response = payload.get('tool_response', {})
 
-    # tool_input 摘要：保留关键字段，截断长字符串（避免 trace 爆炸）
+    # tool_input digest: keep key fields, truncate long strings
     if isinstance(tool_input, dict):
         input_digest = {}
-        for k, v in list(tool_input.items())[:5]:  # 最多 5 个字段
+        for k, v in list(tool_input.items())[:5]:
             sv = str(v)
             input_digest[k] = (sv[:200] + '...') if len(sv) > 200 else sv
     else:
         sv = str(tool_input)
         input_digest = (sv[:200] + '...') if len(sv) > 200 else sv
 
-    # tool_response 状态判断
+    # tool_response status detection
+    # Actual formats observed:
+    #   Bash/Glob: {"stdout":"...","stderr":"...","interrupted":false,...}
+    #   Read/Grep: {"type":"text","text":"..."} or similar
+    #   Error:     {"type":"error",...}
     if isinstance(tool_response, dict):
         resp_type = tool_response.get('type', '')
         if resp_type == 'error':
             resp_status = 'error'
+        elif 'stdout' in tool_response or 'stderr' in tool_response:
+            # Bash-style response
+            has_out = bool(tool_response.get('stdout', '')) or bool(tool_response.get('stderr', ''))
+            resp_status = 'ok' if has_out else 'empty'
         else:
             content = tool_response.get('text', tool_response.get('content', ''))
             resp_status = 'ok' if content else 'empty'
@@ -98,10 +108,10 @@ elif event == 'SubagentStop':
     }
 
 else:
-    # 其他事件静默忽略
+    # Ignore other events silently
     sys.exit(0)
 
-# 确保 trace 文件父目录存在，追加一行 JSON
+# Ensure trace file parent dir exists, append one JSON line
 trace_dir = os.path.dirname(trace_file)
 if trace_dir:
     os.makedirs(trace_dir, exist_ok=True)
