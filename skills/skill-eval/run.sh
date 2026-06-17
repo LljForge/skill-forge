@@ -39,10 +39,22 @@ if [[ "${1:-}" = "status" ]]; then
     exit 0
   fi
   rid=$(basename "$latest")
+  # 附 run 摘要(ok/failed/processed)供编排层判断「旧 run 是否匹配本次请求」——
+  # 避免把历史/小批测试 run 误当本次结果(见 SKILL.md Step 0)。
+  summary_kv=$(python3 - "${latest}/run-manifest.json" <<'PYEOF' 2>/dev/null || true
+import json, sys
+try:
+    d = json.load(open(sys.argv[1], encoding='utf-8'))
+except Exception:
+    print(""); raise SystemExit
+ok = d.get('ok', []); failed = d.get('failed', [])
+print(f"ok={len(ok)} failed={len(failed)} processed={len(ok)+len(failed)}")
+PYEOF
+)
   if [[ -f "${latest}/run-manifest.json" ]] && grep -q '"summary"' "${latest}/run-manifest.json"; then
-    echo "done ${rid}"
+    echo "done ${rid} ${summary_kv}"
   else
-    echo "running ${rid}"
+    echo "running ${rid} ${summary_kv}"
   fi
   exit 0
 fi
@@ -116,6 +128,15 @@ print(' '.join(arts))
 PYEOF
 )
 fi
+
+# headless 落点异常兜底目录(相对目标项目根,{module} 占位);空=不兜底
+INTERACTIVE_DIR_TPL=$(python3 - "$MANIFEST_FILE" <<'PYEOF'
+import yaml, sys
+with open(sys.argv[1]) as f:
+    d = yaml.safe_load(f)
+print(d.get('interactive_artifact_dir', '') or '')
+PYEOF
+)
 
 CORPUS_FILE="$TARGET_PROJECT/$CORPUS_REL"
 if [[ ! -f "$CORPUS_FILE" ]]; then
@@ -233,7 +254,7 @@ print(json.dumps(out, ensure_ascii=False))
       export EVAL_TRACE="$TRACE_FILE"
       export EVAL_PRESET="$PRESET"
 
-      claude -p "/$TARGET_SKILL $MODULE" "${MODEL_FLAG[@]}" \
+      claude -p "/$TARGET_SKILL $MODULE" ${MODEL_FLAG[@]+"${MODEL_FLAG[@]}"} \
         --output-format json \
         --settings "$SETTINGS_FILE" \
         --allowedTools 'Read' 'Grep' 'Glob' 'Bash' 'Write' 'Edit' 'Task' \
@@ -256,10 +277,21 @@ with open(sys.argv[1], 'w') as f:
     json.dump(d, f, ensure_ascii=False, indent=2)
 PYEOF
 
-  # check artifacts exist
+  # check artifacts exist;EVAL_OUT 缺失时从交互落点(interactive_artifact_dir)回收(headless 落点兜底)
   MISSING_LIST=""
+  FALLBACK_DIR=""
+  if [[ -n "$INTERACTIVE_DIR_TPL" ]]; then
+    FALLBACK_DIR="$TARGET_PROJECT/${INTERACTIVE_DIR_TPL//\{module\}/$MODULE}"
+  fi
   for art in $EXPECTED_ARTIFACTS; do
-    [[ -f "$MODULE_RUN_DIR/$art" ]] || MISSING_LIST="${MISSING_LIST}${art},"
+    if [[ ! -f "$MODULE_RUN_DIR/$art" ]]; then
+      if [[ -n "$FALLBACK_DIR" && -f "$FALLBACK_DIR/$art" ]]; then
+        cp "$FALLBACK_DIR/$art" "$MODULE_RUN_DIR/$art"
+        echo "  warn: $art 未落 EVAL_OUT,已从交互落点回收 ($FALLBACK_DIR/$art) — 落点异常,根因见交接包 C1"
+      else
+        MISSING_LIST="${MISSING_LIST}${art},"
+      fi
+    fi
   done
   [[ -f "$TRACE_FILE" ]]                     || MISSING_LIST="${MISSING_LIST}trace.jsonl,"
   [[ -f "$RUN_JSON" ]]                       || MISSING_LIST="${MISSING_LIST}run.json,"

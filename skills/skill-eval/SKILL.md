@@ -16,8 +16,9 @@ description: 对一个目标 skill 批跑分析各模块→观察→聚合→产
 | `--limit N` | 只跑 corpus 前 N 个模块(试信噪比) | 全量 |
 | `--model M` | 钉模型(如 `--model claude-haiku-4-5`),省钱但折损评测效度 | 不设=继承会话 Opus |
 | `--project PATH` | 目标项目根 | 当前项目根(`git rev-parse --show-toplevel`,取不到用 `pwd`) |
+| `--fresh` | 无视已有 `done` 批,强制起新批跑(不复用历史 run) | 默认探到 `done` 就接它聚合 |
 
-例:`/skill-eval module-brief`(全量·Opus·评当前项目)、`/skill-eval module-brief --limit 4`、`/skill-eval module-brief --limit 4 --model claude-haiku-4-5`。先探状态,再决定干哪段。
+例:`/skill-eval module-brief`(全量·Opus·评当前项目)、`/skill-eval module-brief --limit 4`、`/skill-eval module-brief --limit 4 --model claude-haiku-4-5`、`/skill-eval module-brief --fresh`(强制重跑一批)。先探状态,再决定干哪段。
 > - **新能力一律走具名参数**(未来如 `--modules organization,company` 跑指定模块、`--runs 3` 一致性多跑),在 A 段同一处解析,不破坏现有调用——别再加位置参数。
 > - **全程 Skill 驱动,用户不碰脚本**:A 段由本 skill 后台起批跑,B 段聚合也由本 skill 编排;`run.sh`/`lib/*.py` 是内部资产。
 
@@ -27,13 +28,17 @@ description: 对一个目标 skill 批跑分析各模块→观察→聚合→产
 
 约定:`SCRIPT_DIR` = 本 skill-eval 目录(SKILL.md 与 run.sh、lib/、agents/ 同处);下文 bash 代码块为模板,Claude 执行时把 `SCRIPT_DIR`/`RUN_DIR`/`<skill>` 替换为实际值。
 
+> **`--fresh` 短路**:本次调用带 `--fresh` 时,**跳过状态探测、直接进 A 段起新批**(无视下面的 `done`)。用于历史 run 不匹配本次意图时强制重跑。
+
 ```bash
 bash "${SCRIPT_DIR}/run.sh" status <skill>
 ```
 
+status 输出形如 `none` / `running <run-id> ok=X failed=Y processed=Z` / `done <run-id> ok=X failed=Y processed=Z`(KV 摘要供判断旧 run 是否匹配本次请求):
+
 - 输出 `none` → 进 **A 段:起批跑**。
-- 输出 `running <run-id>` → **报进度**:读 `$SKILL_EVAL_SCRATCH/skill-eval/<skill>/<run-id>/run-manifest.json` 的 `ok`/`failed` 数组长度,告知用户「已完成 X 模块,失败 Y 模块,批跑仍在后台运行中」,返回(不阻塞)。
-- 输出 `done <run-id>` → 进 **B 段:聚合**,`RUN_DIR=$SKILL_EVAL_SCRATCH/skill-eval/<skill>/<run-id>`。
+- 输出 `running <run-id> …` → **报进度**:据摘要 `ok=X failed=Y` 告知用户「已完成 X 模块,失败 Y 模块,批跑仍在后台运行中」,返回(不阻塞)。
+- 输出 `done <run-id> …` → **先据摘要判断旧 run 是否匹配本次请求**:若 `processed` 与本次 `--limit`(或全量模块数)明显不符,或该 run 是历史/小批测试残留,**提示用户**「探到的是历史批 `<run-id>`(processed=Z),要接它聚合,还是 `--fresh` 重跑?」,按用户选择决定;匹配则直接进 **B 段:聚合**,`RUN_DIR=$SKILL_EVAL_SCRATCH/skill-eval/<skill>/<run-id>`。
 
 ---
 
@@ -45,6 +50,7 @@ bash "${SCRIPT_DIR}/run.sh" status <skill>
    - `--project PATH` → `TP=PATH`;否则 `TP=${SKILL_EVAL_TARGET_PROJECT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}`(取当前项目根)。
    - `--limit N` → 批跑时 `export SKILL_EVAL_CORPUS_LIMIT=N`;没给则全量。
    - `--model M` → 批跑时 `export SKILL_EVAL_MODEL=M`;没给则不设(继承会话 Opus)。
+   - `--fresh` → 仅作 Step 0 的短路开关(无视 `done` 直接进本段),不对应 env;起批本身就是新 run。
 2. **告知估算**:读 `$TP/.skill-eval/corpus/<skill>.yml` 取模块数;告知用户:实际要跑几个模块(有 `--limit` 则 min(N,上限))/ 预计耗时(~模块数×5min)/ 成本(~$1.9/模块·Opus)/ 模型(`--model` 给的 or 默认 Opus)/ 日志位置 `$SKILL_EVAL_SCRATCH/skill-eval/<skill>/<run-id>/`。
 3. **后台起批跑**(用**后台 Bash**(run_in_background),不阻塞会话;只 export 解析到的项):
    ```bash
@@ -101,6 +107,8 @@ python3 "${SCRIPT_DIR}/lib/observe.py" "${RUN_DIR}" --skill <skill>
     {"item": "<哪条刻意不做>", "violated": true, "evidence": "..."}
   ]
 }
+
+【JSON 合法性铁律】字符串值内的中文引述一律用中文引号「」,**严禁英文直双引号 `"`**(会破坏 JSON);内嵌英文代码/标识(如 @TableName("x"))必须写成 \" 转义。
 ```
 
 agent 使用 `--allowedTools Read Grep Glob`(只读,不改产物)。
@@ -125,6 +133,8 @@ agent 使用 `--allowedTools Read Grep Glob`(只读,不改产物)。
     {"claim": "...", "kind": "class|table|callchain|annotation", "prescreen": "像真|像错|存疑", "evidence": "文件:行 或 查询结果摘要", "needs_human": true}
   ]
 }
+
+【JSON 合法性铁律】字符串值内的中文引述一律用中文引号「」,**严禁英文直双引号 `"`**(会破坏 JSON);内嵌英文代码/标识(如 @TableName("x"))必须写成 \" 转义。
 ```
 
 注意:`prescreen` 与 `needs_human` 必须一致——`像错`/`存疑` 对应 `needs_human:true`,`像真` 对应 `needs_human:false`。
@@ -137,6 +147,17 @@ python3 "${SCRIPT_DIR}/lib/aggregate.py" \
   --run "${RUN_DIR}" \
   --out "${RUN_DIR}/aggregate-input.json"
 ```
+
+### B4.5 校验 judge/grounding 合法性(确定性,防 agent 裸写 JSON 破损)
+
+agent 裸写 JSON 易在中文叙述里夹英文直双引号而破坏结构。派 aggregator 前先兜底:
+
+```bash
+python3 "${SCRIPT_DIR}/lib/validate_json.py" "${RUN_DIR}"
+```
+
+- 全 `OK`/`REPAIRED`(自动修了中文夹英文引号)→ 退出码 0,继续 B5。
+- 退出码 1 且打印 `STILL_BROKEN_MODULES <模块…>` → 对这些模块**重派一次**对应 B2/B3 agent(prompt 里强调「上次输出 JSON 非法,务必严格合法、中文引述用「」」),再跑本步;仍坏则在 B6 如实说明该模块 judge/grounding 缺失、不臆造。
 
 ### B5 聚类分类(aggregator agent)
 
@@ -185,4 +206,5 @@ ${RUN_DIR}/handoff/C{n}.md
 - 每条候选标「通用 skill 缺陷 / 项目特有噪声」——**只有通用的喂 skill-forge**。
 - 不 oversell,每条标 能力缺口 / 工程小优。
 - agent 派发时**必须在 prompt 里给出输出 schema 与输出路径**;agent 本身不内置 schema,派发者负责注入。
+- agent 写 JSON 须合法:中文引述用「」、英文标识 `\"` 转义;编排层在 **B4.5** 用 `validate_json.py` 兜底校验+修复,仍坏则重派对应 agent。
 - B2/B3 agent 用 `--allowedTools Read Grep Glob`(B3 加 `mcp__mysql_*`),绝不用 `--dangerously-skip-permissions`。
