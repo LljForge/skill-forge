@@ -1,0 +1,12 @@
+# module-brief 批跑清单（引擎侧）
+# 严禁在此文件写入目标项目真值（模块名/前缀/业务名）
+# 目标项目特有信息只进 corpus_file 所指向的文件
+target_skill: module-brief
+target_project_env: SKILL_EVAL_TARGET_PROJECT   # 目标项目路径由调用方经 env 传入，不硬编码
+corpus_file: .skill-eval/corpus/module-brief.yml # 相对目标项目根；真值只在此文件里
+runs_per_target: 1
+gates:
+  - step: "Step 1 定位确认"
+    answer_from: preset_answers
+hard_validators: []          # module-brief 无硬校验器
+rubric_ref: rubrics/module-brief.md   # 2B 才用，先占位指针（本计划不建 rubric 内容）
