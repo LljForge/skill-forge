@@ -23,7 +23,7 @@
 
 **Files:**
 - Create(一次性、跑完删): `~/.claude/skills/eval-smoke/SKILL.md`
-- Modify: `/Users/lilongjian/Projects/AI/skill-forge/docs/skill-eval/specs/2026-06-17-skill-eval-harness-design.md`(§8 回写实测结论)
+- Modify: `/Users/lilongjian/Projects/AI/skill-forge/docs/superpowers/specs/2026-06-17-skill-eval-harness-design.md`(§8 回写实测结论)
 
 **Interfaces:**
 - Produces: 一句实测结论「headless 下 AskUserQuestion = 空过(返回空答案)/ 阻塞 / 报错」+ 计时,供计划二定剥门方案。
@@ -78,7 +78,7 @@ echo "=== run json 末尾 ==="; tail -c 800 /tmp/eval-smoke-run.json
 ```bash
 rm -rf ~/.claude/skills/eval-smoke /tmp/eval-smoke-*.txt /tmp/eval-smoke-run.json
 cd /Users/lilongjian/Projects/AI/skill-forge && git checkout design/skill-eval-harness
-git add docs/skill-eval/specs/2026-06-17-skill-eval-harness-design.md
+git add docs/superpowers/specs/2026-06-17-skill-eval-harness-design.md
 git commit -m "docs(skill-eval): 回写 AskUserQuestion headless 行为本机实测结论(§8)"
 ```
 Expected: `git log --oneline -1` 显示该提交;`~/.claude/skills/eval-smoke` 已不存在。

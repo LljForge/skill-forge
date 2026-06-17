@@ -37,6 +37,6 @@
 - **C:收尾小优**(随手):清掉 4 个 acceptable Minor(`run.sh` STARTED vestigial、`observe/aggregate` 的 `open()` 用 `with`、rubric 标题内嵌反引号、`slice_section` `header[:8]` 对 `## 50` 假设场景)+ `CHANGELOG` 的 "GMZB" 措辞改"单一目标项目"。
 
 ## 参考
-- 设计(权威):`docs/skill-eval/specs/2026-06-17-skill-eval-harness-design.md`(§3 聚合侧、§6 验收)。
-- 2B 计划 + 进度:`docs/skill-eval/plans/2026-06-17-skill-eval-2b-aggregate.md`;skill-forge `.git/sdd/progress.md`、GMZB `.git/sdd/progress.md`。
+- 设计(权威):`docs/superpowers/specs/2026-06-17-skill-eval-harness-design.md`(§3 聚合侧、§6 验收)。
+- 2B 计划 + 进度:`docs/superpowers/plans/2026-06-17-skill-eval-2b-aggregate.md`;skill-forge `.git/sdd/progress.md`、GMZB `.git/sdd/progress.md`。
 - whole-branch review = Ready to merge,0 Critical/0 Important。
