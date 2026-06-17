@@ -71,7 +71,7 @@ python3 "${SCRIPT_DIR}/lib/observe.py" "${RUN_DIR}" --skill <skill>
 
 输入文件:
 - design.md 路径: ${module_dir}/design.md
-- rubric prose 路径: ${SCRIPT_DIR}/rubrics/module-brief.md
+- rubric prose 路径: ${SCRIPT_DIR}/rubrics/<skill>.md
 - needs_judge findings: <从 findings.json 抽取 verdict=needs_judge 的项,JSON 列表>
 
 输出 schema(写到此路径): ${module_dir}/judge.json

@@ -97,6 +97,26 @@ print(d.get('runs_per_target', 1))
 PYEOF
 )
 
+# 期望产物名取自 rubric.artifacts(per-skill 契约),run.sh 不硬编码具体 skill 的产物名
+RUBRIC_REL=$(python3 - "$MANIFEST_FILE" <<'PYEOF'
+import yaml, sys
+with open(sys.argv[1]) as f:
+    d = yaml.safe_load(f)
+print(d.get('rubric_ref', ''))
+PYEOF
+)
+EXPECTED_ARTIFACTS=""
+if [[ -n "$RUBRIC_REL" && -f "$SCRIPT_DIR/$RUBRIC_REL" ]]; then
+  EXPECTED_ARTIFACTS=$(python3 - "$SCRIPT_DIR/$RUBRIC_REL" <<'PYEOF'
+import re, yaml, sys
+txt = open(sys.argv[1], encoding='utf-8').read()
+m = re.search(r'```yaml\n(.*?)\n```', txt, re.S)
+arts = (yaml.safe_load(m.group(1)).get('artifacts', []) if m else []) or []
+print(' '.join(arts))
+PYEOF
+)
+fi
+
 CORPUS_FILE="$TARGET_PROJECT/$CORPUS_REL"
 if [[ ! -f "$CORPUS_FILE" ]]; then
   echo "[run.sh] Error: corpus file not found: $CORPUS_FILE" >&2
@@ -238,8 +258,9 @@ PYEOF
 
   # check artifacts exist
   MISSING_LIST=""
-  [[ -f "$MODULE_RUN_DIR/requirements.md" ]] || MISSING_LIST="${MISSING_LIST}requirements.md,"
-  [[ -f "$MODULE_RUN_DIR/design.md" ]]       || MISSING_LIST="${MISSING_LIST}design.md,"
+  for art in $EXPECTED_ARTIFACTS; do
+    [[ -f "$MODULE_RUN_DIR/$art" ]] || MISSING_LIST="${MISSING_LIST}${art},"
+  done
   [[ -f "$TRACE_FILE" ]]                     || MISSING_LIST="${MISSING_LIST}trace.jsonl,"
   [[ -f "$RUN_JSON" ]]                       || MISSING_LIST="${MISSING_LIST}run.json,"
   MISSING_LIST="${MISSING_LIST%,}"
