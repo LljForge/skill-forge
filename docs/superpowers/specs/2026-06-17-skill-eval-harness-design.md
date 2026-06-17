@@ -233,3 +233,5 @@ barrier(全部 finding 到齐后):
 2. **子 agent 嵌套观察**:module-spec-baseline 起 4-5 个子 agent,trace 量大;v1 只 module-brief(1 子 agent)先不碰这复杂度。
 3. **promote 目标 skill 的发现机制 + openspec specs 联动**:确认迁移后 GMZB 仍能发现这两个 skill;module-spec-baseline 与 `openspec/specs/` 的关系不被迁移破坏。
 4. **token 成本**:全模块 × K 跑 `claude -p`,K 默认 1 控成本;一致性多跑只对小子集开。
+   > 【2026-06-17 实测】批跑侧端到端跑通(run.sh + headless 模式 + trace hook)。module-brief 的 survey-agent **默认继承会话模型(实测跑在 Opus)、约 $1.92/模块** → 全 15 模块一轮 ≈ $29。**可优化**:eval 批跑给 `claude -p` 钉更便宜模型(Sonnet/Haiku)做 module-brief,成本可大幅降——属 run.sh/eval 配置的调优旋钮,2B 或后续按需开。
+   > 【集成 bug 已修】run.sh 的 `EVAL_OUT` 曾设成已含模块名的目录、与 module-brief「追加 `/<module>/`」契约冲突致产物双嵌套+误判失败;已修为 `EVAL_OUT`=父目录(commit 92168e1)。trace `tool_response_status` 对 Read 类工具记为 `empty`(hook 保真小瑕疵、不阻断,2B 知悉即可)。
