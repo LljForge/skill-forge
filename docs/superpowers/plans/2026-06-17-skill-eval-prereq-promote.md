@@ -15,6 +15,7 @@
 - **symlink 以实际生效者为准**:全局 symlink 的落点/写法**镜像现有 `recon-driven-dev` 的 symlink**(先 `ls -la` 看它怎么建的,照做),不臆测 `~/.claude/skills` vs `~/.agents/skills`。
 - **两个独立 git 仓**:skill-forge(分支 `design/skill-eval-harness`,已存在)与 GMZB(需新建分支)。迁移=skill-forge 侧 `git add` + GMZB 侧 `git rm`,各自提交。
 - **冒烟结果是计划二的前置**:Task 1 的实测结论必须回写 [设计文档](../specs/2026-06-17-skill-eval-harness-design.md) §8 风险 #1,计划二据此定剥门细节。
+- **嵌套 claude 只用受限权限,绝不用 `--dangerously-skip-permissions`**:唯一需要嵌套 `claude -p` 的是 Task 1 冒烟(测 AskUserQuestion 运行时行为),用 `--allowedTools 'AskUserQuestion' 'Bash'` 限定;其余验证用文件级检查(readlink/ls),不跑 claude。
 
 ---
 
@@ -48,9 +49,10 @@ description: 一次性冒烟,测 headless 下 AskUserQuestion 行为。用完即
 Run:
 ```bash
 rm -f /tmp/eval-smoke-result.txt
-( time claude -p "/eval-smoke" --output-format json --dangerously-skip-permissions ) > /tmp/eval-smoke-run.json 2> /tmp/eval-smoke-time.txt
+( time claude -p "/eval-smoke" --output-format json --allowedTools 'AskUserQuestion' 'Bash' ) > /tmp/eval-smoke-run.json 2> /tmp/eval-smoke-time.txt
 echo "---exit:$?---"; cat /tmp/eval-smoke-time.txt
 ```
+> 用 `--allowedTools 'AskUserQuestion' 'Bash'`(放行这两个工具、不跳过权限门),**不用** `--dangerously-skip-permissions`。
 Expected(三选一,记下到底哪种):
 - **空过**(印证调研):命令**秒级返回**(`real` < ~15s)、不 hang;`/tmp/eval-smoke-result.txt` 存在且形如 `ANSWER=[]`(空)。
 - **阻塞**:命令**挂住不返回**(需 Ctrl-C / 超时)。
@@ -129,14 +131,14 @@ git commit -m "chore(skills): module-brief 提为全局共享 skill,移除 GMZB 
 ```
 Expected: `.claude/skills/module-brief` 不再存在;`git log --oneline -1` 显示该提交。
 
-- [ ] **Step 5: 验证 GMZB cwd 下仍能发现 module-brief(走全局 symlink)**
+- [ ] **Step 5: 文件级验证 module-brief 发现源已切到 skill-forge(不跑 claude)**
 
 ```bash
-cd /Users/lilongjian/Projects/GMZB/master-data
-readlink -f ~/.claude/skills/module-brief 2>/dev/null || readlink -f <LINK_DIR>/module-brief
-claude -p "用一句话说明 /module-brief 这个 skill 是做什么的,并打印它 SKILL.md 的绝对路径" --dangerously-skip-permissions 2>&1 | tail -20
+readlink -f <LINK_DIR>/module-brief                 # 应解析到 skill-forge/skills/module-brief
+ls -la <LINK_DIR>/module-brief <LINK_DIR>/recon-driven-dev   # 新 symlink 与已知 active 的对照同构
+test -f <LINK_DIR>/module-brief/SKILL.md && echo "SKILL.md 经 symlink 可达 ✅"
 ```
-Expected: 打印的 SKILL.md 绝对路径落在 `skill-forge/skills/module-brief/`(证明发现源已切到 skill-forge,且 GMZB cwd 下仍可见)。
+Expected: `readlink -f` 落在 `skill-forge/skills/module-brief`;新 symlink 与 `recon-driven-dev`(同机制已 active 的实证)**写法同构** ⇒ 由构造保证同一 skillsPath 扫描必发现它,无需跑 claude 证明。
 
 ---
 
@@ -218,12 +220,14 @@ ls /Users/lilongjian/Projects/GMZB/master-data/openspec/specs/ | wc -l
 ```
 Expected: `12`(迁移未碰运行时产物)。
 
-- [ ] **Step 4: 跨 cwd 可发现性抽查(在非 GMZB 目录也能用)**
+- [ ] **Step 4: 文件级跨 cwd 可发现性抽查(不跑 claude)**
 
 ```bash
-cd /tmp && claude -p "列出当前可用 skill 里是否有 module-brief 和 module-spec-baseline,各打印其 SKILL.md 绝对路径" --dangerously-skip-permissions 2>&1 | tail -20
+for s in module-brief module-spec-baseline recon-driven-dev; do
+  echo "== $s =="; ls -la <LINK_DIR>/$s; readlink -f <LINK_DIR>/$s
+done
 ```
-Expected: 两者都列出,路径均在 skill-forge(证明已是全局共享、不再依赖 GMZB cwd)。
+Expected: 三者 symlink 都在全局 LINK_DIR、都解析到 `skill-forge/skills/<s>`、写法同构(前两个为本次新增,recon-driven-dev 为同机制 active 的对照基准)。symlink 在全局路径 ⇒ 与 cwd 无关、全局可发现(由构造保证)。
 
 - [ ] **Step 5: 结论小结(不提交代码,仅口头汇报)**
 
