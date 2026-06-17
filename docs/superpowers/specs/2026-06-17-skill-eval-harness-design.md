@@ -228,6 +228,7 @@ barrier(全部 finding 到齐后):
 ## 8. 风险与动手前必做
 
 1. **AskUserQuestion headless 行为版本敏感**:研究是文档+issue 调研、**未本机实跑验证**。**动手前先冒烟测试**——用一个含 `AskUserQuestion` 的最小 skill 在本机 `claude -p` 跑一次,确认当前版本到底是 空过 / 阻塞 / 报错,再据此定剥门细节。
+   > 【2026-06-17 本机实测】claude-code 2.1.163:headless 下 AskUserQuestion = **permission_denied 型空过**——工具调用被拒(出现在 `permission_denials` 列表),模型拿到 `<error>Answer questions?</error>` 错误字符串后**流程继续**,session `terminal_reason: completed`、exit 0,耗时约 22s。与调研 #50728 「静默返回空答案」有细节差异:不是答案为空数组,而是收到 error 字符串但流程仍不阻塞。计划二剥门按「skill 内 headless 分支读预设答案、跳过 AskUserQuestion」推进,无需调整大方向;但 skill 内 headless 分支需用 `$EVAL_HEADLESS` 环境变量或预设参数主动规避 `AskUserQuestion` 调用(不能依赖工具被空过后恢复正常——它拿到的是错误字符串,可能干扰后续逻辑)。
 2. **子 agent 嵌套观察**:module-spec-baseline 起 4-5 个子 agent,trace 量大;v1 只 module-brief(1 子 agent)先不碰这复杂度。
 3. **promote 目标 skill 的发现机制 + openspec specs 联动**:确认迁移后 GMZB 仍能发现这两个 skill;module-spec-baseline 与 `openspec/specs/` 的关系不被迁移破坏。
 4. **token 成本**:全模块 × K 跑 `claude -p`,K 默认 1 控成本;一致性多跑只对小子集开。
