@@ -9,6 +9,8 @@
 - §6.3 诚实定性:价值多半是工程性;**0~少数候选是合法、有价值的结论**,别为凑数硬找。
 
 ## 怎么跑(入口)
+> **照着抄的具体命令、env 怎么设、产物在哪、接新 skill 步骤 → 看 [operations-manual.md](operations-manual.md)。** 本节只给概念。
+
 `/skill-eval module-brief` —— 状态感知入口(`skill-forge/skills/skill-eval/SKILL.md`)。它自己看 workspace 状态:
 - 没跑过批 → 起批跑(harness 后台任务),报「N 模块/约 $X/日志位置」,返回。
 - 批在跑 → 报进度。
