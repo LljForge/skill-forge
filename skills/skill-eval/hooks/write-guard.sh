@@ -23,11 +23,20 @@ except Exception:
 # 取不到 file_path:放行(信息不足不拦)
 [[ -n "$FP" ]] || exit 0
 
+# 收紧到本模块目录:$EVAL_OUT/<本模块>/(本模块从 EVAL_MODULE 取);
+# 取不到模块名则退回 $EVAL_OUT/ 级(至少挡住写项目 docs/)。
+MODULE="${EVAL_MODULE:-}"
+if [[ -n "$MODULE" ]]; then
+  ALLOWED="$EVAL_OUT/$MODULE/"
+else
+  ALLOWED="$EVAL_OUT/"
+fi
+
 case "$FP" in
-  "$EVAL_OUT"/*)
-    exit 0 ;;                       # 落在 EVAL_OUT 内,放行
+  "$ALLOWED"*)
+    exit 0 ;;                       # 落在本模块目录内,放行
   *)
-    echo "[write-guard] headless 下禁止写到 EVAL_OUT 之外:$FP" >&2
-    echo "  产物只能落 $EVAL_OUT/<module>/(防 derail 落点漂移到项目 docs/)。" >&2
+    echo "[write-guard] headless 下 Write 只能落本模块目录:$ALLOWED" >&2
+    echo "  被拒路径:$FP(防 derail 落点漂移到 docs/ 或写串其它模块目录)。" >&2
     exit 2 ;;                       # PreToolUse exit 2 = 阻止该 Write
 esac

@@ -1,15 +1,15 @@
 # skill-eval CHANGELOG
 
-## v0.2.3 — Write 落点白名单 + per-skill allowed_tools(derail 三层根治收口)
+## v0.2.3 — Write 落点白名单 + agent-guard(derail 机制根治收口)
 
-配合 module-brief v1.0.3 去子 agent 化,把 derail 防护从"事后兜底"升级为"机制杜绝":
+配合 module-brief v1.0.3 去子 agent 化,把 derail 防护从"事后兜底"升级为"机制杜绝"(均 PreToolUse hook,仅 headless 生效、不扰交互):
 
-- **PreToolUse Write 白名单**(`hooks/write-guard.sh`):headless 下 Write 只许落 `$EVAL_OUT/` 内,写项目 `docs/` 等一律 deny(exit 2)。机制锁落点——即便靶 skill 偶发落点漂移也写不出错地方。仅 headless 生效、不扰交互。
-- **manifest 支持 per-skill `allowed_tools`**(run.sh 读取,未配则默认含 Task 兼容其他 skill):module-brief 去掉 `Task` —— 单上下文不派 agent,**没 Task 工具,想 fan-out 都不能**。
+- **Write 落点白名单**(`hooks/write-guard.sh`):Write 只许落 `$EVAL_OUT/<本模块>/`（本模块从 `EVAL_MODULE` 取）；写项目 `docs/` 或串到其它模块目录一律 deny。
+- **Agent 守卫**(`hooks/agent-guard.sh`）：单上下文 skill（manifest `single_context: true` → run.sh export `EVAL_NO_SUBAGENT=1`）headless 下禁止派子 agent。matcher `Agent|Task`。多 agent skill 不受影响。
 
-> 至此 derail 三层根治:**架构**(module-brief 主上下文自干、不派 agent)+ **工具**(无 Task)+ **落点**(Write 白名单)。v0.2.2 的 docs 隔离作为"历史产物联想"的额外防线保留。
+> 三层根治:**架构**（module-brief 主上下文自干、不派 agent）+ **hook 禁派**（agent-guard）+ **落点锁本模块**（write-guard）。v0.2.2 的 docs 隔离作为额外防线保留。
 >
-> 取证复盘:docs 隔离(v0.2.2)只掐掉一个触发源(company 转正常),但 derail 换模块复发(bank 起 4 agent)——证明掐输入触发源是打地鼠,根治要从"模型能做什么"(工具/架构/落点)下手,非"模型为什么这么想"。
+> 取证复盘踩过的两个坑：① docs 隔离（v0.2.2）只掐掉一个触发源（company 转正常），derail 仍换模块复发（bank 起 4 agent）——掐输入触发源是打地鼠，根治要从「模型能做什么」（架构/工具/落点）下手。② 初版想用 `--allowedTools` 去掉 `Task` 来禁 fan-out，**实测无效**——子 agent 工具实际名为 `Agent`、且 `--allowedTools` 禁不掉它；改用 PreToolUse hook（确定拦截）+ `single_context` 开关（per-skill，不误伤多 agent skill）。
 
 ## v0.2.2 — headless 落点隔离(掐「历史 docs 联想」触发源)
 

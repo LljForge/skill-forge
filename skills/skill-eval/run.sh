@@ -138,20 +138,15 @@ print(d.get('interactive_artifact_dir', '') or '')
 PYEOF
 )
 
-# 嵌套 claude 的 --allowedTools:manifest 可 per-skill 覆盖(如 module-brief 去 Task);未配则用默认
-ALLOWED_TOOLS_STR=$(python3 - "$MANIFEST_FILE" <<'PYEOF'
+# 单上下文 skill(manifest single_context: true):headless 下禁止派子 agent。
+# (--allowedTools 禁不掉子 agent 工具 Agent,故靠 agent-guard hook 据 EVAL_NO_SUBAGENT 拦)
+SINGLE_CONTEXT=$(python3 - "$MANIFEST_FILE" <<'PYEOF'
 import yaml, sys
 with open(sys.argv[1]) as f:
     d = yaml.safe_load(f)
-t = d.get('allowed_tools')
-print(' '.join(t) if t else '')
+print('1' if d.get('single_context') else '')
 PYEOF
 )
-if [[ -n "$ALLOWED_TOOLS_STR" ]]; then
-  read -ra ALLOWED_TOOLS <<< "$ALLOWED_TOOLS_STR"
-else
-  ALLOWED_TOOLS=(Read Grep Glob Bash Write Edit Task)
-fi
 
 CORPUS_FILE="$TARGET_PROJECT/$CORPUS_REL"
 if [[ ! -f "$CORPUS_FILE" ]]; then
@@ -294,11 +289,13 @@ print(json.dumps(out, ensure_ascii=False))
       export EVAL_OUT="$RUN_DIR/runs"
       export EVAL_TRACE="$TRACE_FILE"
       export EVAL_PRESET="$PRESET"
+      export EVAL_NO_SUBAGENT="$SINGLE_CONTEXT"   # 单上下文 skill:agent-guard hook 据此禁派子 agent
+      export EVAL_MODULE="$MODULE"                 # write-guard 据此把 Write 锁到本模块目录
 
       claude -p "/$TARGET_SKILL $MODULE" ${MODEL_FLAG[@]+"${MODEL_FLAG[@]}"} \
         --output-format json \
         --settings "$SETTINGS_FILE" \
-        --allowedTools "${ALLOWED_TOOLS[@]}" \
+        --allowedTools 'Read' 'Grep' 'Glob' 'Bash' 'Write' 'Edit' 'Task' \
         > "$RUN_JSON" 2>&1
     ) || EXIT_CODE=$?
 

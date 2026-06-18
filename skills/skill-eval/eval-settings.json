@@ -9,6 +9,15 @@
             "command": "/Users/lilongjian/Projects/AI/skill-forge/skills/skill-eval/hooks/write-guard.sh"
           }
         ]
+      },
+      {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/lilongjian/Projects/AI/skill-forge/skills/skill-eval/hooks/agent-guard.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [
