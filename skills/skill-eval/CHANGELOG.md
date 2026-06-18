@@ -1,5 +1,13 @@
 # skill-eval CHANGELOG
 
+## v0.2.2 — headless 落点隔离(治 derail 根因)
+
+批跑期间暂存目标项目的交互产物目录(`interactive_artifact_dir` 的父目录,如 `docs/module-brief/`),消除靶 skill 在 headless 下「`ls` 到历史产物 → 误判多模块批量」的 derail 触发源。`trap` 保证正常/异常/中断都恢复历史;每模块跑后清掉本轮 derail 副本,保持下一模块干净视野;路径防御(必须项目内相对多级路径)。
+
+> 取证(run `20260618-023704`,交接包 C1 验证轮):module-brief 主上下文 headless 下撞见历史 `docs/module-brief/` 后**自主扩展成 4 模块批量、起 4 个 survey-agent、全写 docs**,EVAL_PRESET 只含单模块、且**未读 corpus**(grep 零命中)。根因是 headless 无人值守靠「模型自觉」这一机制脆弱,非靶 skill 指令缺失——故修在 harness(掐断联想原料),不在 module-brief 堆指令(那是「教已知」)。
+>
+> 同轮修正一项基础认知:**trace 记 `tool_input_digest`(截断前缀),非完全不记 input**——取证可据此还原读取/Bash/agent 派发,比设计 §2.3 假设的强。
+
 ## v0.2.1 — 首次真实自举 + 引擎健壮性修复
 
 首次对 module-brief 真实批跑(单项目 4 模块)走通全闭环,暴露并修复 4 处引擎问题:

@@ -201,6 +201,32 @@ for m in modules[:limit]:
     print(json.dumps(m, ensure_ascii=False))
 PYEOF
 
+# ── headless 落点隔离 ──────────────────────────────────────────
+# 暂存目标项目的交互产物目录(interactive_artifact_dir 的父目录),消除靶 skill 在
+# headless 下「ls 到历史产物 → 误判多模块批量」的 derail 触发源(见交接包 C1 取证)。
+# trap 保证正常/异常/中断都恢复;每模块跑后清掉本轮 derail 副本,保持下一模块干净视野。
+DOCS_LIVE=""; DOCS_STASH=""
+if [[ -n "$INTERACTIVE_DIR_TPL" ]]; then
+  DOCS_PARENT_REL="${INTERACTIVE_DIR_TPL%%/\{module\}*}"
+  # 路径防御:必须是项目内相对、多级路径(非空、不以 / 开头、含 /),否则不隔离
+  if [[ -n "$DOCS_PARENT_REL" && "$DOCS_PARENT_REL" != /* && "$DOCS_PARENT_REL" == */* ]]; then
+    DOCS_LIVE="$TARGET_PROJECT/$DOCS_PARENT_REL"
+  fi
+fi
+restore_docs() {
+  [[ -n "$DOCS_LIVE" ]] || return 0
+  rm -rf "$DOCS_LIVE"
+  [[ -n "$DOCS_STASH" && -d "$DOCS_STASH" ]] && mv "$DOCS_STASH" "$DOCS_LIVE"
+}
+if [[ -n "$DOCS_LIVE" ]]; then
+  trap restore_docs EXIT
+  if [[ -d "$DOCS_LIVE" ]]; then
+    DOCS_STASH="$RUN_DIR/.interactive-docs-stash"
+    mv "$DOCS_LIVE" "$DOCS_STASH"
+    echo "[run.sh] 已暂存历史交互产物 $DOCS_LIVE(消除 headless 多模块联想;批跑结束自动恢复)"
+  fi
+fi
+
 while IFS= read -r MODULE_JSON; do
   PROCESSED=$((PROCESSED + 1))
 
@@ -296,6 +322,10 @@ PYEOF
   [[ -f "$TRACE_FILE" ]]                     || MISSING_LIST="${MISSING_LIST}trace.jsonl,"
   [[ -f "$RUN_JSON" ]]                       || MISSING_LIST="${MISSING_LIST}run.json,"
   MISSING_LIST="${MISSING_LIST%,}"
+
+  # 清掉本模块若 derail 写到交互落点的副本(当前模块的已被上面 fallback 回收进 EVAL_OUT),
+  # 保持下一模块「看不到本轮/历史产物」的干净视野;trap 在批跑结束统一恢复历史
+  [[ -n "$DOCS_LIVE" && -d "$DOCS_LIVE" ]] && rm -rf "$DOCS_LIVE"
 
   if [[ -z "$MISSING_LIST" && $EXIT_CODE -eq 0 ]]; then
     echo "  status: OK"
