@@ -32,7 +32,7 @@ Step 2：单 survey-agent 读模块、按格式写两份文档
 Step 3：报告产出
 ```
 
-> 全程**只 1 个子 agent**（survey-agent 自己也**不得再 fan-out 派孙子 agent**——大模块靠定向读、不靠拆分）。不并行、不起验证、不接缝 join、无 scratchpad 清理——这是它"轻"的来源。
+> 全程**只 1 个子 agent**。不并行、不起验证、不接缝 join、无 scratchpad 清理——这是它"轻"的来源。
 
 ### Step 1：定位确认（内联）
 

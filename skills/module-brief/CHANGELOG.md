@@ -4,7 +4,9 @@
 
 ## v1.0.2
 
-skill-eval 首次真实自举（run `20260618-011357`，交接包 C1）反馈：headless 批跑大模块（mdm-company，关联实体多）时，survey-agent **自行 fan-out 起了 4 个孙子 agent**，孙子不继承 `$EVAL_OUT`，把产物写回交互模式默认落点 `docs/module-brief/<module>/` 而非 `$EVAL_OUT/<module>/`，导致批跑取不到产物、整模块被误判失败（文档其实产出成功）。根因：survey-agent 只说"一个 agent 干完读+写"、**没硬禁再派子 agent**；headless 落点又靠 env 隐式传递、不保证随子 agent 继承。已修：①survey-agent 前言加「绝不再派子 agent」硬禁令 + 落点强约束为「{{OUTPUT_DIR}} 唯一绝对路径、不写 doc/」；②SKILL.md Step 1 headless 明确 `echo "$EVAL_OUT"` 解析**绝对路径**再以绝对值传 survey-agent（不传字面 `$EVAL_OUT`）；③单子 agent 注脚强调 survey-agent 自身亦不得 fan-out。
+skill-eval 首次真实自举（交接包 C1）反馈：headless 批跑产物未落 `$EVAL_OUT`、被批跑误判失败。**有效修复**：SKILL.md Step 1 headless 明确用 `echo "$EVAL_OUT"` 解析**绝对路径**后再传 survey-agent（不传字面 `$EVAL_OUT`——子 agent 进程未必继承该 env），消除落点对 env 隐式继承的依赖。
+
+> 同轮曾据「survey-agent 自行 fan-out」诊断加过「禁再派子 agent / 落点唯一」约束，经验证（run `20260618-023704`）**证伪**——company 仍起 4 个 survey-agent，根因在**主上下文**误判多模块、非 survey-agent；且那些约束 SKILL 本已隐含（属「教已知」，违反设计哲学），已回滚。真根因（headless 无人值守可靠性 / corpus 环境暴露）取证中，留待后续版本。
 
 ## v1.0.1
 
