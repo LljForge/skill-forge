@@ -10,6 +10,9 @@ gates:
     answer_from: preset_answers
 hard_validators: []          # module-brief 无硬校验器
 rubric_ref: rubrics/module-brief.md   # 2B 才用，先占位指针（本计划不建 rubric 内容）
+# 嵌套 claude 的 --allowedTools(per-skill 覆盖;不配则用 run.sh 默认含 Task)。
+# module-brief 是单上下文 skill、不派子 agent → 去掉 Task：想 fan-out 都没工具,机制杜绝 derail。
+allowed_tools: [Read, Grep, Glob, Bash, Write, Edit]
 # headless 落点异常兜底:module-brief 在 headless 下若 fan-out 子 agent,子 agent 可能丢失
 # $EVAL_OUT 上下文、把产物写回交互模式默认落点。下面是该 skill 的交互落点相对路径
 # (相对目标项目根,{module} 占位)——属 skill 产出约定、非项目真值;run.sh artifact check

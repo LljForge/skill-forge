@@ -138,6 +138,21 @@ print(d.get('interactive_artifact_dir', '') or '')
 PYEOF
 )
 
+# 嵌套 claude 的 --allowedTools:manifest 可 per-skill 覆盖(如 module-brief 去 Task);未配则用默认
+ALLOWED_TOOLS_STR=$(python3 - "$MANIFEST_FILE" <<'PYEOF'
+import yaml, sys
+with open(sys.argv[1]) as f:
+    d = yaml.safe_load(f)
+t = d.get('allowed_tools')
+print(' '.join(t) if t else '')
+PYEOF
+)
+if [[ -n "$ALLOWED_TOOLS_STR" ]]; then
+  read -ra ALLOWED_TOOLS <<< "$ALLOWED_TOOLS_STR"
+else
+  ALLOWED_TOOLS=(Read Grep Glob Bash Write Edit Task)
+fi
+
 CORPUS_FILE="$TARGET_PROJECT/$CORPUS_REL"
 if [[ ! -f "$CORPUS_FILE" ]]; then
   echo "[run.sh] Error: corpus file not found: $CORPUS_FILE" >&2
@@ -283,7 +298,7 @@ print(json.dumps(out, ensure_ascii=False))
       claude -p "/$TARGET_SKILL $MODULE" ${MODEL_FLAG[@]+"${MODEL_FLAG[@]}"} \
         --output-format json \
         --settings "$SETTINGS_FILE" \
-        --allowedTools 'Read' 'Grep' 'Glob' 'Bash' 'Write' 'Edit' 'Task' \
+        --allowedTools "${ALLOWED_TOOLS[@]}" \
         > "$RUN_JSON" 2>&1
     ) || EXIT_CODE=$?
 

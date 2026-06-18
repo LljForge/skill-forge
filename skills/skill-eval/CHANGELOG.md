@@ -1,6 +1,17 @@
 # skill-eval CHANGELOG
 
-## v0.2.2 — headless 落点隔离(治 derail 根因)
+## v0.2.3 — Write 落点白名单 + per-skill allowed_tools(derail 三层根治收口)
+
+配合 module-brief v1.0.3 去子 agent 化,把 derail 防护从"事后兜底"升级为"机制杜绝":
+
+- **PreToolUse Write 白名单**(`hooks/write-guard.sh`):headless 下 Write 只许落 `$EVAL_OUT/` 内,写项目 `docs/` 等一律 deny(exit 2)。机制锁落点——即便靶 skill 偶发落点漂移也写不出错地方。仅 headless 生效、不扰交互。
+- **manifest 支持 per-skill `allowed_tools`**(run.sh 读取,未配则默认含 Task 兼容其他 skill):module-brief 去掉 `Task` —— 单上下文不派 agent,**没 Task 工具,想 fan-out 都不能**。
+
+> 至此 derail 三层根治:**架构**(module-brief 主上下文自干、不派 agent)+ **工具**(无 Task)+ **落点**(Write 白名单)。v0.2.2 的 docs 隔离作为"历史产物联想"的额外防线保留。
+>
+> 取证复盘:docs 隔离(v0.2.2)只掐掉一个触发源(company 转正常),但 derail 换模块复发(bank 起 4 agent)——证明掐输入触发源是打地鼠,根治要从"模型能做什么"(工具/架构/落点)下手,非"模型为什么这么想"。
+
+## v0.2.2 — headless 落点隔离(掐「历史 docs 联想」触发源)
 
 批跑期间暂存目标项目的交互产物目录(`interactive_artifact_dir` 的父目录,如 `docs/module-brief/`),消除靶 skill 在 headless 下「`ls` 到历史产物 → 误判多模块批量」的 derail 触发源。`trap` 保证正常/异常/中断都恢复历史;每模块跑后清掉本轮 derail 副本,保持下一模块干净视野;路径防御(必须项目内相对多级路径)。
 

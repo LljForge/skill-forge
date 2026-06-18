@@ -1,6 +1,14 @@
 # CHANGELOG — module-brief
 
-> 正文（SKILL.md / agents / references）只写当下规则；版本演进、为什么这么改记在这。
+> 正文（SKILL.md / references）只写当下规则；版本演进、为什么这么改记在这。
+
+## v1.0.3 — 去子 agent 化（彻底单上下文）
+
+取消「主上下文派 survey-agent」架构，改为主上下文一气干完「定位 + 读 + 写」。`agents/survey-agent.md` 内容并入 SKILL.md Step 2 并删除。
+
+**为什么**：实测单模块工作量（读十几个文件 + 写两份文档）单上下文绰绰有余，派子 agent 的「上下文隔离 / 并行」价值对本 skill 不成立（主上下文定位后再无其他职责）。而「派 agent」恰是 headless 下两个缺陷的**共同根**：① fan-out 空间——主上下文误判模块规模、起多个 survey-agent 批量分析（run `20260618-093505` 实证：隔离历史 docs 后 derail 仍换模块复发，因模型能从单个模块名脑补出同系列）；② OUTPUT_DIR 跨上下文传递 → 落点丢失。去子 agent 后两者**从架构上消失**，且不降质（同模型同指引，主/子上下文读写无差别，反而省了范围/落点的传递损耗）。配套 harness 侧（skill-eval v0.2.3）：manifest 给 module-brief 去掉 `Task` 工具（想 fan-out 都没工具）+ Write 落点白名单。
+
+> v1.0.2 的 headless 落点 `echo "$EVAL_OUT"` 解析保留（改为主上下文自用）。交互模式一并单上下文化（牺牲「子 agent 护用户会话上下文」的弱价值换简单）。顺带把原 survey-agent 里「本项目特例 ApiController」（GMZB 特有，违反通用 skill 项目无关原则）通用化为「如 CLAUDE.md 所述的项目约定」。
 
 ## v1.0.2
 
