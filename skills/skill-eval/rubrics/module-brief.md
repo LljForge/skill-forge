@@ -7,13 +7,13 @@
 ```yaml
 skill: module-brief
 # A 类·流程性
-expected_subagents: 1            # SKILL.md「全程只 1 个子 agent」。数 spawn/distinct agent_id/SubagentStop
-subagent_type_hint: general-purpose   # 实测 agent_type;仅信息用,检查禁止以此匹配(见下)
+expected_subagents: 0            # module-brief 已去子 agent 化:全程单上下文自干,spawn==0 为通过(SKILL.md「全程单上下文,不派子 agent」)。数 spawn/distinct agent_id/SubagentStop;>0 才是 derail
+subagent_type_hint: ""           # 单上下文无子 agent;仅信息用,检查禁止以此匹配(见下)
 artifacts:                       # 两份产物,落 $EVAL_OUT/<module>/
   - requirements.md
   - design.md
 artifact_min_bytes: 200          # 兜底线:产物非空(SKILL.md「两份齐」)
-read_evidence_min: 5             # 子 agent 对模块代码的 Read+Grep 计数下限(近乎没读=幻觉红旗)
+read_evidence_min: 5             # 主上下文对模块代码的 Read+Grep 计数下限(近乎没读=幻觉红旗);去子 agent 化后统计 agent_id 空(主上下文)的读代码量
 headless_gate: AskUserQuestion   # 该工具若出现在 run.json.permission_denials = 门没剥干净
 # B 类·产物契约性
 design_sections:                 # design-format.md 五节骨架,缺=结构不完整(N/A 显式除外)

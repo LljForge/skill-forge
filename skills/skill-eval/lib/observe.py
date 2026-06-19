@@ -75,14 +75,14 @@ def observe_module(run_dir, run_id, module, skill, rub):
         "info" if one_agent else "defect-candidate",
         f"恰 {exp} 个子 agent:spawn={spawns} ids={len(sub_ids)} stop={stops}",
         [{"source":"trace","detail":f"agent_ids={sub_ids}"}]))
-    # 子 agent 真读代码(带非空 agent_id 的 Read/Grep)
-    sub_reads = sum(1 for r in trace if r.get("agent_id") and r.get("tool_name") in ("Read","Grep"))
-    process["subagent_reads"] = sub_reads
+    # 读代码证据:去子 agent 化后改统计主上下文(agent_id 为空)的 Read/Grep(近乎没读=幻觉红旗)
+    read_cnt = sum(1 for r in trace if (not r.get("agent_id")) and r.get("tool_name") in ("Read","Grep"))
+    process["main_context_reads"] = read_cnt
     rmin = rub.get("read_evidence_min",5)
-    findings.append(fnd("subagent_read_evidence","A","pass" if sub_reads>=rmin else "flag",
-        "info" if sub_reads>=rmin else "defect-candidate",
-        f"子 agent 读代码 {sub_reads} 次(下限 {rmin})",
-        [{"source":"trace","detail":f"sub-agent Read+Grep={sub_reads}"}]))
+    findings.append(fnd("read_evidence","A","pass" if read_cnt>=rmin else "flag",
+        "info" if read_cnt>=rmin else "defect-candidate",
+        f"主上下文读代码 {read_cnt} 次(下限 {rmin})",
+        [{"source":"trace","detail":f"main-context Read+Grep={read_cnt}"}]))
     # --- 产物存在 + 非空 ---
     present = []
     for a in rub.get("artifacts",[]):
