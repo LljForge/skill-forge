@@ -2,6 +2,13 @@
 
 > 正文（SKILL.md / agents / references）只写当下规则；版本演进、为什么这么改记在这。
 
+## v1.1.0 — 维度登记表 + 决策落盘（优化批 B0·地基）
+
+以 GitNexus 为对照的 spec-baseline 复盘（见 `skill-forge/docs/module-spec-baseline-optimization/`）发现两个结构性问题：① 发现机制只有「HTTP 端点 + 回调/状态」两扇门，非 HTTP 入口与横切契约整类漏；② 范围/能力划分决策不落盘、不可复现。本批是后续优化的地基，**刻意不改分析 agent 行为**（数字不动，重跑仅作回归确认）：
+
+- 新增 `references/behavior-dimensions.md`：行为维度的单一登记处，**独立于栈策略包**（栈包管「怎么找」、本表管「找什么」）。只登记模型系统性易漏的维度（非 HTTP 入口、横切契约、错误/格式契约），不堆全——契合「只补模型导不出的」。后续批次逐步把它接入各分析 agent。
+- SKILL.md 新增 `{{DECISIONS_DIR}}`：Step 3 的 `MODULE_SCOPE` 与 A-4 的 `CAPABILITY_PLAN` 写入留存决策文件（不随 scratchpad 清理），重跑同模块先读复用 → 划分可复现，解决「换人/换会话重跑划分漂移」。
+
 ## v1.0.0
 
 首版。从 `module-depth-analysis` 拆分而来（设计：`docs/superpowers/specs/2026-06-15-mda-split-module-brief-and-spec-baseline-design.md`）。

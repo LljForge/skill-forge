@@ -101,6 +101,8 @@ boundary（范围/目录/枚举/回调） ─┬─> structural（端点/契约/
 
 > 与老 MDA 的区别：本步**不写 `module_aliases`**（capability 名按行为命名、不等于模块名，见 A-4）；它只圈定"这次从哪些代码逆向"。
 
+**决策落盘**：敲定后，把 `{{MODULE_SCOPE}}`（纳入前缀 + 排除项 + 一句理由）写入 `{{DECISIONS_DIR}}/{{MODULE_NAME}}.md`（留存，**不随 scratchpad 清理**）。**重跑同模块时先读它**：已有则按上次划分提议、用户改动才更新——这是范围划分可复现的依据（否则换人/换会话重跑划分会漂）。
+
 ### A-1：评估现有 specs
 
 列出本模块预计涉及的 capability（A-4 会细化），逐个检查 `{{SPECS_ROOT}}/<capability>/spec.md` 是否已存在 → 决定：
@@ -127,9 +129,11 @@ boundary（范围/目录/枚举/回调） ─┬─> structural（端点/契约/
 2. 按行为域把入口归并成 capability，**kebab-case 按行为命名**（如 `enterprise-customer-query`、`organization-sync`），不按模块名命名。
 3. 检查 `{{SPECS_ROOT}}/` 已有 capability 名，避免冲突（capability 全局平铺、多模块共用命名空间）。
 4. 用一次 `AskUserQuestion` 跟用户敲定 capability 列表 + 各自覆盖的行为/入口（跑分析前一次问完，不加交互回合）。
-5. 产出 `{{CAPABILITY_PLAN}}`（capability → 覆盖的端点/Service 入口/状态域映射），写入 scratchpad，供 C 综合按 capability 切分。
+5. 产出 `{{CAPABILITY_PLAN}}`（capability → 覆盖的端点/Service 入口/状态域映射），写入 scratchpad 供 C 综合按 capability 切分，**并同时追加到 `{{DECISIONS_DIR}}/{{MODULE_NAME}}.md`**（留存）。重跑同模块时先读它复用上次 capability 划分，保证可复现。
 
 > Why 跑前敲定：capability 划分决定产出几个 spec、各写什么；跑完才改要重写多份。
+
+> **维度参考**：分析与综合时，除模块自身显见行为外，对照 [references/behavior-dimensions.md](references/behavior-dimensions.md)（易漏维度登记表），避免漏掉整类外部可观察行为（非 HTTP 入口 / 横切契约 / 错误与格式契约）。
 
 ---
 
@@ -197,7 +201,7 @@ openspec validate <capability> --type spec --strict
 
 ### D-3：清理 scratchpad
 
-**触发条件**：全部 capability 的 spec.md 生成且 `validate --strict` 通过。清理 `{{SCRATCHPAD_DIR}}` 下中间文件；**最终产物（`openspec/specs/`）始终保留**。部分成功时保留 scratchpad、在 D-2 给出路径。
+**触发条件**：全部 capability 的 spec.md 生成且 `validate --strict` 通过。清理 `{{SCRATCHPAD_DIR}}` 下中间文件；**最终产物（`openspec/specs/`）与 `{{DECISIONS_DIR}}` 下决策文件始终保留**（后者供重跑复用、不清理）。部分成功时保留 scratchpad、在 D-2 给出路径。
 
 ---
 
@@ -225,6 +229,7 @@ openspec validate <capability> --type spec --strict
 | `{{PROJECT_ROOT}}` | 项目根目录 | 当前工作目录 |
 | `{{BACKEND_ROOT}}` | 后端根模块路径 | `.stack-profile.yml#backend.root` |
 | `{{SCRATCHPAD_DIR}}` | 临时工作目录（**在 `specs/` 之外**，避开 validate 扫描） | `{{PROJECT_ROOT}}/openspec/.spec-baseline-scratchpad/{{MODULE_NAME}}` |
+| `{{DECISIONS_DIR}}` | 范围/能力划分**决策留存目录**（**不随 scratchpad 清理**，供重跑复用、保证划分可复现） | `{{PROJECT_ROOT}}/openspec/.spec-baseline-decisions/` |
 | `{{ORM_STRATEGY_PATH}}` / `{{WEB_STRATEGY_PATH}}` / `{{RPC_STRATEGY_PATH}}` | 策略文件路径 | 详见 [shared/tech-stack-detector.md](shared/tech-stack-detector.md) §检测结果→变量映射 |
 
 > **前端**：检测器仍探测并记录 `frontend[]`，但 frontend-agent 不继承、无前端策略文件——仅留作「某 capability 确属纯客户端行为」例外时，由 C 综合定点 grep 前端代码。
