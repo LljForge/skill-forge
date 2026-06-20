@@ -111,7 +111,11 @@ skill 源:`/Users/lilongjian/Projects/AI/skill-forge/skills/module-spec-baseline
 - **重跑**:`Workflow({scriptPath: "/Users/lilongjian/Projects/AI/skill-forge/docs/module-spec-baseline-optimization/rerun-baseline.workflow.js"})`
   - 它对同样 5 个模块(tms / ccm-trip / ccm-budget / ccm-paybill / mdm-enterprise)**零盲区引导净跑**当前 skill,产新 scorecards + 总览。
   - 会**覆盖** `master-data/openspec/specs/` 与 `.spec-baseline-scratchpad/` —— 这是预期。
-- **判据(B0 实测后改定)= 目标维度二值检查为主**:每批针对哪些维度,就**逐模块查"spec 里有没有对应的可观察 Scenario"**(grep + 定点读,近乎确定的 yes/no),做成「维度 × 模块」二值网格。`validate 5/5` 当回归守门,**必须守住**。
+- **判据(B0 实测后改定)= 目标维度二值检查为主**:每批针对哪些维度,就**逐模块查"spec 里有没有对应的可观察 Scenario"**(grep + 定点读,近乎确定的 yes/no),做成「维度 × 模块」二值网格——**这是 4 门里的门1(写没写)**。`validate 5/5` = **门0 回归**(不掉)。
+  - **门2 真不真**:grounding 回代码核翻绿格成立(防假YES)。
+  - **门3 行为不行为**(A/B/C 复盘后新增):同 grounding 一趟——新契约须 (a)对本系统调用方外部可观察 (b)无实现机制词;辅 grep 黑名单(`线程|异步线程|删后插|SM4|MD5|RabbitMQ|@Transactional|派生.{0,4}签名|access_token`)。
+  - **门4 `[待验证]` 正当**(新增):同 grounding 一趟——每条 hedge 必须**真查不准**(非"能查清却 hedge");辅 grep `[待验证]` 计数(上升=退步)。
+  - 门 2/3/4 折进 grounding **一趟** + 2 grep,**不新建重 workflow、成本不涨**。
 - **模糊聚合数(盲区数/编造数/端点分母)只作参考、不作判据**:B0 实测它们噪声极大(地基批无真改动却 编造 6→1、盲区 ±3/模块、budget 端点分母 100→114),小波动不下结论。
 - **每批一律跑满 5 模块**(不做轻量抽样),保证可比。
 - 防回归红线:`validate` 任何一条不能挂;加横切内容时尤其盯格式与"照注解臆测"(深读到真身,不确定标 `[待验证]`)。
