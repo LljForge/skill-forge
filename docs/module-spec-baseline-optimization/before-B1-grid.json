@@ -1,0 +1,223 @@
+{
+  "meta": {
+    "name": "B1 前网格(优化前 specs 的横切契约覆盖)",
+    "date": "2026-06-20",
+    "ruler": "binary-grid-ruler.workflow.js,3遍多数票",
+    "ruler_agreement": "96% (24/25 三遍一致)",
+    "yes_cells": "7/25"
+  },
+  "grid": {
+    "tms": {
+      "tx": "YES",
+      "audit": "YES",
+      "config": "NO",
+      "sign": "NO",
+      "mq": "YES"
+    },
+    "ccm-trip": {
+      "tx": "NO",
+      "audit": "NO",
+      "config": "NO",
+      "sign": "NO",
+      "mq": "NO"
+    },
+    "ccm-budget": {
+      "tx": "NO",
+      "audit": "YES",
+      "config": "NO",
+      "sign": "NO",
+      "mq": "NO"
+    },
+    "ccm-paybill": {
+      "tx": "YES",
+      "audit": "YES",
+      "config": "NO",
+      "sign": "NO",
+      "mq": "NO"
+    },
+    "mdm-enterprise": {
+      "tx": "NO",
+      "audit": "NO",
+      "config": "YES",
+      "sign": "NO",
+      "mq": "NO"
+    }
+  },
+  "raw": [
+    {
+      "module": "tms",
+      "dim": "tx",
+      "verdicts": "YES/YES/YES",
+      "consensus": "YES",
+      "unanimous": true
+    },
+    {
+      "module": "tms",
+      "dim": "audit",
+      "verdicts": "YES/YES/YES",
+      "consensus": "YES",
+      "unanimous": true
+    },
+    {
+      "module": "tms",
+      "dim": "config",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "tms",
+      "dim": "sign",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "tms",
+      "dim": "mq",
+      "verdicts": "YES/YES/YES",
+      "consensus": "YES",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-trip",
+      "dim": "tx",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-trip",
+      "dim": "audit",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-trip",
+      "dim": "config",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-trip",
+      "dim": "sign",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-trip",
+      "dim": "mq",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-budget",
+      "dim": "tx",
+      "verdicts": "YES/NO/NO",
+      "consensus": "NO?",
+      "unanimous": false
+    },
+    {
+      "module": "ccm-budget",
+      "dim": "audit",
+      "verdicts": "YES/YES/YES",
+      "consensus": "YES",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-budget",
+      "dim": "config",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-budget",
+      "dim": "sign",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-budget",
+      "dim": "mq",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-paybill",
+      "dim": "tx",
+      "verdicts": "YES/YES/YES",
+      "consensus": "YES",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-paybill",
+      "dim": "audit",
+      "verdicts": "YES/YES/YES",
+      "consensus": "YES",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-paybill",
+      "dim": "config",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-paybill",
+      "dim": "sign",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "ccm-paybill",
+      "dim": "mq",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "mdm-enterprise",
+      "dim": "tx",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "mdm-enterprise",
+      "dim": "audit",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "mdm-enterprise",
+      "dim": "config",
+      "verdicts": "YES/YES/YES",
+      "consensus": "YES",
+      "unanimous": true
+    },
+    {
+      "module": "mdm-enterprise",
+      "dim": "sign",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    },
+    {
+      "module": "mdm-enterprise",
+      "dim": "mq",
+      "verdicts": "NO/NO/NO",
+      "consensus": "NO",
+      "unanimous": true
+    }
+  ]
+}

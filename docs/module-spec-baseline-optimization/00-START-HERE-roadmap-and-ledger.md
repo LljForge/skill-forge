@@ -18,10 +18,12 @@
 
 ## 当前状态
 
-- **阶段**:基线已建,**优化未开始**。
-- **下一步**:**B0 地基**。
-- **对照尺**:`baseline-2026-06-20.json`(优化后 diff 它)。
-- **最近更新**:2026-06-20 建本 roadmap。
+- **阶段**:**B0 已验收通过**(`53508e4`);**二值尺子已校验达标**(收紧定义后 80%→96% 三遍一致)。下一步 **B1 出站横切层**。
+- **二值尺子工具**:`binary-grid-ruler.workflow.js`(5维×5模块,3遍多数票);**B1 前网格**:`before-B1-grid.json`(当前 7/25 YES)。
+- **B1 验收 = 两道**:① 目标格 NO→YES(grid 翻绿)② 翻绿格 grounding 抽查为真(防假 YES);加 validate 5/5。
+- **回退锚点**:`ad73293`(优化前)。
+- **对照尺**:`baseline-2026-06-20.json`;B0 结果:`results-B0.json`。
+- **最近更新**:2026-06-20 B0 通过 + 二值尺子校验达标(96%)+ 存 B1 前网格。
 
 ---
 
@@ -109,10 +111,10 @@ skill 源:`/Users/lilongjian/Projects/AI/skill-forge/skills/module-spec-baseline
 - **重跑**:`Workflow({scriptPath: "/Users/lilongjian/Projects/AI/skill-forge/docs/module-spec-baseline-optimization/rerun-baseline.workflow.js"})`
   - 它对同样 5 个模块(tms / ccm-trip / ccm-budget / ccm-paybill / mdm-enterprise)**零盲区引导净跑**当前 skill,产新 scorecards + 总览。
   - 会**覆盖** `master-data/openspec/specs/` 与 `.spec-baseline-scratchpad/` —— 这是预期。
-- **diff**:把新 scorecards 对 `baseline-2026-06-20.json` 逐模块比四个数:真盲区数、硬编造数、HTTP 端点完整度、validate 通过率。
-- **判据**:**盲区降 + 硬编造归零 且 端点完整度/strict 不退 = 净改进**;若盲区降了但端点或编造变差 = 顾此失彼、不算数。
-- **每批一律跑满这 5 个模块**(不做轻量抽样/单模块速测,含 B0 地基批),保证前后数字干净可比。
-- **注意**:打分是 LLM 评分,**相对一致、非绝对精确**——看趋势,别抠绝对值。必要时同一版 skill 重跑两次看抖动。
+- **判据(B0 实测后改定)= 目标维度二值检查为主**:每批针对哪些维度,就**逐模块查"spec 里有没有对应的可观察 Scenario"**(grep + 定点读,近乎确定的 yes/no),做成「维度 × 模块」二值网格。`validate 5/5` 当回归守门,**必须守住**。
+- **模糊聚合数(盲区数/编造数/端点分母)只作参考、不作判据**:B0 实测它们噪声极大(地基批无真改动却 编造 6→1、盲区 ±3/模块、budget 端点分母 100→114),小波动不下结论。
+- **每批一律跑满 5 模块**(不做轻量抽样),保证可比。
+- 防回归红线:`validate` 任何一条不能挂;加横切内容时尤其盯格式与"照注解臆测"(深读到真身,不确定标 `[待验证]`)。
 
 ---
 
@@ -120,7 +122,7 @@ skill 源:`/Users/lilongjian/Projects/AI/skill-forge/skills/module-spec-baseline
 
 | 批次 | 日期 | 改了什么(skill 文件) | 实测效果(对比基线) | 结论 | 状态 |
 |---|---|---|---|---|---|
-| B0 | | | | | TODO |
+| B0 | 06-20 | 维度登记表 + 决策落盘(不碰 agent) | validate 5/5 守住、端点覆盖稳;**暴露测量噪声大**:地基批无真改动,编造却 6→1、盲区 ±1~3/模块、budget 端点分母 100→114 | 地基通过(无回归)+ 标定噪声底→改用二值检查 | **✅ 已验收(53508e4)** |
 | B1 | | | | | TODO |
 | B2 | | | | | TODO |
 | B3 | | | | | TODO |
