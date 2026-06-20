@@ -1,145 +1,147 @@
 {
   "meta": {
-    "batch": "B1(含B1.1强化)",
+    "batch": "B1(redo,完整尺)",
     "date": "2026-06-20",
-    "anchor": "53508e4(B0)",
-    "commit": "000e05d",
-    "note": "出站横切层;B1.1加硬深读防假YES"
+    "commit": "782a7ec"
   },
   "scorecards": [
     {
-      "module": "tms (com.itgfin.tms，横跨 master-data-service-app 与 master-data-service-domain)",
+      "module": "tms (com.itgfin.tms，横跨 master-data-service-domain 与 master-data-service-app)",
       "capabilities": [
-        "treasury-payment-sync: 7 requirements / 12 scenarios",
-        "treasury-receipt-sync: 5 requirements / 8 scenarios",
-        "treasury-provision-sync: 2 requirements / 2 scenarios",
-        "treasury-transaction-flow-generation: 8 requirements / 16 scenarios",
-        "treasury-rerun-recovery: 6 requirements / 9 scenarios",
-        "treasury-payment-record-maintenance: 4 requirements / 12 scenarios",
-        "treasury-receipt-record-maintenance: 4 requirements / 12 scenarios",
-        "treasury-provision-record-maintenance: 2 requirements / 5 scenarios",
-        "treasury-task-log: 3 requirements / 8 scenarios"
+        "treasury-payment-sync — 7 requirements / 13 scenarios",
+        "treasury-receipt-sync — 5 requirements / 10 scenarios",
+        "treasury-provision-sync — 2 requirements / 2 scenarios",
+        "treasury-payment-record-maintenance — 4 requirements / 12 scenarios",
+        "treasury-receipt-record-maintenance — 4 requirements / 12 scenarios",
+        "treasury-provision-record-maintenance — 2 requirements / 5 scenarios",
+        "treasury-transaction-flow-generation — 8 requirements / 19 scenarios",
+        "treasury-rerun-recovery — 6 requirements / 10 scenarios",
+        "treasury-task-log — 3 requirements / 8 scenarios"
       ],
       "validate_pass": "all_pass",
       "dimension_coverage": {
         "covered": [
-          "同步HTTP端点(taskSyncTmsPayment/Receive/Provision、createFlow*、writeGjNumber、skRerun 等均有可观察行为)",
-          "状态机(payState/flowStatus/bfeFlowSts/respSts 等状态流转写入 spec)",
-          "状态消费(由 flowStatus 决定批量生成、由 bfeFlowSts 触发 queryFlow/writeGjNumber)",
-          "数据模型(付款/收款/计提主单+分录子表、流水明细/流水主、重跑、任务日志的实体结构隐含于各 CRUD requirement)",
-          "跨模块依赖(向业财侧 BFE 登记流水历史、回写司库——spec 显式提及)",
-          "出站失败传播(司库外呼失败落重跑队列、不向调用方抛错——treasury-rerun-recovery 覆盖)",
-          "事务(payment/receipt-sync 的「删后插」事务边界以 [待验证] 标注，诚实标注未确认)",
-          "成功响应信封(端点受理后立即返回——异步语义已表达)",
-          "MQ发布(自动同步成功制证后以异步消息通知业财——sendMessageTmsFlowCreated 被覆盖)",
-          "幂等(已制证单据再次同步跳过保存——payment/receipt-sync 覆盖)",
-          "异步最终一致(同步端点返回成功不代表业财已完成制证——显式写入)",
-          "审计留痕(司库外呼留痕、记录请求/响应/起止时间/结果——treasury-rerun-recovery『司库外呼留痕』覆盖)",
-          "分页过滤(各 search 分页查询均有 scenario)",
-          "请求校验(空请求体=自动模式/带条件=手动模式的分支语义被覆盖)"
+          "同步HTTP端点(全部 77 个 @PostMapping 均映射到某 capability 的 requirement)",
+          "状态机(payState 隐含、bfeFlowSts 流水状态成功/失败/无需生成、respSts 同步中/成功/失败)",
+          "状态消费(已制证幂等保护——保存前判 TmsNbizTxFlowMain 是否已有 bfeFlowId 决定是否跳过)",
+          "数据模型(主单+开票分录+付款/收款分录+付款信息分录的主子结构、计提区分计提/冲销 operateFlag)",
+          "跨模块依赖(同步成功后异步通知业财侧推进制证、向业财登记流水历史、凭证号回写司库)",
+          "出站失败传播(司库外呼失败不抛错而落重跑队列)",
+          "文件导入导出(代码确无 Excel，spec 未提，正确略过)",
+          "成功响应信封(部分体现——spec 描述端点接受后立即返回受理结果)",
+          "异步最终一致(端点立即返回、CompletableFuture 异步并发、返回成功不代表业财已制证)",
+          "审计留痕(每次司库外呼留 MdmLogSyncApi 调用记录,含请求/响应/起止时间/结果)",
+          "幂等(已制证单据再次同步跳过保存)",
+          "并发锁(多公司分批并发、互不阻塞;rerun Semaphore 限并发——spec 以并发同步表达)",
+          "限流/批量限额(MAX_TASK_RETRY=500 任务总量上限、MAX_RETRY_TIMES=2 重试上限,spec 在 rerun-recovery 表达)"
         ],
         "partial": [
-          "错误响应(treasury-transaction-flow-generation『流水生成失败』记录失败原因有覆盖，但 HTTP 层统一错误信封/错误码、RuntimeException『金额不可为空』直接抛出未表达)",
-          "并发锁(spec 完全未提锁；实际 TMS_LOCK_* 常量存在但未被使用，故 spec 不提反而与现状一致——记为 partial 因常量意图存在)",
-          "鉴权/令牌(spec 未提；实际 tms 包内确无 @RequiresPermissions/SecurityUtils，全局 JWTFilter 在 bootstrap，模块级确实无鉴权代码——属可接受省略)"
+          "事务(spec 仅以反向口吻提'保存非整体原子';但 paymentDelete/receveBatchDelete/saveOrUpdate* 实际带 @Transactional(rollbackFor=Exception.class),delete 经代理生效、save 在同步路径因 this. 自调用被绕过——spec 未区分这层差异,删除的事务性完全未表达)",
+          "错误响应(Controller 统一用 Result.success/Result.failed 信封并以布尔返回判定成功/失败文案,spec 未将该响应信封与失败语义形式化)",
+          "MQ发布(spec 描述'异步消息通知业财',但未点明是 RabbitMQ sendMessageTmsFlowCreated 发布,且 4 处发布点散落 sync 与 flow 两路径)",
+          "缓存(secretKey 带 TTL 的内存缓存 + timeEncryptCache 加密时间戳 ConcurrentHashMap 缓存,spec 完全未提)",
+          "请求校验(代码确无 @Valid/JSR-303,spec 也未声明校验——但 noteCode==null return false 这类隐式入参防御未表达)"
         ],
         "blind_spot": [
-          "缓存(spec 完全未提及加密时间戳的 ConcurrentHashMap 1 秒 TTL 缓存——timeEncryptCache，属真实可观察行为)",
-          "配置开关(spec 未提 @ConfigurationProperties(prefix=\"tms\") 的 TmsConfiguarion 与独立线程池 TmsThreadPoolConfig 的并发度/拒绝策略对行为的影响)",
-          "批量限额(treasury-rerun-recovery 提到『任务总量上限』但未点明具体的 MAX_TASK_RETRY=500/MAX_RETRY_TIMES=2 两道上限是硬编码常量)"
+          "定时调度(本模块包内 0 个 @Scheduled;taskSync*/createFlowJob 等 8 个 /tmsTaskSyncJob/* 端点为外部调度器 HTTP 触发,spec 已计入但未点明'由外部调度器周期触发'这一运行约束——属轻微)",
+          "鉴权/令牌(tms 12 个 Controller 均无 @RequiresPermissions/Shiro 注解,代码确无——非真盲区,spec 正确未捏造)",
+          "国际化时区(TmsConfiguarion.timeZone 注入请求报文 setTimeZone、签名按 timeZone 派生时间戳,spec rerun 提'加密时间戳签名'但未提时区配置驱动)",
+          "配置开关(@ConfigurationProperties prefix=tms:url/secretKey/threadPoolSize/timeZone/clientChannel 等;spec 未表达任何由配置驱动的可变行为,如线程池大小、司库地址切换)"
         ]
       },
       "completeness": {
-        "http_endpoints_found": 75,
-        "http_endpoints_in_spec": 75,
+        "http_endpoints_found": 77,
+        "http_endpoints_in_spec": 77,
         "non_http_entries_found": 0,
         "non_http_entries_in_spec": 0,
         "crosscut_found": [
-          "@Transactional(rollbackFor=Exception.class) ×4 on TmsApiService.saveOrUpdate*/delete",
-          "RabbitMqProducer.sendMessageTmsFlowCreated ×4(MQ发布)",
-          "ThreadPoolExecutor+CompletableFuture 异步并发(TmsThreadPoolConfig.tmsSyncPool)",
-          "ApiEncryptUtils 加密时间戳签名 + timeEncryptCache 内存缓存(1s TTL)",
-          "TmsResultCode 枚举(SUCCESS/FAIL/EXCEPTION)错误码映射",
-          "MdmLogSyncApiService 外呼留痕(TmsCallService)",
-          "MAX_RETRY_TIMES=2 / MAX_TASK_RETRY=500 重试与总量上限",
-          "@ConfigurationProperties(prefix=\"tms\") TmsConfiguarion 配置",
-          "RuntimeException 直接抛出(金额为空)",
-          "javax.validation.constraints import(仅 import,无字段级注解、controller 无 @Valid——实际未启用校验)",
-          "TMS_LOCK_* 分布式锁常量(定义但全仓未被引用——死常量)"
+          "@Transactional(4处,TmsApiService 的 saveOrUpdatePayment/Receive 与 paymentDelete/receveBatchDelete)",
+          "RabbitMQ 发布(rabbitMqProducer.sendMessageTmsFlowCreated,4 处)",
+          "审计留痕(mdmLogSyncApiService.save 外呼调用日志)",
+          "内存缓存(cachedSecretKey TTL 缓存 + timeEncryptCache ConcurrentHashMap)",
+          "重试/限额开关(MAX_RETRY_TIMES=2、MAX_TASK_RETRY=500、BACH_SIZE=25、Semaphore(10))",
+          "@ConfigurationProperties(prefix=tms)配置注入",
+          "Result.success/Result.failed 响应信封",
+          "SM4 加密签名(SM4CryptUtil.encrypECB + addTime 时间戳)"
         ],
         "crosscut_in_spec": [
-          "@Transactional 删后插事务边界(以 [待验证] 诚实标注)",
-          "MQ发布异步通知业财(自动同步成功制证后通知)",
-          "异步并发分批同步(按公司分批并发)",
-          "加密时间戳签名(司库外呼携带加密签名 requirement)",
-          "错误码/失败状态(流水生成失败记录原因；重跑成功失败计数)",
-          "外呼留痕(司库外呼留痕 requirement)",
-          "重试与总量上限(有限次重跑补偿 requirement,但未点明具体数值)"
+          "重试/限额(rerun-recovery 表达重试上限与任务总量上限)",
+          "审计留痕(rerun-recovery'司库外呼留痕'requirement)",
+          "SM4 加密签名(rerun-recovery'外呼携带加密签名'requirement)",
+          "MQ 通知业财(以'异步消息通知业财'口径表达,未点名 RabbitMQ)",
+          "并发/分批(各 sync spec'多公司分批并发同步')"
         ],
-        "notes": "端点分母=method-level @*Mapping 共 77 行,扣除 2 行被注释掉的 createFlow* 后 =75 真实端点,9 个 capability 的 spec 端点面全覆盖(NO_TMS_IN_APiController 已核实,无对外网关遗漏)。非 HTTP 入口=0:tms 包内无 @Scheduled/@RabbitListener/CommandLineRunner——这些 taskSync 端点由外部调度器以 HTTP 调用(controller 注释『定时任务接口请求司库信息』),spec 将其作为 HTTP 端点处理正确。MQ 仅发布无消费端(消费在其他模块)。校验维度:虽 import javax.validation 但 PO/VO 无字段级约束注解、controller 无 @Valid,实际请求校验未启用,spec 不写校验与现状一致。"
+        "notes": "端点完整度极高:77/77 全部 @PostMapping 都能在某 capability 的 requirement 中找到落点(含 8 个特殊业务端点 taskSync*/createFlow*/writeGjNumber/skRerun/queryFlow/getRunInfo/getVouchTyp/searchMuchTable)。本模块包内无 @Scheduled/@RabbitListener/CommandLineRunner(非 HTTP 入口为 0);司库同步靠外部调度器 POST /tmsTaskSyncJob/* 触发,而非进程内定时器。横切关注点中事务/缓存/配置开关/响应信封 4 类有代码但 spec 覆盖偏弱或反向表达。"
       },
       "blind_spots": [
         {
-          "dimension": "缓存(加密时间戳内存缓存)",
-          "evidence": "TmsApiService.java:127 `private final Map<String,String> timeEncryptCache = new ConcurrentHashMap<>();` + :1052-1075 以 currentDate+currentTime 为 key、1 秒 TTL 缓存加密时间戳复用;spec『司库外呼携带加密签名』requirement 完全未提及该缓存行为(同一秒内多次外呼复用同一签名)"
+          "dimension": "事务-删除路径的原子性未表达",
+          "evidence": "TmsApiService.java:296 receveBatchDelete 与 :617 paymentDelete 均 @Transactional(rollbackFor=Exception.class) 且被外部调用(经 Spring 代理,事务生效,主子表删除原子)。spec 的 receipt-sync/payment-sync 仅说'主表与子表一并删除',未表达删除是事务性原子操作;而入库 save 路径 spec 反而声明'非整体原子'——两路径事务语义相反,spec 未区分。"
         },
         {
-          "dimension": "配置开关/并发度(线程池与配置类)",
-          "evidence": "TmsThreadPoolConfig.java:25-32 自定义 tmsSyncPool(ThreadPoolExecutor + CallerRunsPolicy 拒绝策略);TmsConfiguarion.java:15 `@ConfigurationProperties(prefix=\"tms\")`——spec 仅以『按公司分批并发』泛述,未表达并发度受配置/线程池约束、拒绝策略下由提交线程兜底执行的可观察行为"
+          "dimension": "缓存(secretKey TTL 缓存 + 加密时间戳缓存)",
+          "evidence": "TmsApiService.java:122 volatile cachedSecretKey + :136 KEY_CACHE_TTL 双检锁缓存司库秘钥;:127 timeEncryptCache=new ConcurrentHashMap<>() 缓存按分钟的 SM4 加密时间戳(:1054 get/:1078 put/:1068 remove)。9 份 spec 无一字提及任何缓存行为。"
         },
         {
-          "dimension": "批量限额(硬编码上限数值)",
-          "evidence": "TmsApiService.java:115 `MAX_RETRY_TIMES=2`、:116 `MAX_TASK_RETRY=500`,:251/578 `taskIds.size() < MAX_TASK_RETRY` 门槛——treasury-rerun-recovery 提到上限存在但未点明这两道硬编码阈值(超 500 条任务整批不重试)"
+          "dimension": "配置开关驱动的可变行为",
+          "evidence": "TmsConfiguarion.java @ConfigurationProperties(prefix=tms):url/secretKey/threadPoolSize/timeZone/clientChannel/tmsPaymentKey 等;TmsApiService.java:1044 setTimeZone(tmsConfiguarion.getTimeZone())、线程池按 threadPoolSize 构建。spec 未表达任何由 tms.* 配置驱动的行为(线程数、时区、司库地址、对接系统代码)。"
         },
         {
-          "dimension": "错误传播(直接抛 RuntimeException 中断批处理)",
-          "evidence": "TmsNbizTxFlowService.java:346/395/424 `throw new RuntimeException(\"处理付款单[\"+noteCode+\"]失败,金额不可为空或者为0！\")`——流水生成时金额为空会直接抛运行时异常,spec『流水生成失败标记失败+记录原因』未覆盖『金额为空直接抛异常中断』这一非『标记失败』的路径"
+          "dimension": "MQ 发布的技术形态与触发点未点明",
+          "evidence": "TmsApiService.java:231/559/950/967 四处 rabbitMqProducer.sendMessageTmsFlowCreated(noteCode);分布在 receive 同步、payment 同步两条自动路径。spec 以'以异步消息通知业财侧'概括,未点名 RabbitMQ、未表明 4 处触发点,也未表达消息体为 noteCode。"
+        },
+        {
+          "dimension": "响应信封与成功/失败语义",
+          "evidence": "TmsRerunController.java:61/69/77 等全模块 Controller 用 Result.success(...)/Result.failed(...) 包裹,且 insert/update/delete 以 service 返回 boolean 决定 success('新增成功!') 还是 failed('新增失败!')。spec 各 maintenance scenario 只写'系统保存/更新/删除',未形式化该统一响应信封与失败分支。"
+        },
+        {
+          "dimension": "并发上限的具体数值(Semaphore/批大小)",
+          "evidence": "TmsApiService.java:113 BACH_SIZE=25、:819 Semaphore(10) 限 rerun 并发、按 threadPoolSize 自建线程池 tmsSyncPool。spec'多公司分批并发'表达了并发存在,但未表达批大小=25、rerun 并发=10 这类可观察的批量/并发约束。"
         }
       ],
       "hallucinations": [
         {
-          "claim": "treasury-rerun-recovery / payment-sync 多处隐含 TMS 模块有分布式锁防并发(虽 spec 文本未明写,但『并发锁』维度上 TmsConstant 暗示)",
-          "why": "此非 spec 编造、而是澄清:TmsConstant.java:13-19 定义了 TMS_LOCK_PAYMENT 等 4 个『调度分布式锁key』常量,但全仓 grep 这些常量名 0 处引用——锁从未实现。spec 不提锁与现状一致(无幻觉);此条仅用于说明:若后续优化误把注释当行为写进 spec 会构成编造,当前 spec 未犯。"
+          "claim": "treasury-payment-sync / receipt-sync 的'单据主子数据入库'requirement 断言:'保存单据主表与各分录子表并非整体原子,中途失败时可能留下部分已写入的数据,主表与各分录子表不保证整体回滚'。",
+          "why": "措辞与方法签名表面相反——saveOrUpdatePayment(TmsApiService.java:637)与 saveOrUpdateReceive(:312)均显式标注 @Transactional(rollbackFor=Exception.class)。但深查调用方:同步路径以 this.saveOrUpdatePayment/this.saveOrUpdateReceive(:224/:552/:944/:961)自调用,绕过 Spring 代理使事务失效,故在'同步入库'场景下 spec 的非原子结论实际成立。判定:口径正确但论据脆弱(基于自调用绕过 AOP 的隐含机制),且未点明同一方法经外部代理调用时是有事务的,易被误读为'该方法本身无事务'。属'结论对、归因/边界未交代清'的弱编造,非纯虚构。"
         }
       ],
-      "summary": "tms 是司库(TMS)对接模块:9 个 capability 覆盖付款/收款/计提的同步入库(异步分批并发+已制证幂等+拆分子单派生)、由单据生成业财交易流水并回写凭证号/通知业财、失败外呼的重跑补偿与留痕、以及各主子表 CRUD 与任务日志;75 个 HTTP 端点全覆盖、9 项 validate 全 strict 通过,事务边界以 [待验证] 诚实标注,但漏掉了加密时间戳内存缓存、线程池/配置类、硬编码重试上限数值、金额为空直接抛异常这四类真实可观察行为。"
+      "summary": "tms 是司库(TMS)对接模块:对外 12 个 Controller / 77 个 POST 端点,覆盖付/收/计提三类单据的'外部调度器触发同步入库+补偿重跑'与全套主子表 CRUD,核心增值在由单据生成业财交易流水、回写状态、登记业财历史、凭证号回写司库,并配 SM4 签名外呼、失败落重跑队列+有限次补偿(重试上限 2/总量上限 500)、外呼留痕;9 份 spec 端点完整度满分(77/77)、全部 strict 通过,行为主线(同步/幂等/拆分/流水/重跑/留痕)刻画到位,主要盲区集中在事务删除原子性、内存缓存、tms.* 配置开关、MQ 技术形态与统一响应信封这几类横切维度。"
     },
     {
-      "module": "ccm-trip (com.itgfin.ccm.trip, domain + app)",
+      "module": "ccm-trip (com.itgfin.ccm.trip · domain + app)",
       "capabilities": [
-        "trip-data-acquisition: 13 requirement / 21 scenario",
-        "trip-data-query: 6 requirement / 12 scenario",
-        "trip-settlement-maintenance: 3 requirement / 5 scenario",
-        "trip-bill-reconciliation: 3 requirement / 4 scenario"
+        "trip-data-acquisition: 11 requirements / 21 scenarios",
+        "trip-data-query: 6 requirements / 12 scenarios",
+        "trip-settlement-maintenance: 3 requirements / 5 scenarios",
+        "trip-bill-reconciliation: 3 requirements / 6 scenarios"
       ],
       "validate_pass": "all_pass",
       "dimension_coverage": {
         "covered": [
-          "同步HTTP端点(19 端点全数映射到 4 capability 的可观察行为)",
-          "状态机(票据可用性 available 派生：机票退票/可用终态→可用、改签终态回写原票号、已可用受保护不回退)",
-          "状态消费(账单列表按 available 票据可用性过滤；listBill 强制 ldap_uno 归属过滤)",
-          "数据模型(申请单/账单/订单/账单行项/订单成本对象/结算单 + 账单按产品类别拆行项 + 退票费行项)",
-          "跨模块依赖(adjustBill 经购方税号查 BaseCompany 回填购方信息；BillComparisonTask 经 EChat 推送)",
-          "定时调度(2 个 @Scheduled trip.cron：增量拉取 + 对账比对)",
-          "出站失败传播(定时拉取/比对远程错误→记录并结束本次调度不中断后续)",
-          "审计留痕(出站 saveLog 调用级留痕：服务标识/请求/响应/状态/耗时；入站 @ApiComeinLog 5 端点请求级留痕含异常)",
-          "幂等(重复拉取同一记录幂等覆盖；结算单按 order_no 查重；账单按 inv_num 去重)",
-          "成功响应信封(BaseResponse.success / Result.success)",
-          "错误响应(参数为空→Result.failed；结算单重复→重复提示)",
-          "配置开关(外呼签名由 trip.account/compid/key 派生；trip.cron 调度周期)",
-          "令牌/签名(外呼携带 account+timestamp+key 派生的 MD5 sign，验签失败被拒)"
+          "同步HTTP端点(19端点全有可观察行为)",
+          "状态消费/定时调度(2个@Scheduled增量拉取+对账比对均覆盖)",
+          "数据模型(CcmTrip/Bill/Order/Settlement/BillItem落库与拆分行项写入)",
+          "跨模块依赖(BaseCompany/Enterprise/Employee查得购方/卖方,隐式描述)",
+          "MQ发布(企微推送=出站通知,覆盖)",
+          "出站失败传播(定时拉取/比对远程错误记录后不中断后续调度)",
+          "文件导入导出(模块确无Excel,spec未编造=正确不覆盖)",
+          "请求校验(主键空参/时间窗缺省/订单号查重等输入校验有可观察行为)",
+          "幂等(差旅数据幂等落库/结算单订单号查重)",
+          "分页过滤(条件分页表格查询/按票据可用性过滤/ldap_uno非空过滤)",
+          "审计留痕(外呼调用日志saveLog+部分入站端点@ApiComeinLog请求日志,均覆盖)"
         ],
         "partial": [
-          "事务(spec 仅以「账单与订单落库相互独立/订单失败不阻断账单」描述部分成功语义，未点明 @Transactional 回滚边界——4 处 @Transactional(rollbackFor=Exception.class) 的事务保证未作为契约写出)",
-          "请求校验(5 端点带 @Valid + DTO 上 JSR-303 约束共 13 处；spec 仅写了「主键/参数为空返回失败」的应用层判空，未覆盖 @Valid 触发的 bean validation 失败行为)",
-          "分页过滤(条件分页表格查询 spec 写了「多列模糊+指定字段精确匹配」，覆盖；但具体可过滤字段集合未枚举，属粗粒度)"
+          "状态机(available票据可用性派生与原单保护/改签回写覆盖到位;但CcmTripOrder的diffFlag/reconciliationPushStatus/settlementBillStatus等状态字段在plan状态域列了却未落入任何spec可观察行为)",
+          "成功响应信封(spec只说\"返回成功/失败结果\"未描述两套不同信封BaseResponse{uuid,success,message,data}与Result的差异)",
+          "事务(@Transactional存在且\"账单订单落库相互独立\"行为被覆盖,但事务边界本身未作为契约写明)",
+          "国际化时区(fetchSettlement用ZoneId.systemDefault()做跨月边界换算,spec只描述\"取首月月末\"未触及时区依赖)"
         ],
         "blind_spot": [
-          "MQ消费/MQ发布(本模块确无 @RabbitListener/发布，spec 未提及——属真空缺无需写，不计盲区)",
-          "启动钩子(无 CommandLineRunner，真空缺)",
-          "缓存(无 @Cacheable/redis，真空缺)",
-          "鉴权(trip 模块无 @RequiresPermissions/Shiro 注解——真空缺，spec 未声明鉴权正确)",
-          "并发锁/限流/批量限额/文件导入导出/国际化时区/环境profile(本模块代码无对应实现，真空缺)"
+          "错误响应(querybyId/querybyid/delete空参一律返回Result.failed(\"参数为空！\")的统一错误码语义,spec仅查询模块零散提\"返回失败结果\",对账/结算多处空参回退未系统化为错误契约维度)",
+          "鉴权(模块无@RequiresPermissions/Shiro注解,spec未声明\"本模块端点无独立鉴权\"——属于应观察而未观察的安全面缺口)",
+          "缓存(模块确无@Cacheable/redisTemplate,spec未作\"无缓存\"声明,属未覆盖维度)",
+          "并发锁/限流(无,spec未声明)",
+          "批量限额(QUERY_STEP=1000固定分页步长、pageSize硬编码,spec未触及批量页大小契约)"
         ]
       },
       "completeness": {
@@ -148,186 +150,200 @@
         "non_http_entries_found": 2,
         "non_http_entries_in_spec": 2,
         "crosscut_found": [
-          "@Valid+JSR-303 请求校验(13 处)",
-          "@Transactional 事务(4 处, rollbackFor=Exception.class)",
-          "Result.failed/BaseResponse 成功失败信封(参数为空/重复)",
-          "@ApiComeinLog 入站留痕(5 端点)",
-          "mdmLogSyncApiService.saveLog 出站调用留痕(2 处)",
-          "MD5 sign 外呼签名(CommonTripRequest: account+timestamp+key)",
-          "EChat 企微推送(BillComparisonTask.notifyWxUserMS)",
-          "@Value 配置开关(trip.account/compid/key/cron)",
-          "跨模块 companyService 查 BaseCompany"
+          "@Valid+JSR-303(@NotNull ListTripRequest / @NotBlank CcmTripSettlementPO.order_no)",
+          "@Transactional rollbackFor(CcmTripBillService×2 / CcmTripOrderService / CcmTripBillItemService)",
+          "错误码 Result.failed(\"参数为空！\"/\"重复添加记录\")与双信封 BaseResponse.fail",
+          "@Value 配置开关(trip.account/trip.compid/trip.key/trip.cron)",
+          "@ApiComeinLog 入站请求留痕(5端点)",
+          "MdmLogSyncApiService.saveLog 外呼调用留痕(FcApplyService/TripScheduleTask)",
+          "跨模块依赖(BaseCompanyService/EnterpriseService/BaseEmployeeService/EChatAppConfigService/EWebChatMessageService)"
         ],
         "crosscut_in_spec": [
-          "Result.failed 失败信封(参数为空/结算单重复)",
-          "@ApiComeinLog 入站留痕(部分入站端点留存请求日志)",
-          "saveLog 出站调用留痕(外呼留存调用日志)",
-          "MD5 sign 外呼签名(外呼携带签名)",
-          "EChat 企微推送(推送对账差异通知)",
-          "@Value 配置开关(签名密钥/默认时间窗;trip.cron 以「预置调度周期」隐含)",
-          "跨模块 BaseCompany 查询(按购方税号查得购方公司)"
+          "@Valid/校验(主键空参返回失败/时间窗缺省/订单号唯一性,行为层覆盖)",
+          "@Transactional 体现为\"账单与订单落库相互独立\"(部分)",
+          "@ApiComeinLog→\"部分入站端点留存请求日志\"requirement(精确覆盖5端点)",
+          "saveLog→\"外呼差旅平台留存调用日志\"requirement",
+          "跨模块→购方公司查得/企微推送(行为层覆盖)"
         ],
-        "notes": "19 端点 + 2 定时入口全数有对应可观察行为,入口面覆盖完整。横切层 7/9 命中:@Valid 请求校验、@Transactional 事务边界两条横切只被部分语义带过、未作为契约显式写出。无 MQ/启动钩子/缓存/鉴权/Excel,均为代码真空缺非漏写。"
+        "notes": "HTTP 19/19、非HTTP 2/2 入口全部有对应可观察行为,入口面完整度优秀。两条审计留痕维度(入站@ApiComeinLog与出站saveLog)被罕见地显式写成独立 requirement,是该 baseline 的亮点。crosscut 缺口集中在:错误码未系统化为统一契约、鉴权/缓存/批量限额等\"模块确实没有\"的维度未做否定式声明、双响应信封差异未描述。@Value配置开关作为对账/拉取所依赖的凭据虽行为层间接体现但未点明。"
       },
       "blind_spots": [
         {
-          "dimension": "事务边界(@Transactional)",
-          "evidence": "CcmTripBillService.java:129/270、CcmTripBillItemService.java:21、CcmTripOrderService.java:34 共 4 处 @Transactional(rollbackFor=Exception.class);spec 仅以「账单与订单落库相互独立」描述部分成功,未把单条落库内部(账单+行项+iflag 拆分写)的原子回滚作为契约,事务失败回滚行为不可观察化"
+          "dimension": "对账比对的可用账单过滤——spec声称但代码无、是反向盲区",
+          "evidence": "BillComparisonTask.getBillOrders(116-143) 仅 setDateFrom/setDateTo,从不 setAvailable;CcmTripBillService.buildWrapper(119-121) 仅当 request.getAvailable()!=null 才加 available 过滤,故对账账单一方实际纳入全部账单(含不可用)。spec trip-bill-reconciliation 反而声称\"仅纳入票据可用账单\"——是编造(见 hallucinations)。真实盲区=实际并无该过滤这一行为未被如实记录"
         },
         {
-          "dimension": "请求体 bean validation(@Valid/JSR-303)",
-          "evidence": "CcmTripController:33、CcmTripBillController:43/59/81、CcmTripSettlementController:101 共 5 端点 @Valid;DTO 上 JSR-303 约束注解全模块 13 处;spec 只写了控制器内手写判空(主键/参数为空→failed),未覆盖 @Valid 触发的校验失败这一独立可观察行为"
+          "dimension": "fetchBill 与 fetchBillAndOrder 行为完全相同",
+          "evidence": "CcmTripBillController.fetchBill(59-62) 与 fetchBillAndOrder(81-84) 都调用同一个 fcApplyService.fetchBill(request) → getAndSave → saveData(121-158) 同时保存 order+bill。spec 把二者写成\"账单\"vs\"账单+订单\"两种不同能力,真实行为是两端点等价(仅返回信封 BaseResponse vs Result 不同),此\"两端点行为同构\"事实未被捕获"
         },
         {
-          "dimension": "归属过滤强约束细节",
-          "evidence": "spec「查询差旅账单列表」与「按归属人查询申请单」covered,但 capability-plan 标注 listBill 强制 ldap_uno 非空过滤——spec 未把『无归属标识则查不到』这一过滤副作用显式成 Scenario,只在 query spec 泛述,边界行为偏弱"
-        }
-      ],
-      "hallucinations": [],
-      "summary": "ccm-trip 基线 4 个 capability 全数 validate --strict 通过,入口面(19 端点+2 定时)100% 覆盖,acquisition 域对筛选/幂等/票据可用性状态机/拆行项/签名/双路留痕等深层行为刻画相当扎实且零编造;主要欠缺在两条横切——@Transactional 事务回滚边界与 @Valid/JSR-303 请求校验未被显式契约化(其余 MQ/缓存/鉴权/Excel 均为代码真空缺)。"
-    },
-    {
-      "module": "ccm-budget (com.itgfin.ccm.budget, domain + app)",
-      "capabilities": [
-        "bill-budget-execution: 8 requirements / 12 scenarios",
-        "budget-summary-management: 7 requirements / 16 scenarios",
-        "budget-master-data-management: 8 requirements / 14 scenarios",
-        "budget-actual-comparison: 6 requirements / 8 scenarios",
-        "budget-reminder-and-sync: 5 requirements / 7 scenarios",
-        "budget-access-authorization: 4 requirements / 6 scenarios",
-        "budget-attachment-management: 4 requirements / 6 scenarios"
-      ],
-      "validate_pass": "all_pass",
-      "dimension_coverage": {
-        "covered": [
-          "同步HTTP端点(101 个 @PostMapping 端点均被 7 个 capability 的 requirement 覆盖到行为面)",
-          "状态机(bill-budget-execution 明细 占用→审批通过→执行 态推进, 重复审批幂等还原)",
-          "状态消费(付款单 CcmPayBillPO.status 作为外部触发条件, 仅允许修改态受理回写)",
-          "数据模型(预算汇总金额阶段字段; 树形预算中心; touchyFlag 敏感标记)",
-          "跨模块依赖(付款单生命周期事件驱动预算执行; 授权关系被汇总查询门控复用)",
-          "事务(bill-budget-execution 整体回滚不留半成品 requirement 明确覆盖 @Transactional 语义)",
-          "文件导入导出(excelUpload+importData 两段式导入; downloadImportTemplate; 附件上传下载)",
-          "成功响应信封(隐含 Result.success, 各 requirement THEN 返回成功/数据)",
-          "错误响应(无授权拒绝/预算不足拒绝/非允许态拒绝/已使用不可删/上传不合法拒绝)",
-          "分页过滤(search 按条件查询返回匹配集合)",
-          "鉴权(按预算授权范围门控查询, getUserPermissions 校验, 管理员级 vs 受限级)",
-          "并发锁(占用串行化 + 改额串行化 + 限定等待无资格不处理)",
-          "幂等(重复审批先还原再重算)",
-          "配置开关(敏感费用权限校验受 touchyFlag 约束 — 间接覆盖)",
-          "请求校验(附件上传文件校验; 上传不合法拒绝)",
-          "审计留痕(变更日志/操作日志/明细状态变更流水/消息发送结果留痕)",
-          "MQ消费/发布(确认本模块无 @RabbitListener / rabbitTemplate — 无该维度)",
-          "定时调度(确认 @Scheduled 已注释停用, 由 /schedule 手动入口替代, spec 以触发任务措辞覆盖)"
-        ],
-        "partial": [
-          "异步最终一致(DMP 同步异常以失败状态响应不中断 已写, 但未描述分页拉取循环与逐页落库)",
-          "审计留痕(消息发送结果有留痕 requirement, 但未点明发送渠道是 SMTP 邮件)",
-          "文件列格式(导入有 @ExcelProperty 列模型 3 个 DTO, spec 只说按文件内容导入, 未约束列含义)",
-          "国际化时区(金额阶段附带 *Time 时间字段, spec 未涉及时间口径)"
-        ],
-        "blind_spot": [
-          "令牌(GateWayService getGateWayToken 取网关 token 再 callGateWay, spec 未提网关令牌获取前置)",
-          "限流(api.gateway.tenantLimitId/QFCSid 等网关租户限额参数存在, spec 未涉及)",
-          "环境profile(email.isSend 开关/dmp.appId/api.gateway.* 凭据按 profile 切换, spec 未提外呼开关)",
-          "缓存(RedissonConfig 仅用于分布式锁, 无业务缓存 — 确认非盲区)"
-        ]
-      },
-      "completeness": {
-        "http_endpoints_found": 101,
-        "http_endpoints_in_spec": 101,
-        "non_http_entries_found": 0,
-        "non_http_entries_in_spec": 0,
-        "crosscut_found": [
-          "@Valid/JSR-303(3 处 @Valid, ScheduleTask 的 YearAndMonthDTO 等)",
-          "@Transactional(13 处)",
-          "Result.fail/Result.failed(共 151 处错误信封)",
-          "Redisson RLock tryLock(40,10,SECONDS) 分布式锁(BudgetOrderDetailService + CcmBudgetOrderSummaryService)",
-          "EasyExcel @ExcelProperty 导入列模型(3 个 DTO)",
-          "@Value 配置开关(api.gateway.* / dmp.* / email.* / budget.empCode / file-save-path)",
-          "Shiro/AppContext 取登录用户(SecurityUtils + AppContext.getUserPara('code'))",
-          "网关角色查询 getSysTemRoleInfo 判 adminCode 预算管理员",
-          "SMTP 邮件发送 SendMessage.message(MimeMessage/Transport.send, 587/STARTTLS)",
-          "budget.empCode 配置覆盖登录用户身份(getCode 优先返回 empCode)",
-          "分页 new Page<>(16 文件命中)",
-          "throw new(8 处) 业务异常"
-        ],
-        "crosscut_in_spec": [
-          "@Transactional(bill-budget-execution 整体回滚 requirement 显式覆盖)",
-          "Redisson 锁(占用串行化 + 改额串行化 + 无资格不处理, 未点名 Redisson/超时值)",
-          "Result.fail 错误信封(各 requirement 错误结果响应)",
-          "EasyExcel 两段式导入(excelUpload+importData 行为覆盖, 未约束列格式)",
-          "鉴权(按授权范围门控 + 敏感费用管理员校验, 未点名网关角色查询)",
-          "审计留痕(变更/操作日志 + 消息发送结果)"
-        ],
-        "notes": "端点分母 101 = 14 controller 的 100 个 grep 命中 @PostMapping + 1 个被正则漏掉的 @PostMapping (/syncUpdateMonth, 括号前有空格)。spec 把标准 CRUD 折叠进 requirement, 行为面 100% 覆盖、无遗漏端点。非 HTTP 活跃入口=0: BudgetScheduleTask 两处 @Scheduled 均已注释, 改由 /schedule 手动 HTTP 触发, 无 @RabbitListener/CommandLineRunner。横切大盘覆盖良好, 但锁的精确参数、网关令牌/角色外呼、SMTP 渠道、empCode 身份覆盖未沉淀。"
-      },
-      "blind_spots": [
-        {
-          "dimension": "提醒发送渠道=SMTP 邮件(非通用消息)",
-          "evidence": "CcmBudgetRemindService.java:414 String res = SendMessage.message(host, protocol, fromAddress, ...); SendMessage.java:14-38 走 mail.smtp.host/587/STARTTLS/MimeMessage/Transport.send。spec budget-reminder-and-sync 仅写 '向配置接收人发送提醒消息', 抹掉了 '邮件' 渠道与 email.isSend 开关。"
+          "dimension": "入站数据筛选还有一条 payType==1 且 serviceFee 为零的跳过规则",
+          "evidence": "FcApplyService.saveData(135-140):if(payType==1){if(serviceFee==null||serviceFee==0) skip}。spec\"入站差旅账单数据筛选\"只列了付款类型缺失/因私/金额服务费均零三条,漏了\"现结(payType=1)且服务费为零跳过\"这条独立规则"
         },
         {
-          "dimension": "budget.empCode 配置覆盖登录用户身份",
-          "evidence": "CcmBudgetOrderSummaryService.java:1485-1488 与 CcmBudgetUserOrgRelationService.java:215-218 getCode(): 若 budget.empCode 非空则直接返回该固定工号、不取 AppContext 当前登录用户。把权限判定主体替换成配置值, 影响 getUserPermissions/checkPermission/按员工查询全部门控, spec 无描述。"
+          "dimension": "对账差异推送的接收人实为硬编码,非\"配置的接收人\"",
+          "evidence": "BillComparisonTask.notify(145-156):agentid 硬编码 getConfigByAgentid(\"1000042\")、touser 硬编码 \"2096\"。spec\"推送对账差异通知\"称\"推送给配置的接收人\"——接收人 touser 实为写死,仅 app 凭据从配置读;spec 表述夸大了\"可配置\"程度"
         },
         {
-          "dimension": "管理员判定走外部网关角色查询而非 Shiro 权限",
-          "evidence": "CcmBudgetOrderSummaryService.java:824-835/907-918/2455-2461 getSysTemRoleInfo() 经 callGateWay 取 roleVoList, 遍历比对 api.gateway.adminCode 决定 isBudgetAdmin。spec 仅写 '校验是否为预算管理员', 未体现这是一次对外网关外呼(失败/超时即影响放行)。"
+          "dimension": "外呼凭据/企业号常量等配置依赖未作为契约面记录",
+          "evidence": "FcApplyService/TripScheduleTask/BillComparisonTask 均注入 @Value trip.account/trip.compid/trip.key 并以 Constant.GMZB(企业号)构造请求;cron 由 ${trip.cron} 驱动。spec 仅笼统说\"按预置调度周期\",未将\"外呼依赖账号/企业号/密钥三件套配置开关\"作为可观察前置条件记录"
         },
         {
-          "dimension": "Redisson 锁的精确语义(单一全局锁键 + 40s/10s)",
-          "evidence": "CcmBudgetOrderSummaryService.java:1368-1370 与 BudgetOrderDetailService 用同一常量 CommonConstant.BUDGET_LOCK_PRE_NAME='budgetLock_' 作锁键, lock.tryLock(40,10,SECONDS)。占用与改额共享同一把全局锁、全模块写串行(非按预算行粒度), spec '串行化' 措辞掩盖了 '全局单锁、跨单互斥' 这一粒度事实。"
-        },
-        {
-          "dimension": "DMP 同步为分页循环外呼落库",
-          "evidence": "GateWayService.java:129 dmpExternalCallApi(int currentPage, int pageSize, String bizYear) 携带分页参数经网关 token 外呼; syncBudgetFromDmp(:1890) 调度逐页拉取。spec 仅写 '拉取预算调整金额并更新', 未体现分页迭代与逐页落库的最终一致过程。"
-        },
-        {
-          "dimension": "汇总删除的精确金额守卫",
-          "evidence": "CcmBudgetOrderSummaryService.removeDate 逐 id 检查 occupiedAmount/executedAmount/approvedAmount 任一非 0 即拒删(返回码 1)。spec '已使用不可删除' 抽象正确, 但 '已使用' 判定口径=三类金额任一非零这一可测条件未沉淀。"
+          "dimension": "增量游标缺省回退基准日期硬编码",
+          "evidence": "TripScheduleTask.getDateFrom():无账单时回退 \"2023-01-01 00:00:00\";getTripData():无申请单时回退 startDate=\"2023-05-01\"。spec\"定时增量拉取\"只说\"以最新游标为起点\",未覆盖\"首次/空表时的回退基准日期\"这一可观察行为"
         }
       ],
       "hallucinations": [
         {
-          "claim": "budget-reminder-and-sync 暗示提醒由定时任务/调度触发",
-          "why": "spec 用 '触发...提醒任务' 措辞, 易读作存在自动调度; 实际 BudgetScheduleTask.java:33/44 两处 @Scheduled 均被注释, 唯一触发路径是 /schedule/sendMessage 手动 HTTP 入口。措辞本身未硬编造(用 '触发' 非 '定时'), 但有让读者误以为有活跃 cron 的风险——记为弱编造/需澄清, 非与代码相反的确凿。"
+          "claim": "trip-bill-reconciliation:「周期性比对结算单与账单订单差异」requirement 声称\"参与比对的账单一方 SHALL 仅纳入票据可用的账单\",并附 Scenario\"比对仅纳入可用账单/票据不可用的账单不参与比对\"",
+          "why": "代码无据且相反:BillComparisonTask.getBillOrders(116-143) 构造 ListBillRequest 仅设 dateFrom/dateTo,从未 setAvailable;CcmTripBillService.buildWrapper 的 available 过滤是条件式(getAvailable()!=null 才生效),故对账实际纳入全部含归属人的账单、不区分票据可用性。该\"仅纳入可用\"约束在代码中不存在"
+        },
+        {
+          "claim": "trip-data-acquisition:「手动拉取账单与订单」作为独立于「手动拉取差旅账单」的能力,称其\"一次性拉取并落库交易账单及其对应订单数据\"暗示与纯账单拉取行为不同",
+          "why": "fetchBillAndOrder 与 fetchBill 调用同一 fcApplyService.fetchBill(request);而 fetchBill 路径的 saveData 本就同时保存 order 和 bill。两端点行为同构,\"账单 vs 账单+订单\"的能力差异在代码中不成立(差异仅在 HTTP 返回信封)"
         }
       ],
-      "summary": "ccm-budget 基线 7 个 capability 全部 openspec --strict 通过, 101 个 HTTP 端点行为面 100% 覆盖、活跃非 HTTP 入口为 0(cron 已停用), 大盘维度(状态机/事务整体性/导入导出/授权门控/并发串行/审计留痕)覆盖扎实; 主要盲区集中在机制细节: 提醒走 SMTP 邮件、budget.empCode 身份覆盖、管理员判定靠网关角色外呼、全局单锁串行粒度与 DMP 分页外呼这几条可观察行为未被沉淀。"
+      "summary": "ccm-trip 基线把差旅\\\"拉取入库/查询/结算维护/对账\\\"四域 19 个 HTTP 端点 + 2 个定时任务全部转为有可观察行为的 SHALL 契约且 4 份 spec 全过 strict 校验,入口面完整、且罕见地把入站@ApiComeinLog与出站saveLog两条审计留痕显式写成 requirement;但存在一处反向编造(对账\\\"仅纳入可用账单\\\"代码无据)、一处能力虚分(fetchBill 与 fetchBillAndOrder 实为同构),并漏掉了 payType=1服务费零跳过、推送接收人实为硬编码、增量回退基准日期等真实行为,横切层在错误码统一契约、鉴权/缓存的否定式声明上留有盲区。"
+    },
+    {
+      "blind_spots": [
+        {
+          "dimension": "请求校验(JSR-303 @Valid/@NotNull)",
+          "evidence": "@Valid/@NotNull 真实存在但 spec 未体现:ScheduleTaskController/AppendixManagementController 入参带校验,3 个导入 DTO(BudgetOrderSummaryImportDTO/SubjectBudgetCompareImportDTO/CostBudgetCompareImportDTO)字段带 JSR-303,CcmBudgetUserOrgRelationService.java:152 有 @NotNull。spec 各 Requirement 仅写'提交...新增请求'未约束非法入参拒绝行为(附件 capability 例外,有不合法分支)"
+        },
+        {
+          "dimension": "文件列格式(Excel 列契约)",
+          "evidence": "BudgetOrderSummaryImportDTO 用 @ExcelProperty 固定列序:index0 预算部门编码/index1 名称/index2 预算项目Code/.../index5 本部门预算金额/index7 上线前已执行金额 等共 9+ 列。spec 的'导入'类 Requirement 只说'按文件内容批量创建或更新',完全未描述列名/列序/必填列这一可观察的导入契约(导入文件列错位即失败)"
+        },
+        {
+          "dimension": "成功响应信封/错误响应码",
+          "evidence": "全模块统一 com.qm.qfc.common.rest.Result 信封:Result.success 命中 111 次、Result.fail 命中 151 次(如 checkPermission 返回 Result.failed('该预算信息涉及敏感费用,请找预算管理员修改'))。spec 用'成功结果'/'错误结果'抽象表述,未点明统一 Result 信封与具体提示文案这一稳定可观察契约"
+        },
+        {
+          "dimension": "分页过滤",
+          "evidence": "search 类端点返回 QmPage 分页结构(CcmBudgetOrderSummaryService.java:257 getQueryPage→QmPage.getRecords),多服务用 IPage/Page。spec 各 search Requirement 只说'返回匹配条件的集合',未提分页(pageNum/pageSize→records+total)这一对外可观察的响应形态"
+        },
+        {
+          "dimension": "并发锁细节(等待/租约时长)",
+          "evidence": "BudgetOrderDetailService 与 CcmBudgetOrderSummaryService 用 redisson.getLock(BUDGET_LOCK_PRE_NAME).tryLock(40,10,SECONDS):等待 40s、租约 10s。spec 的'并发串行化'Scenario 仅 budget-summary 提到'限定等待时间内无法取得资格的请求不被处理',bill-budget-execution 的并发 Scenario 完全未提等待超时放弃,且两处都未量化"
+        },
+        {
+          "dimension": "鉴权/身份解析机制",
+          "evidence": "权限判定靠 AppContext.getUserPara('code')/AppContext.getUserId() 取 JWT 身份 + getSysTemRoleInfo() 外呼网关取角色 + 比对 ${api.gateway.adminCode} 判定预算管理员(CcmBudgetOrderSummaryService.java:824/907/2461)。spec budget-summary 抽象写了'授权校验'但未点明'角色取自外部网关 + adminCode 角色码 = 管理员'这一可观察判定路径(外呼网关不可达即影响鉴权)"
+        }
+      ],
+      "capabilities": [
+        "bill-budget-execution: 8 requirement / 11 scenario",
+        "budget-access-authorization: 4 requirement / 6 scenario",
+        "budget-actual-comparison: 6 requirement / 8 scenario",
+        "budget-attachment-management: 4 requirement / 6 scenario",
+        "budget-master-data-management: 8 requirement / 11 scenario",
+        "budget-reminder-and-sync: 5 requirement / 8 scenario",
+        "budget-summary-management: 8 requirement / 15 scenario"
+      ],
+      "completeness": {
+        "http_endpoints_found": 100,
+        "http_endpoints_in_spec": 100,
+        "non_http_entries_found": 0,
+        "non_http_entries_in_spec": 0,
+        "crosscut_found": [
+          "Redisson 分布式锁 tryLock(40/10s)",
+          "@Transactional rollbackFor=Exception(13 处)",
+          "EasyExcel @ExcelProperty 固定列导入/导出(3 DTO)",
+          "@Value 配置开关(budget.empCode/api.gateway.*/dmp.*/email.*/file-save-path)",
+          "QmPage/IPage 分页",
+          "Result.success/fail 统一信封(success 111/fail 151)",
+          "外部网关角色鉴权(adminCode + checkPermissionUrl)",
+          "AppContext(JWT)身份解析",
+          "@Valid/@NotNull/JSR-303 入参校验",
+          "对象存储文件存取(file-save-path)"
+        ],
+        "crosscut_in_spec": [
+          "Redisson 并发串行化(行为层覆盖,锁参数未量化)",
+          "事务整体性/回滚不留半成品(bill-budget-execution 整体性 Requirement)",
+          "EasyExcel 导入(行为层覆盖,列格式未覆盖)",
+          "@Value 固定员工号覆盖查询身份(budget.empCode)+ 统一收件人(email.to)",
+          "外部网关角色鉴权(行为层覆盖,机制未点明)",
+          "对象存储文件存取(附件 capability)"
+        ],
+        "notes": "端点分母 100 个 method-level @PostMapping(14 controller,另各类 1 个 @RequestMapping 前缀);全部归入 7 个 capability,无遗漏端点。非 HTTP 入口分母为 0:BudgetScheduleTask 的两处 @Scheduled 均被注释停用,无 @RabbitListener / CommandLineRunner——spec 准确地把同步/提醒建模为经 /schedule HTTP 手动触发。横切以行为层(并发串行化/事务整体性/统一收件人/敏感费用鉴权)覆盖良好,但锁参数、Excel 列契约、Result 信封文案、分页形态、JSR-303 拒绝、网关鉴权机制等可观察细节未沉淀。"
+      },
+      "dimension_coverage": {
+        "covered": [
+          "同步HTTP端点(100 端点全归入 7 capability)",
+          "状态机(bill-budget-execution 占用态→审批通过态→执行态流转 + 还原)",
+          "状态消费(付款单 status 作为外部触发条件驱动预算明细流转)",
+          "数据模型(预算维度/项目/中心树形/模板/汇总金额阶段字段)",
+          "跨模块依赖(paybill CcmPayBillService 调 BudgetOrderDetailService.billSubmit/billApprove)",
+          "事务(bill-budget-execution 整体性回滚 Requirement)",
+          "文件导入导出(对照/汇总/模板上传+导入+下载)",
+          "审计留痕(变更日志 ChangeLog/操作日志 Log/消息发送日志 SendMessageLog)",
+          "异步最终一致(从 DMP 同步预算调整金额 + 调用异常以失败响应不中断)",
+          "幂等(重复审批的金额幂等还原 Scenario)",
+          "并发锁(占用/改额串行化 Scenario)",
+          "配置开关(固定员工号 budget.empCode + 统一收件人 email.to 覆盖行为)",
+          "鉴权(按授权范围门控 + 敏感费用管理员校验)"
+        ],
+        "partial": [
+          "出站失败传播(DMP 外呼异常以失败响应已写,但网关外呼留痕仅 budget-reminder-and-sync 提'可查询执行记录',CcmSendMessageLog 的成功标记细节未展开)",
+          "成功响应信封(用'成功结果/错误结果'抽象表述,未点明统一 Result 信封与具体提示文案)",
+          "并发锁(行为已覆盖,但 tryLock 等待 40s/租约 10s 仅 summary 提'限定等待时间',未量化、bill-budget 未提超时放弃)",
+          "请求校验(附件 capability 有'不合法附件拒绝'分支,其余 capability 的 @Valid/JSR-303 拒绝行为未覆盖)",
+          "文件导入导出(上传+导入流程覆盖,但 @ExcelProperty 固定列名/列序契约未覆盖)"
+        ],
+        "blind_spot": [
+          "错误响应码(Result.fail 151 处 + 具体中文提示文案,如'该预算信息涉及敏感费用'、'已使用不可删除',作为可观察契约未系统沉淀)",
+          "分页过滤(search 端点返回 QmPage/IPage 分页结构 records+total,spec 一律说'返回集合',分页形态盲)",
+          "文件列格式(导入 DTO 固定列序契约盲)",
+          "令牌(GateWayService getGateWayToken 网关令牌获取机制未描述)",
+          "定时调度(@Scheduled 已停用,spec 正确未声明,非盲区但属维度上无 active 调度)",
+          "MQ消费/MQ发布(本模块无 RabbitListener/rabbitTemplate,真不存在,非盲区)",
+          "缓存(无 @Cacheable,真不存在,非盲区)",
+          "限流/环境profile/国际化时区(代码无对应实现,非盲区)"
+        ]
+      },
+      "hallucinations": [
+        {
+          "claim": "budget-attachment-management「上传合法附件...对文件进行校验后存入对象存储」中的'文件校验'",
+          "why": "未在 AppendixManagementController/Service 中确证存在显式文件类型/大小校验逻辑(controller 有 @Valid 入参注解,但'文件校验'的具体规则未读到实现);属轻度推断,证据强度弱于其余 Scenario,需谨慎。其余条目均有代码实据,无明确编造。"
+        }
+      ],
+      "module": "ccm-budget",
+      "summary": "ccm-budget 基线产出把 100 个 HTTP 端点完整拆入 7 个 capability、全部过 strict validate,状态机/跨模块驱动/事务整体性/幂等/并发/审计/异步同步等核心行为域覆盖扎实;主要盲区集中在可观察的接口契约细节(统一 Result 信封与错误文案、QmPage 分页形态、Excel 固定列格式、JSR-303 拒绝、锁参数量化、网关鉴权机制),属'行为已覆盖、契约细节未沉淀'型基线。",
+      "validate_pass": "all_pass"
     },
     {
       "module": "ccm-paybill (com.itgfin.ccm.paybill, domain + app)",
       "capabilities": [
-        "payment-bill-lifecycle —— 16 Requirement / 31 Scenario",
-        "accounting-voucher-generation —— 12 Requirement / 21 Scenario"
+        "payment-bill-lifecycle: 16 requirements / 约35 scenarios（覆盖状态值域、新建即提交、修改/审批/撤销/删除、付款回写、配单回写、未知动作码、手动预算补登、全局串行化、状态日志重建时刻、付款单查询、费用明细维护、付款明细维护、前端物理删除、主子表整体新增保存）",
+        "accounting-voucher-generation: 12 requirements / 约25 scenarios（覆盖财务系统归属门控、零金额借款单跳过、报销场景路由三模板、冲借款明细分录、借款单借方科目跨年/冲应付、跨年记入上年末日、去重重建、传金蝶结果落库、凭证号反写易报账吞错+同步日志、付款/配单自动触发、手工补传端点、待生成列表过滤、凭证与分录查询维护）"
       ],
       "validate_pass": "all_pass",
       "dimension_coverage": {
         "covered": [
-          "同步HTTP端点(34 个 @PostMapping 全覆盖:SOAP save/fcm-update、list4voucher、generate-voucher、save-budget、to-kd、to-ccm、各 CRUD)",
-          "状态机(PayBillStatus 六态 SAVED/SUBMITTED/APPROVED/PAYED/MATCHED/DELETED + CcmAction 七动作码全态推进/拒绝条件逐条写到 Requirement)",
-          "数据模型(付款单主表+费用明细+付款明细+凭证主表+凭证分录,有效性/逻辑删除语义都写到)",
-          "跨模块依赖(状态推进联动预算占用/审批/执行/返还 billPay,凭证传金蝶 EAS,反写易报账)",
-          "入站回调(资金平台 fcm-update PAY/MATCH 回写)",
-          "出站失败传播(传金蝶失败仅记结果不抛错不阻断、反写易报账完全吞错并留同步日志)",
-          "成功响应信封(SOAP buildSuccessResult/buildErrorResult、空消息成功响应,资金平台非付款非配单返回空成功)",
-          "错误响应(状态不是已提交/已审批不能修改/已付款不能删除/无需占用预算/不能重复保存等错误语义逐条写)",
-          "幂等(已付款重复付款仅补存明细、已配单重复配单跳过、传输成功凭证跳过重传)",
-          "并发锁(全局串行化 Requirement 明确 Redisson 同把锁、与预算共用保护范围、操作结束释放)",
-          "去重键(凭证以来源单号+凭证类型为去重键、kdResult==1 不重建/==0 作废重建)",
-          "分页过滤(分页查询仅返回有效付款单、按 billId/voucherId 仅返回有效子记录)",
-          "审计留痕(状态变更日志重建发生时刻、反写外呼留同步日志)",
-          "异步最终一致(付款/配单推进时自动触发凭证生成与传输)",
-          "配置开关(财务系统归属门控 EAS/荆艺 路由是否生成与传输凭证——以业务过滤值形式写入)"
+          "同步HTTP端点（34个method-level @PostMapping 全部有对应可观察行为）",
+          "状态机（PayBillStatus 六状态值域+各动作码合法迁移+拒绝条件，逐迁移成 scenario）",
+          "状态消费/触发（付款/配单推进自动触发凭证生成、APPROVE 触发预算审批，spec 显式写入）",
+          "数据模型（付款单主表+费用明细+付款明细+凭证+凭证分录五实体及其去重键/分类维度）",
+          "跨模块依赖（联动 budget 的 billSubmit/billUpdate/billPay/返还、外呼金蝶 EAS、反写易报账，作为可观察契约写入）",
+          "入站回调（资金平台 /fcm-update 回写 PAY/MATCH 显式建模）",
+          "出站失败传播（传金蝶失败不抛不阻断仅记结果、反写易报账完全吞错，两条均显式写入）",
+          "成功/错误响应信封（SOAP buildSuccessResult/buildErrorResult：未知动作码失败响应 vs 资金平台非PAY/MATCH 返回空消息成功响应，已区分建模）",
+          "错误响应/错误码语义（状态不是已提交、状态不是审批通过、状态不是审批通过或已付款、无需占用预算、不能重复保存、重复费控单号/缺单号拒绝，逐条写入 scenario）",
+          "分页过滤（仅返回有效 isUsed 付款单、按 financeSystem 归属过滤、list4Voucher 荆艺过滤 已写入）",
+          "并发锁（全局串行化 Requirement 显式描述 redisson BUDGET_LOCK_PRE_NAME 同一把锁与预算共用范围）",
+          "幂等（重复付款回写仅补存明细、已配单跳过、已传输成功凭证跳过重传、去重键不重复新增，已写入）",
+          "去重键（来源单号+凭证类型作为凭证去重键，kdResult 成功/非成功重建逻辑写入）",
+          "软删除/逻辑删除（作废+失效 vs 前端物理删除区分，已写入）"
         ],
         "partial": [
-          "事务(spec 以业务语言写「回滚作废/还原/作废明细」,但 15 处 @Transactional 的事务边界与 Spring 默认仅 RuntimeException 回滚这一机制契约未显性化)",
-          "请求校验(PO 层 @NotBlank「付款单编号不能为空」JSR-303 校验真实存在,spec 仅以「要求携带费控系统单号/不携带付款单号」业务前置条件覆盖,未点出框架级 bean validation 触发面)"
+          "事务（@Transactional 在 CcmPayBillService/CcmVoucherService 共 15 处构成事务边界，spec 通过『回滚作废』『还原修改前状态』『一次性补付款并配单』等隐含原子性，但未把事务边界作为独立可观察契约显式声明——属隐含覆盖）",
+          "配置开关（无 @Value，但 list4Voucher 过滤值『荆艺』为硬编码归属判定，spec 已注明实际过滤值，算覆盖到该硬编码维度）"
         ],
         "blind_spot": [
-          "员工福利判定(hasEmployeeWelfare/setHasEmployeeWelfare:扫费用明细命中 KdUtil.isEmployeeWelfare 即置 hasEmployeeWelfare 标志,该标志下传凭证生成,spec 两份均无任何条目)",
-          "分布式锁超时语义(RLock.tryLock(40,20,SECONDS):40s 抢锁等待 + 20s 租约自动过期,spec 只写「同一时刻仅一个推进、结束释放」,未覆盖抢锁超时与租约到期这两个真实可观察行为)",
-          "国际化时区(spec 未涉及,代码也无显著对应面,非真盲区)"
+          "审计留痕（入站 /save 与 /fcm-update 标注 @ApiComeinLog(ActionNameEnum.CCM_PAY_BILL_SAVE / CCM_PAY_BILL_FCM_UPDATE) 切面落库入站审计日志，spec 全文未提）",
+          "并发锁获取失败的处置（lock.tryLock(40,20s) 返回 false 时仅 log『无法获取锁』并直接走到 buildSuccessResult 返回成功——即抢锁失败被静默当成功、不处理也不报错，spec 只说『串行化』未捕获该失败分支行为）",
+          "请求校验（CcmPayBillPO.billNumber 上 @NotBlank『付款单编号不能为空』JSR-303 约束，spec 未提字段级校验）"
         ]
       },
       "completeness": {
@@ -336,132 +352,155 @@
         "non_http_entries_found": 0,
         "non_http_entries_in_spec": 0,
         "crosscut_found": [
-          "@Transactional×15(CcmPayBillService/CcmVoucherService)",
-          "Redisson RLock 全局串行化(BUDGET_LOCK_PRE_NAME, tryLock 40/20s)",
-          "JSR-303 @NotBlank(CcmPayBillPO.billNumber)/@NotNull(若干 VO 字段)",
-          "qfc Result 错误码返回(Result(500,...)/SOAP buildErrorResult 约 36 处 throw/fail 面)",
-          "SOAP XML 响应信封(SapResponse/SoapEnvelope via JaxbBinder)",
-          "财务系统归属门控 EAS/荆艺(@Value 类开关缺,改以常量 Constant.EAS + 硬编码「荆艺」过滤值)"
+          "global redisson lock BUDGET_LOCK_PRE_NAME tryLock(并发串行化)",
+          "@Transactional x15(事务边界)",
+          "@ApiComeinLog x2(入站审计切面)",
+          "SOAP 信封 buildSuccessResult/buildErrorResult(28处错误/拒绝构造)",
+          "错误码语义 Result(500,...)/状态拒绝文案",
+          "软删除 isUsed/setIsUsed(42处)",
+          "分页过滤 QmPage/financeSystem(17处)",
+          "callApi 内 MdmLogSyncApiPO 同步日志落库",
+          "JSR-303 @NotBlank/@NotNull(付款单编号等)",
+          "财务系统归属硬编码『荆艺』过滤"
         ],
         "crosscut_in_spec": [
-          "全局串行化(Requirement: 状态推进与动预算路径的全局串行化——明确同把锁、与预算共用保护范围、结束释放)",
-          "错误码/错误响应(各状态拒绝语义、无需占用预算、不能重复保存、动作不支持等逐条写)",
-          "成功/失败响应信封(SOAP 成功/失败响应、资金平台空消息成功响应)",
-          "出站失败传播(传金蝶不抛错不阻断、反写易报账吞错留日志)",
-          "去重/幂等(凭证去重键、重复付款/配单幂等、传输成功跳过重传)",
-          "财务系统归属门控(凭证生成的 EAS 门控 + list4voucher 荆艺 过滤)"
+          "global redisson lock(全局串行化 Requirement 显式)",
+          "SOAP 成功/错误信封区分(未知动作码失败 vs 资金平台空消息成功)",
+          "错误码语义(状态拒绝、无需占用预算、不能重复保存、重复单号拒绝逐条)",
+          "软删除 vs 物理删除区分",
+          "分页+归属过滤+list4Voucher 荆艺",
+          "callApi 同步日志(反写易报账留存一条同步日志)"
         ],
-        "notes": "端点与非 HTTP 入口完整度 34/34、0/0,满分。横切关注点:全局锁/错误码/响应信封/出站吞错/去重幂等/归属门控均已写入;唯 @Transactional 事务边界与 PO 级 @NotBlank 校验仅以业务语言间接覆盖,机制契约未点名(partial)。本模块无 @Scheduled/@RabbitListener/@Cacheable/@RequiresPermissions/@ExcelProperty/@Value 开关,故这些维度不构成漏项。"
+        "notes": "端点完整度 34/34=100%；非 HTTP 入口 0/0。横切覆盖 6/10：全局锁/信封/错误码/软删/分页/同步日志均入 spec；缺口为入站审计切面(@ApiComeinLog)、字段级 JSR-303 校验、@Transactional 事务边界(隐含未显式)。锁获取失败静默返回成功属行为盲区而非横切计数。"
       },
       "blind_spots": [
         {
-          "dimension": "员工福利明细判定标志(业务派生字段)",
-          "evidence": "CcmPayBillService.java:551-571 setHasEmployeeWelfare/hasEmployeeWelfare:遍历费用明细命中 KdUtil.isEmployeeWelfare(item) 即把 ccmPayBillPO.setHasEmployeeWelfare(true);saveAll(:467) 与 updatePO(:486) 路径均调用,该标志在 CcmVoucherGeneratorService.java:111 被读用于凭证分录逻辑。两份 spec 全文搜不到 welfare/福利 任何对应可观察行为。"
+          "dimension": "入站审计留痕",
+          "evidence": "CcmPayBillApiController.java:56 @ApiComeinLog(actionName = ActionNameEnum.CCM_PAY_BILL_SAVE)、:332 @ApiComeinLog(actionName = ActionNameEnum.CCM_PAY_BILL_FCM_UPDATE)——两个 SOAP 入站端点经切面落库入站调用审计日志，spec 全文未出现审计/留痕(状态变更留痕除外)相关可观察行为"
         },
         {
-          "dimension": "分布式锁的抢锁超时与租约自动过期",
-          "evidence": "CcmPayBillService.java:511-533 RLock lock=redisson.getLock(BUDGET_LOCK_PRE_NAME); lock.tryLock(40,20,TimeUnit.SECONDS):40s 抢锁等待上限、20s 租约自动释放;抢锁失败(isLocked=false)直接 return null。spec「全局串行化」Requirement 只描述串行与结束释放,未覆盖抢锁超时返回 null 与租约到期这两个真实行为。"
+          "dimension": "并发锁获取失败的静默成功",
+          "evidence": "CcmPayBillApiController.java:83/145/207/253/296/356/401 lock.tryLock(40, 20/10, SECONDS) 赋值 lockFlagPay；当返回 false 时分支只 log.info(\"无法获取锁\"+billNumber)(:101/:182 等)，未做任何处理即 finally 释放锁后走到 buildSuccessResult 返回成功响应。即抢锁失败被当成功响应回外部系统、付款单不被推进也不报错——spec『全局串行化』Requirement 只描述串行成功路径，未捕获『抢锁超时失败』这一真实可观察分支"
         },
         {
-          "dimension": "@Transactional 事务边界与回滚条件",
-          "evidence": "CcmPayBillService.java 与 CcmVoucherService.java 共 15 处裸 @Transactional(无 rollbackFor),意味着仅 RuntimeException 触发回滚、检查异常不回滚。spec 以业务语言写「预算占用失败回滚作废/修改失败还原」,但这是显式 catch+反向操作的业务补偿(见 ApiController 各 buildErrorResult 分支),与 Spring 声明式事务回滚边界并非同一机制,后者未被任何条目刻画。"
+          "dimension": "凭证科目路由的员工福利/分期/差旅细分支",
+          "evidence": "CcmVoucherGeneratorService.java:111 KdUtil.isEmployeeWelfare(item) → :267 getCrossYearCostNum 命中 hasEmployeeWelfare 时套 Constant.SHOULD_PAY_EMPLOYEE_WELFARE(员工福利专项应付科目)；及 buildEntriesWithActualPay 内 ReimbursementCategory.PAY_BY_TERMS(分期付款)按 supplier 拆分冲借款分录、isTravelBill/isActualTravelBill 差旅账单金额分支。spec『按报销场景路由凭证模板』只抽象到三模板+冲借款+跨年，未提员工福利专项科目与分期/差旅账单的细分录处理(属契约层有意抽象，但确为代码真实存在且影响生成结果的行为)"
+        },
+        {
+          "dimension": "字段级请求校验(JSR-303)",
+          "evidence": "CcmPayBillPO.java:39 @NotBlank(message=\"付款单编号不能为空，请检查！\")；CcmPayBillApiController.java:445 @NotNull;CcmVoucherService.java:222 等。spec 未声明任何字段级校验契约(仅在业务层描述『携带费控系统单号、不带付款单号』等业务前置条件)"
         }
       ],
-      "hallucinations": [],
-      "summary": "ccm-paybill 基线为两份高保真 spec:payment-bill-lifecycle(六态状态机+七动作码全推进/拒绝/幂等+全局串行化+预算联动+主子表 CRUD)与 accounting-voucher-generation(归属门控+三模板路由+借贷分录+去重重建+传金蝶/反写易报账吞错),34/34 端点与全部关键横切(锁/错误码/响应信封/出站吞错/去重幂等/EAS归属)均覆盖且无编造;剩余盲区为 hasEmployeeWelfare 福利标志、RLock 抢锁超时/租约语义、@Transactional 事务边界三处机制级细节,均属次要。"
+      "hallucinations": [
+        {
+          "claim": "spec(payment-bill-lifecycle:209)『新增付款明细时 MUST 校验其在所属维度下的唯一性，不允许新增重复』",
+          "why": "未在代码中定位到付款明细 insert 的去重/唯一校验确证。CcmPayBillPayDetailService.getByItemNo 存在(plan A-4 提及)疑似用于该校验，但本次取证未直接读到 CcmPayBillPayDetailController /insert → service 的拒重分支代码，证据链不完整。归入待复核而非确凿编造——若 /insert 实未做去重则为编造，需补读该 Controller insert 方法确认"
+        }
+      ],
+      "summary": "ccm-paybill 基线质量高：两 capability 均 openspec validate --strict 全通过，34/34 HTTP 端点 100% 入 spec、0 非 HTTP 入口无遗漏，付款单六态状态机的全部动作码迁移与拒绝条件、错误码文案、双 SOAP 入站信封差异、全局串行化锁、凭证去重重建与传金蝶/反写易报账的吞错+同步日志均被精准捕获；主要盲区集中在三处横切——入站 @ApiComeinLog 审计留痕、抢锁失败静默返回成功的真实分支、以及字段级 JSR-303 校验，外加凭证科目路由的员工福利/分期/差旅细分支被有意抽象掉。"
     },
     {
-      "module": "mdm-enterprise",
+      "module": "mdm-enterprise（com.itgfin.masterdata 企业客户子域）",
       "capabilities": [
-        "enterprise-customer-registration: 9 requirements / 18 scenarios",
-        "enterprise-customer-query: 4 requirements / 8 scenarios",
+        "enterprise-customer-registration: 11 requirements / 23 scenarios",
+        "enterprise-customer-query: 4 requirements / 9 scenarios",
         "enterprise-customer-import: 4 requirements / 6 scenarios",
-        "enterprise-business-info-enrichment: 7 requirements / 12 scenarios"
+        "enterprise-business-info-enrichment: 8 requirements / 15 scenarios"
       ],
       "validate_pass": "all_pass",
       "dimension_coverage": {
         "covered": [
-          "同步HTTP端点(13/14 端点有可观察行为契约)",
-          "请求校验(必填要素拒绝、境内外证件校验、mdmcode 查重、参数为空拒绝)",
-          "成功响应信封(Result.success/QmPage 透传,导入返回成功状态信封)",
-          "错误响应(BusinessException/Result.failed,外部数据平台错误码中止)",
-          "分页过滤(缺省 1/20、境内外标识归一 ALL→不过滤/缺省→境内/非法→拒绝)",
-          "数据模型(企业/来源-角色三元组/曾用名子表/分类兜底外部)",
-          "状态消费(企查查 sync_status 空态选取、已失败不重试)",
-          "跨模块依赖(向下游客户同步状态表 MdmLogCustSyncStsPO 写同步成功/失败)",
-          "审计留痕(@ApiComeinLog AOP 持久化请求/响应/状态到 MdmLogApiComeinPO,异常仍留痕)",
-          "令牌/签名(register 端点 header signature 验签)",
-          "配置开关(edp.callEnabled/edp.updateToDB 控制是否外呼回查与落库)",
-          "文件导入(Excel 扩展名校验、按工作表导入、固定路径导入)",
-          "文件列格式(导入行按列下标取值、分类列 row[21] 兜底外部)"
+          "同步HTTP端点(14/14 端点均有可观察行为)",
+          "请求校验(必填要素/USCC格式/境外证件/编码查重/标识为空)",
+          "成功响应信封(Result.success/状态信封)",
+          "错误响应(Result.failed/BusinessException)",
+          "分页过滤(缺省1/20、name/mdmcode/uscc、境内外标识归一)",
+          "状态机/分类路由(DomesticOverseasEnum 境内外路由查重与校验)",
+          "状态消费(CustSyncStsEnum 下游同步状态 SUCCESS/FAIL)",
+          "跨模块依赖(下游客户同步状态表归别子域、额度/EAS/CCM/PersonService)",
+          "出站失败传播(外数平台 errcode!=0 抛 BusinessException)",
+          "事务(曾用名 replace @Transactional)",
+          "文件导入(扩展名校验/双 sheet/导入即建档/分类兜底)",
+          "异步最终一致(QCC 回查 CompletableFuture 立返、部分失败隔离)",
+          "审计留痕(@ApiComeinLog 落 MdmLogApiComeinPO,create/searchEnterprise 含异常留痕)",
+          "配置开关(edp.callEnabled/edp.updateToDB)",
+          "事务边界缺失(建档非原子已显式写 spec)"
         ],
         "partial": [
-          "定时调度(spec 以「定时回查任务」描述 taskGetQccMessage 的选取行为,但代码实为 TaskSyncJobController POST /taskGetQccMessage 外部 cron 触发的 HTTP 端点、无 @Scheduled;选取过滤行为已覆盖,但触发机制与该端点本身未在 capability-plan 入口面枚举)",
-          "出站失败传播(enrichment 覆盖 EDP 外部返回错误码→BusinessException 中止;但 create 链路中境内工商回查比对失败→Result 错误的具体分支仅部分体现)",
-          "鉴权(register 验签已覆盖;但 /api-enterprise/create、/enterprise/* 等开放端点无 Shiro 权限校验这一事实未被 spec 显性陈述为「无鉴权」契约)"
+          "定时调度(spec 写「定时回查任务」且「仅选 sync_status 为空记录」行为属实,但代码无 @Scheduled,实为 TaskSyncJobController POST /taskGetQccMessage 外触发——调度形态被软性表述未点明是外触发端点)",
+          "内部分页缺省(query spec 已标[待验证]:list 的 1/20 是控制器显式设置已确认,search 的框架级缺省 jar 不在仓内未确认——spec 诚实标注)"
         ],
         "blind_spot": [
-          "事务(BaseEnterpriseUsedNameService.replace 标 @Transactional 先删后插曾用名子表的原子性未在 spec 体现)",
-          "幂等/并发锁(导入 buildEnterprise 的批内重复 USCC 跳过、已存在 USCC 跳过、非统一社会信用代码不导入等去重幂等行为完全未进 import spec)",
-          "缓存(本模块确无 @Cacheable/redis,属真空缺、非盲区)",
-          "MQ 消费/发布(本模块确无 @RabbitListener/MQ 发布,下游同步走 DB 表而非 MQ,spec 正确未编造 MQ)",
-          "国际化时区(无相关行为)",
-          "授权派生(saveSourceAndAuth 在来源角色为「客户」时额外 buildAuth/saveNotExist 写 BaseAuth 授权,spec 仅笼统提「登记授权」未区分仅客户角色派生授权)"
+          "令牌/鉴权(register 验签已覆盖;模块无 Shiro @RequiresPermissions——属真实无鉴权非盲区)",
+          "并发锁/幂等(saveNotExist/getByUscc 软幂等已覆盖;无显式锁)",
+          "缓存(模块无 @Cacheable/redis——真实无)",
+          "限流(无)",
+          "国际化时区(无)"
         ]
       },
       "completeness": {
         "http_endpoints_found": 14,
-        "http_endpoints_in_spec": 13,
+        "http_endpoints_in_spec": 14,
         "non_http_entries_found": 0,
         "non_http_entries_in_spec": 0,
         "crosscut_found": [
+          "@ApiComeinLog 入站留痕切面(create/searchEnterprise)",
+          "@Transactional(曾用名 replace)",
           "@Value 配置开关(edp.callEnabled/edp.updateToDB/file-save-path)",
-          "签名验签(register header signature + enterpriseDTO.verify)",
-          "@Transactional(BaseEnterpriseUsedNameService.replace)",
-          "@ApiComeinLog AOP 接口日志持久化(MdmLogApiComeinPO,含异常留痕)",
-          "Result/ResultCode 错误码信封",
-          "BusinessException 业务异常(外部数据平台错误码中止)",
-          "ExcelUtils.checkExcelExtension 扩展名校验 + EasyExcel/POI 导入",
-          "向下游客户同步状态表写 CustSyncStsEnum SUCCESS/FAIL",
-          "DomesticOverseasQueryEnum/DomesticOverseasEnum 境内外路由",
-          "导入去重(USCC 批内/已存在/非法 跳过)"
+          "内联手工校验(USCC 双重格式/境外证件字典/必填/编码查重)",
+          "Result.failed + BusinessException 错误信封",
+          "异步 ExecutorService tmsSyncPool(QCC 回查)",
+          "外数平台 errcode 失败传播",
+          "Excel 扩展名校验 + hutool 位置式列读取",
+          "下游 CustSyncStsEnum 同步状态写入"
         ],
         "crosscut_in_spec": [
-          "@Value 配置开关(回查开关/落库开关控制外呼,已显性成 Requirement)",
-          "签名验签(register 验签失败拒绝)",
-          "@ApiComeinLog 留痕(create 与 searchEnterprise 均有留痕 Requirement,含异常仍留痕)",
-          "Result/错误码(必填拒绝、参数为空、非法标识、外部错误中止均为 SHALL/Scenario)",
-          "Excel 扩展名校验 + 按工作表导入",
-          "向下游客户同步状态表写 SUCCESS/FAIL(供应商同步三 Scenario)",
-          "境内外路由(查重/校验/查询过滤归一)"
+          "@ApiComeinLog 入站留痕(registration「开放创建接口留可查记录」+ query「对外查询调用留痕」含异常留痕)",
+          "edp 配置开关(enrichment「外部回查受配置开关控制」 callEnabled+updateToDB)",
+          "请求校验(各 spec 必填/格式/境内外路由场景)",
+          "错误信封(各拒绝场景返业务错误)",
+          "异步最终一致(enrichment「回查为异步/返回成功不代表已写入」+部分未更新)",
+          "外数失败传播(enrichment「外部数据平台返回错误」)",
+          "事务/非原子(registration「建档为非原子操作」)",
+          "Excel 扩展名校验(import「扩展名不合法仍返成功信封」)",
+          "分类兜底(import「导入即建档」缺分类列兜底外部)"
         ],
-        "notes": "端点分母 14 = EnterpriseApiController 3(create/register/getBasicDetailsByname)+ EnterpriseController 9(querybyid/list/save/import-excel/import-customer/import-supplier/getBaseBizInfo/getQCCIndustry/usedNameList)+ ApiController.searchEnterprise 1 + TaskSyncJobController./taskGetQccMessage 1。capability-plan 只枚举了前 13,第 14 个 taskGetQccMessage 端点未在入口面枚举,但其「只选 sync_status 空态」的核心行为已被 enrichment spec 以「定时回查任务」Requirement 覆盖,故 in_spec 计 13。本模块确无 @Scheduled/@RabbitListener/CommandLineRunner/@PostConstruct(grep 全空),非 HTTP 入口分母为 0,spec 未编造此类入口,正确。@Transactional/去重幂等/曾用名子表原子性为 grep 命中但 spec 未覆盖的横切。"
+        "notes": "14 个 HTTP 端点(EnterpriseController 10 + EnterpriseApiController 3 + 公共网关 ApiController#searchEnterprise 1)全部有可观察行为入 spec,无遗漏。无真实 @Scheduled/@RabbitListener/CommandLineRunner 非 HTTP 入口(taskGetQccMessage 是 POST 端点外触发)。横切覆盖高:留痕切面、配置开关、异步最终一致、事务非原子、外数失败传播均显式写 spec。模块无缓存/Shiro/JSR-303/@ExcelProperty,这些维度「无可覆盖」非盲区。"
       },
       "blind_spots": [
         {
-          "dimension": "导入去重/幂等(import spec 完全未覆盖)",
-          "evidence": "EnterpriseService.buildEnterprise L657-684:非统一社会信用代码 isCreditCode 失败 return null 不导入;usccMap.containsKey 批内重复 USCC return null 跳过;getByUscc!=null 已存在企业 return null(仅补登来源与同步状态)。这三条去重/幂等是导入的真实可观察行为,import spec 仅写「导入即建档」「分类兜底」,无一条 Scenario 提及跳过去重。"
+          "dimension": "导入 USCC 校验门禁与第23列开关(import spec 漏)",
+          "evidence": "EnterpriseService.buildEnterprise 行648-659:非统一社会信用代码默认不导入(CreditCodeUtil.isCreditCode),但当 row.size()>22 且第22列取值为「否」时 checkUscc=false 跳过校验照常导入。import spec 只写了扩展名校验与分类兜底,未提「USCC 非法行被丢弃」及「第23列”否”可绕过 USCC 校验」两条真实过滤行为。"
         },
         {
-          "dimension": "曾用名子表写入的事务性与覆盖式语义",
-          "evidence": "BaseEnterpriseUsedNameService L34 @Transactional(rollbackFor=Exception.class) 的 replace 方法在事务内条件覆盖式重写曾用名子表;registration spec「建档时维护企业曾用名」仅笼统「更新曾用名记录」,未体现事务原子性与先清后写的覆盖语义。"
+          "dimension": "导入命中已存在企业的同步状态去重落库(import spec 漏)",
+          "evidence": "buildEnterprise 行672-685:导入行 USCC 命中已存在企业时不新建,改为 saveSourceAndAuth + custSyncService.getBaseMapper().checkData() 校验同步状态是否已落库,未落才 save。import spec『导入即建档』只描述新建路径,漏「已存在则登记来源+条件写同步状态」分支。"
         },
         {
-          "dimension": "客户角色派生授权(仅「客户」角色额外写 BaseAuth)",
-          "evidence": "EnterpriseService.saveSourceAndAuth:sourceRole==SOURCE_ENTERPRISE(客户) 时才 baseAuthService.buildAuth + saveNotExist 写授权,供应商角色不派生授权。registration spec 多处笼统说「登记来源与授权」,未区分授权派生只在客户角色发生。"
+          "dimension": "供应商导入额外触发实时 CCM 同步与收尾 QCC 批量回查(import spec 漏)",
+          "evidence": "importEnterprises 行313-318:sheetName 为「供应商」时对每条调 ccmEnterpriseService.insert() 实时同步易报账;行326-329 导入收尾在 edpCallEnabled 下批量调 getQCCIndustryInfo+getQCCCompanyDataBatch。import spec 未覆盖这两条。"
         },
         {
-          "dimension": "taskGetQccMessage 端点与触发机制",
-          "evidence": "TaskSyncJobController L390-396 @PostMapping /taskGetQccMessage 是外部 cron 经 HTTP 触发(extArgs.setSyncTypeCd(\"2\")自动),非 @Scheduled。enrichment spec 称其为「定时回查任务」,把外部 HTTP 触发的端点描述成内部定时任务;该端点本身也未在 capability-plan 入口面枚举(分母漏 1)。"
+          "dimension": "register 链路 Service.create(DTO) 按空 USCC 查重的死分支(任一 spec 漏)",
+          "evidence": "EnterpriseService.create(EnterpriseDTO) 行586:`getByUscc(enterprise.getUscc())` 用的是刚 new、尚未 setUscc 的本地 enterprise(USCC=null)而非 enterpriseDTO.getUscc();getByUscc 对 null 直返 null。即 Service 内部这次查重恒不命中。registration spec『注册命中已存在返回已存在』靠的是 Controller 行186 用 DTO.getUscc() 那次查重,Service 内部另一次是死分支且 spec 未反映。"
         },
         {
-          "dimension": "导入既有企业仍补写下游同步状态(checkData 去重)",
-          "evidence": "buildEnterprise L676-684:导入命中已存在企业时 wrapCustSyncPoByEnterprise(EAS,...) 后 checkData 判已落库,未落库才 save 一条客户同步状态。import spec 未提导入路径也会触发下游同步状态登记。"
+          "dimension": "create 端点 CCM 来源境内企业建档强依赖企查查(registration spec 漏)",
+          "evidence": "create(EnterpriseVO,response) 行433-445:来源 CCM 且境内+edpCallEnabled 时先调 getQCCCompanyData,返 null 抛『企查查无法查到该企业无法创建』、名称不匹配抛『企业名称与统一社会信用代码不匹配』。registration spec『创建境内企业时回查工商信息比对名称』只描述百融路径,漏 CCM 来源走企查查且回查失败阻断建档这条独立分支。"
+        },
+        {
+          "dimension": "create/update 成功后触发额度/EAS 出站同步(registration spec 漏)",
+          "evidence": "create 行467-468 调 quotaEnterpriseService.insert() 通知额度系统;update 行817-818 调 easEnterpriseService.insert()、行820-825 供应商再调 ccmEnterpriseService.insert()。registration spec 的『供应商渠道触发下游同步』只覆盖 CCM/EAS 同步状态记录,未覆盖『通知额度系统(QUOTA)/EAS 出站』。"
         }
       ],
-      "hallucinations": [],
-      "summary": "mdm-enterprise 四个 capability 全部 openspec validate --strict 通过,行为契约整体忠实于代码(供应商下游同步写 DB 状态表而非 MQ、留痕走 @ApiComeinLog AOP、配置开关控制外呼回查、境内外路由查重均准确,无事实编造);主要盲区集中在导入链路的去重/幂等(批内/已存在/非法 USCC 跳过)、曾用名子表的事务覆盖语义、客户角色派生授权、以及把外部 HTTP 触发的 /taskGetQccMessage 端点描述为「定时任务」且未将其计入入口面分母。"
+      "hallucinations": [
+        {
+          "claim": "enterprise-business-info-enrichment『定时任务仅回查尚未同步的企查查记录』将该行为归为「定时回查任务」",
+          "why": "代码中无 @Scheduled / cron 绑定。taskGetQccMessage(EnterpriseService 行836)由 TaskSyncJobController#taskGetQccMessage(POST /taskGetQccMessage,行390)外部触发,属外触发端点而非进程内定时任务。底层『仅选 sync_status 为空且 cust_nm 非空」(行838-843)行为属实,但『定时』调度形态在本仓代码无实据——轻度夸大表述而非纯编造。"
+        }
+      ],
+      "summary": "mdm-enterprise 基线把企业客户子域 14 个 HTTP 端点零遗漏拆成建档变更/查询/批量导入/工商行业回查四个 capability,全部 openspec --strict 通过,且在留痕切面、配置开关、异步最终一致、建档非原子、外数失败传播等横切维度覆盖扎实;主要盲区集中在导入链路的隐藏过滤与出站同步(USCC 校验门禁/第23列开关/供应商触发 CCM/QUOTA 额度同步)以及 register 路径按空 USCC 查重的真实代码 bug 未被 spec 反映。"
     }
   ],
-  "overview": "先结论后依据。\n\n## 一、跨模块汇总表\n\n| 模块 | validate | 维度覆盖 (✅/🟡/🔴) | HTTP端点完整度 | 非HTTP入口完整度 | 真盲区数 | 编造数 |\n|---|---|---|---|---|---|---|\n| tms（司库） | 全过 | ✅14 / 🟡3 / 🔴3 | 75/75 | 0/0 | 4 | 0 |\n| ccm-trip（差旅） | 全过 | ✅13 / 🟡3 / 🔴0 | 19/19 | 2/2 | 3 | 0 |\n| ccm-budget（预算） | 全过 | ✅18 / 🟡4 / 🔴4 | 101/101 | 0/0 | 6 | 1（弱） |\n| ccm-paybill（付款单） | 全过 | ✅16 / 🟡2 / 🔴3 | 34/34 | 0/0 | 3 | 0 |\n| mdm-enterprise（企业） | 全过 | ✅13 / 🟡3 / 🔴6 | 13/14 | 0/0 | 5 | 0 |\n\n注：🔴这一列是各模块自评的 blind_spot 维度条目数（写进盘点表的\"漏的维度\"），与\"真盲区数\"统计口径不同——真盲区数是单独列出、带代码证据的可观察行为漏项。两者都保留是因为它们衡量的不是一回事（前者是维度级，后者是行为级）。\n\n## 二、5 个模块普遍漏的共性盲区（Top）\n\n按\"几个模块同时踩\"排序：\n\n1. **事务边界 @Transactional（5/5 全踩）** —— 每个模块都有 `@Transactional`，但 spec 全都只用业务语言（\"回滚作废\"\"先删后插\"\"整体回滚\"）带过，没把\"哪些异常触发回滚、删后插的原子性\"作为契约写出。tms 还诚实标了 `[待验证]`，trip/paybill/budget/enterprise 都是部分覆盖。这是最普遍、最一致的缺口。\n\n2. **请求校验 @Valid / JSR-303（4/5 踩）** —— trip(13处)、paybill、budget(3处)、enterprise 都有 bean validation，但 spec 普遍只写了\"控制器里手写判空返回 failed\"，没覆盖框架级 `@Valid` 触发的校验失败这条独立可观察路径。tms 特殊：import 了 validation 但没真启用，spec 不写反而正确。\n\n3. **导入/批处理的去重幂等（多模块踩，enterprise 最重）** —— enterprise 的导入去重（批内重复 USCC、已存在跳过、非法不导入）整条没进 spec；budget 的导入列格式、tms 的硬编码重试上限（500/2）也都漏。涉及 Excel 导入或批量同步的模块普遍漏\"跳过/限额\"这类边界。\n\n4. **外呼机制细节（多模块踩）** —— \"对外部系统调用\"普遍被抽象掉了具体机制：budget 的提醒其实走 SMTP 邮件、管理员判定走网关角色外呼、DMP 分页循环拉取；tms 的加密时间戳缓存；这些\"一句话外呼\"背后的真实可观察行为没沉淀。\n\n5. **分布式锁的精确语义（budget + paybill 踩）** —— 两个模块都用 Redisson，spec 都只写\"串行化/结束释放\"，都漏了\"全局单锁跨单互斥的粒度\"\"抢锁超时 40s/租约 20s 到期\"这些真实行为。\n\n一句话：**机制契约普遍被业务语言盖掉了**——事务、校验、锁、外呼渠道，凡是\"框架/基础设施层怎么实现\"的可观察行为，5 个模块的 spec 都倾向只写业务意图、不写机制。\n\n## 三、最完整 vs 最差\n\n**最完整：ccm-paybill（付款单）**\n- 维度 🔴 只有 3 条，且其中\"国际化时区\"还是真空缺（非漏写）；编造数 0。\n- 状态机刻画最硬：六态 + 七动作码的全推进/拒绝/幂等逐条写到 Requirement，连\"凭证去重键=来源单号+凭证类型\"\"kdResult==1 不重建\"这种深层去重逻辑都进了 spec。\n- 端点 34/34、非HTTP 0/0 满分，剩余盲区（福利标志、锁超时、事务边界）都是次要机制细节。\n- 赢在范围聚焦（只有 2 个 capability），能把每条业务路径抠到很深。\n\n**最差：mdm-enterprise（企业）**\n- 唯一 HTTP 端点不满分（13/14，漏了 `taskGetQccMessage`），且把这个\"外部 cron 经 HTTP 触发\"的端点错误描述成\"内部定时任务\"——这是5个模块里唯一一处入口面分母漏算 + 机制误述同时发生。\n- 维度 🔴 多达 6 条，真盲区 5 条且都不是次要的：导入去重幂等整条缺失（import spec 形同没覆盖核心行为）、曾用名子表事务、客户角色才派生授权、导入也触发下游同步状态——这些都是\"会影响读者对模块真实行为判断\"的实质漏项。\n- 输得不冤：enterprise 的导入链路本身分支多（境内外路由 × 去重 × 派生授权），spec 把复杂分支压成了\"导入即建档\"的笼统描述，信息损失最大。\n\n（tms 虽然 🔴 也有 3 条且端点最多达 75 个全覆盖，但盲区都偏机制细节、无误述，质量在中上；budget 体量最大-101端点、覆盖最广，但因外呼/锁机制盲区多 + 1 条弱编造，完整度排中间。）\n\n## 四、优化效果的对照尺：优化后该看哪几个数字\n\n这套基线作为前后对照，**优化后应使下列数字朝指定方向变化**：\n\n**必须下降（核心目标）：**\n- **真盲区数总和**（当前 4+3+6+3+5 = 21）—— 这是最直接的质量尺，优化后应显著下降。重点压 enterprise(5) 和 budget(6)。\n- **🔴 维度数**（当前 3+0+4+3+6 = 16）—— 同向下降，尤其 enterprise 的 6。\n- **编造数**（当前仅 budget 1 条弱编造）—— 必须降到 0，budget 那条\"触发提醒易读成自动 cron\"的措辞要改清楚。\n\n**必须上升 / 补齐：**\n- **HTTP端点完整度** —— enterprise 的 **13/14 必须修成 14/14**（补 taskGetQccMessage 进入口面）。其余 4 个已满分，要守住不退。\n- **共性盲区的覆盖** —— 把第二节那 5 类（事务/校验/去重幂等/外呼机制/锁语义）从\"普遍漏\"变成\"普遍写到\"，体现在 🟡→✅ 的迁移上。\n\n**必须保持不变（守住的底线）：**\n- **validate 全过** —— 5/5 strict 通过不能因为补内容而被破坏。\n- **非HTTP入口完整度** —— 当前 trip 2/2、其余 0/0 都准确（没把停用的 @Scheduled、没实现的锁常量当真），优化补内容时**不能为了凑覆盖而把\"代码里没有/已停用\"的东西写成行为**（tms 的死锁常量、budget 的注释 cron 是反面教材，当前没踩，要继续不踩）。\n\n一句话对照标准：**真盲区数↓、🔴维度↓、编造↓归零、enterprise端点补满14、5类共性盲区从🟡转✅；同时 validate 全过和\"不无中生有\"两条底线不退。**"
+  "overview": "Below 是优化前基线总览。先给结论,再上依据。\n\n---\n\n## 一、跨模块汇总表\n\n| 模块 | validate | 维度覆盖 ✅/🟡/🔴 | HTTP端点完整度 | 非HTTP入口完整度 | 真盲区数 | 编造数 |\n|---|---|---|---|---|---|---|\n| tms | 全通过 | 13 / 5 / 4 | 77/77 (100%) | 0/0 | 5 | 1(弱) |\n| ccm-trip | 全通过 | 11 / 4 / 5 | 19/19 (100%) | 2/2 | 5 | 2 |\n| ccm-budget | 全通过 | 13 / 5 / 8 | 100/100 (100%) | 0/0 | 6 | 1(弱) |\n| ccm-paybill | 全通过 | 14 / 2 / 3 | 34/34 (100%) | 0/0 | 4 | 1(待核) |\n| mdm-enterprise | 全通过 | 15 / 2 / 5 | 14/14 (100%) | 0/0 | 6 | 1(弱) |\n| **合计/均值** | **5/5 全过** | — | **244/244 (100%)** | **4/4 (100%)** | **26** | **6** |\n\n说明:维度覆盖三个数分别是 covered(✅完全覆盖)/ partial(🟡部分覆盖)/ blind_spot(🔴维度盲区)的条目数;\"真盲区数\"取各模块 blind_spots 数组的明细条数;\"编造数\"取 hallucinations 条数(标注\"弱/待核\"的是结论对、归因脆弱或证据链不全,非纯虚构)。\n\n---\n\n## 二、跨模块共性盲区(5 个模块普遍漏的维度)\n\n按\"几个模块同时漏\"排序:\n\n1. **统一响应信封 + 错误码/提示文案没形式化**(tms / trip / budget / paybill 部分)——几乎每个模块都用统一的 `Result.success/failed` 或 SOAP 信封包裹,且失败有固定中文文案(如 budget 的 `Result.fail` 命中 151 次),但 spec 普遍只写\"返回成功/失败结果\",没把这套稳定可观察的契约和具体文案写进去。这是**头号共性盲区**。\n\n2. **请求校验(JSR-303 / @Valid)拒绝行为漏写**(trip / budget / paybill / enterprise)——代码里普遍有 `@NotNull/@NotBlank/@Valid`(如 paybill 付款单编号、budget 三个导入 DTO),但 spec 很少声明\"非法入参被拒绝\"这条可观察行为。\n\n3. **事务边界 / 删除原子性表述模糊或缺失**(tms / trip / budget / paybill)——`@Transactional` 普遍存在,但 spec 要么只反向说\"非整体原子\"(tms 甚至把删除路径的真原子性漏了),要么靠业务行为隐含,没把事务边界当独立契约。tms 还出现\"同一方法外部调用有事务、自调用绕过 AOP 无事务\"这种被 spec 误读的细节。\n\n4. **分页形态没沉淀**(budget / enterprise 明确,trip 批量步长)——search 类端点普遍返回 `QmPage/IPage`(records+total),spec 一律写成\"返回集合\",分页这一对外可观察形态盲。\n\n5. **配置开关驱动的可变行为没表达**(tms / trip / budget 部分)——`@Value / @ConfigurationProperties`(tms 的线程池大小/时区/司库地址、trip 的账号/企业号/密钥三件套、budget 的网关 adminCode)驱动真实行为,spec 普遍没把\"配置不可达/切换即影响行为\"作为前置条件写出。\n\n次一级共性:**审计留痕**(tms/trip/enterprise 覆盖好,paybill 漏了入站 `@ApiComeinLog`)、**并发锁的量化参数**(budget 的 tryLock 40/10s、paybill 的抢锁失败静默返回成功、tms 的 Semaphore(10)/批大小 25 都没量化)。\n\n> 注:**缓存、鉴权、限流、国际化时区**这几类,多数模块是\"代码里真没有\",属于 spec 正确地没编造,不算盲区(只有 tms 的 secretKey TTL 缓存是真有而漏)。\n\n---\n\n## 三、产出最完整 vs 最差\n\n**最完整:ccm-paybill。** 理由:覆盖 14✅,partial 只有 2、blind_spot 只有 3(全表最少的盲区结构);六态状态机的全部动作码迁移与拒绝条件、错误码文案、双 SOAP 入站信封差异、全局串行化锁、凭证去重/传金蝶吞错+同步日志都被精准捕获——连\"错误码语义\"\"响应信封区分\"这两个别的模块普遍漏的维度它都覆盖了。它的盲区是收敛的、可枚举的少数几个横切点(入站审计切面、抢锁失败分支、字段级校验),不是大面积失明。\n\n**最差:ccm-trip。** 理由:它是唯一一个**同时踩中\"反向编造 + 能力虚分\"两类硬伤**的模块——(a) 对账\"仅纳入票据可用账单\"这条约束**代码里根本不存在、且事实相反**(纯反向 hallucination);(b) 把 `fetchBill` 与 `fetchBillAndOrder` 拆成两个能力,但二者调同一方法、行为同构,是**能力虚分**。再加上漏掉 payType=1 服务费零跳过、推送接收人实为硬编码(spec 夸大成\"可配置\")、增量回退基准日期硬编码等多条真实行为。也就是说它的问题不只是\"契约细节没沉淀\"(那是 budget 那种良性盲区),而是**写进 spec 的内容里有与代码相悖的假契约**,这是最伤基线可信度的。\n\n> 对比维度:budget/enterprise/tms 的盲区基本是\"行为已覆盖、契约细节未沉淀\"型(良性);paybill 是\"盲区最少\"型;trip 是\"既有盲区、又有假契约\"型——质量地基最不稳。\n\n---\n\n## 四、优化效果对照尺:优化后该盯哪几个数字\n\n这套基线数字是优化前的对照基准。优化后按下面四组数字判断有没有真改善:\n\n**A. 必须\"降\"的(越低越好):**\n- **编造数 6 → 目标 0**(尤其 trip 的 2 条反向编造/能力虚分必须清零)。这是质量红线,优化后若编造数没降,等于没解决最伤可信度的问题。\n- **真盲区总数 26 → 应明显下降**,重点看共性盲区(响应信封、JSR-303 校验、事务边界、分页、配置开关)是否被系统性补齐。\n\n**B. 必须\"升\"的(越高越好):**\n- **各模块维度覆盖的 ✅(covered)数 ↑、🔴(blind_spot)数 ↓**——理想是 partial/blind_spot 里的横切维度(信封、校验、分页、事务、配置)迁移到 covered。看 budget 的 8 个 blind_spot、enterprise/trip 的 5 个能不能压下来。\n\n**C. 必须\"保持 100% 不许掉\"的(守住线,不能为补盲区而漏端点):**\n- **HTTP 端点完整度 244/244=100%**、**非HTTP入口 4/4=100%**、**validate 5/5 全 strict 通过**。这三项是优化前已经满分的项,优化只能补\"覆盖深度\",不能牺牲\"入口广度\"和\"校验合规\"。若优化后端点完整度跌破 100% 或出现 validate 不过,即为回归。\n\n**D. 一个要警惕\"虚高\"的方向:**\n- 补盲区时若靠堆砌细节把 spec 写厚,要反查**编造数是否回升**——补充的契约必须有代码实据,不能把\"应该有\"写成\"系统 SHALL\"。trip 的教训就是宁可少写,也不能写假契约。\n\n一句话:**编造数和真盲区数往下走、covered 维度数往上走,同时 validate / 端点完整度 / 非HTTP入口三项 100% 一格不掉**,就是优化生效;反之若端点完整度掉、或编造数回升,就是优化跑偏了。"
 }
