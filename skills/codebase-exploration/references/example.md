@@ -28,7 +28,7 @@ commit: 8fcee6b
 | `src/modules/notification` | 单一模块 | `notification` 通知调度 |
 | `src/modules/template` | 单一模块 | `template` 消息模板 |
 | `src/modules/subscription` | 单一模块 | `subscription` 订阅管理 |
-| `src/adapters` | 适配器集合 | 非业务，见第三节 |
+| `src/adapters` | 适配器集合 | 非业务，见第五节 |
 | `src/jobs` | 异步 worker | `retry-job` 失败重试 / `digest-job` 摘要聚合 |
 
 > **粒度说明**：`channel` 拆 3 子，每子对应独立渠道逻辑，可各自 `/module-brief`；若整目录当单模块会让上下文过重。`jobs` 目录无 HTTP 路由，作为 worker 单独列、不与业务模块混。
