@@ -1,0 +1,59 @@
+{
+  "batch": "B4",
+  "title": "纪律+纠偏:核对门(高危断言主动证伪拦编造)+ 鉴权前置 carve-out(深读守卫真身·空壳不写)+ 降级可见",
+  "date": "2026-06-23",
+  "commit_skill": "697c867",
+  "pre_b4_anchor": "bd1825a (skill=B3 态)",
+  "branch": "spec-baseline-opt",
+  "scope_approved": "T1 核对门(只高危句式主动证伪)+ T2 鉴权 carve-out 原则修正 + 接 structural 扫描(深读门)+ T3 降级可见",
+  "files_changed": [
+    "verification-agent.md — 核对门子步(对'否定/绝对/拒绝/鉴权门'高危句式主动回grep证伪)+ 返回加降级清单",
+    "structural-agent.md — §2.5加鉴权前置维度(扫安全过滤器链/anon/未授权应答·深读isAccessAllowed真身·空壳不记)+ 明确排除carve-out",
+    "spec-synthesis-agent.md — 横切段加鉴权前置写法(仅守卫真强制才写·空壳恒放行绝不写SHALL需认证)",
+    "SKILL.md — 不做段加安全边界澄清(端点前置鉴权契约按B5采·非安全审计·深读真身空壳不写)"
+  ],
+  "design_note": "承重=深读门拦 JWTFilter 空壳编造(§5 教训:isAccessAllowed 恒 return true·真鉴权被注释)。核对门只对高危句式主动证伪、不全量回扫(那是 code-review)。",
+
+  "ground_truth": {
+    "JWTFilter_空壳": "JWTFilter.java:67 `return true;//null != subject && subject.isAuthenticated();`——真鉴权判断被注释,isAccessAllowed 恒放行。ShiroConfig 登记 /**=jwt 但闸门开,无token也放行。写'SHALL需JWT'即编造",
+    "register_HMAC真强制": "EnterpriseApiController 用 appCenter secret 验签,验签失败拒绝——这是真强制的访问契约,B3 已采进 enterprise spec",
+    "tms_task_log_编造(B3遗留)": "B3 时 tms treasury-task-log 称'自动任务结果不会改写success/恒退化全量',与代码 set task_result_code=success + success-based 增量起点相反——B4 核对门目标靶"
+  },
+
+  "gates": {
+    "gate0_validate": { "verdict": "PASS", "detail": "openspec validate --strict 26/26 全过,0 失败" },
+    "gate1_written": {
+      "verdict": "PASS",
+      "T1_核对门_编造归零": {
+        "result": "✅ 全 5 模块 hallucinations=0(tms 1→0·trip 1→0·budget/paybill/enterprise 0)。达成 B4 目标数字「硬编造→0」",
+        "tms_task_log": "B3 那条'不会改写success'编造消失——本轮 tms task-log 写'增量起点取上次成功结束时间'(与代码一致);核对门对'不会/恒'高危句式主动证伪生效",
+        "caveat": "无法 100% 区分核对门 vs 跑间变异,但编造-prone 断言现已全部 ground 准确、且核对门正瞄准这类句式"
+      },
+      "T2_鉴权_carve_out": {
+        "result": "✅ enterprise 正确处理 JWT 空壳:blind_spot 标『鉴权 N/A——本模块无 Shiro,register 手写签名验签已覆盖』『令牌 N/A——用 secret 验签非令牌』",
+        "no_fabrication": "**没编造『SHALL 需 JWT』**——JWTFilter 空壳被深读门避开;真强制的 register HMAC 验签如实写(covered:『未加签/签名非法→错误』)",
+        "honest_footprint": "如设计预审:T2 在 GMZB 正向产出≈0(JWT空壳·HMAC已在B3采)。价值=carve-out 原则修正 + 深读门避免编造 + 诚实 N/A 降级,非涨内容"
+      },
+      "T3_降级可见": "✅ verification 返回加降级清单(点名'鉴权门已扫但空壳故未立约'等);本轮 enterprise 鉴权 N/A 即诚实降级的体现",
+      "regression": {
+        "b1_5dim": "✅ 12 绿原样保住·**100% 一致(25/25)**(史上最干净)",
+        "b2_nonhttp": "✅ trip.sched YES(3/3)·budget.sched NO(3/3 反编造)·tms.mqcons YES·enterprise.sched YES(B3增益保住·3/3)·0机制泄漏",
+        "b3_four_location": "✅ enterprise taskGetQccMessage 仍覆盖、外置入口仍切出"
+      }
+    },
+    "gate2_grounded": { "verdict": "PASS", "detail": "全 5 模块编造=0;核对门主动证伪不引入新编造" },
+    "gate3_behavioral": { "verdict": "PASS", "detail": "机制词黑名单(SM4/MD5/JWTFilter/isAccessAllowed/ShiroConfig/@RequiresPermissions/过滤器/@Scheduled/@RabbitListener等)全spec 0命中——新加鉴权维度也行为优先(『签名非法→错误』非机制)" },
+    "gate4_pending_marker": { "verdict": "PASS", "detail": "[待验证] 全spec 0条;鉴权 N/A 降级落在 scorecard/verification 返回、不污染 spec" }
+  },
+
+  "aggregate_reference_only": {
+    "note": "roadmap:模糊聚合数只作参考",
+    "validate": "5/5",
+    "hallucinations": "B3 的 2(tms+trip)→ B4 的 0(全5模块)。这是 B4 目标数字达成的直接体现",
+    "enterprise_endpoints": "16(B3)→14(B4) 是分母噪声·taskGetQccMessage/QCC行为未掉"
+  },
+
+  "verdict": "B4 4门全过+回归。**两个目标全中**:① T1核对门——全5模块编造归零(达成『硬编造→0』·tms task-log那条被拦);② T2鉴权carve-out——enterprise 正确避开 JWT 空壳编造、HMAC验签如实采、N/A诚实降级(深读门承重生效)。B1横切12绿100%一致(零回退)·B2 trip/budget守住·B3四类位置保住·0机制词·[待验证]0。T2 正向footprint≈0 如设计预审(JWT空壳),价值在原则修正+防编造。",
+
+  "optimization_complete": "B0-B4 全部干净通过。spec-baseline-opt 待用户拍板合回 main(不擅自 push)。回退锚点齐全:B4前=bd1825a。"
+}

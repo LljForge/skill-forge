@@ -18,7 +18,7 @@
 
 ## 当前状态
 
-- **阶段**:**B0、B1、B2、B3 均干净通过**(B3=`994264b`,4 门全过 + 回归)。下一步 **B4 纪律 + 纠偏**。
+- **阶段**:🎉 **B0–B4 全部干净通过**(B4=`697c867`,4 门全过 + 回归)。**优化全程收尾,`spec-baseline-opt` 待用户拍板合回 `main`(不擅自 push)**。
 - **完整验收尺已定型(4 门 + 回归,B1/B2 实战验证可用)**:① 写没写(grid,尺校 96%)② 真不真(grounding)③ 行为不行为(可观察 + 无机制词)④ `[待验证]` 正当;门 2/3/4 折进 grounding 一趟 + 2 grep,成本不涨。
 - **B1 成果**:横切 grid **7→12**(5 真可观察翻绿)、0 假YES、0 机制词、出站签名已砍。产物 `results-B1.json`。
 - **B2 成果**:非 HTTP 入口发现系统化(修 boundary 悬空引用,定时入口由关键词机制找、非碰运气);**活性核验门承重生效**——budget `BudgetScheduleTask` 两 `@Scheduled` 已注释的死壳被 3/3 一致判 NO、**未编造定期契约**;trip 2/2 定时入口仍行为优先零机制;B1 12 绿格零回退。产物 `results-B2.json` + 新尺 `b2-nonhttp-grid-ruler.workflow.js`。
@@ -135,7 +135,7 @@ skill 源:`/Users/lilongjian/Projects/AI/skill-forge/skills/module-spec-baseline
 | B1 | 06-20→21 | 横切扫描+行为优先表达;`782a7ec`(redo·按完整尺·砍出站签名)+`c6f13aa`(B1.2·砍签名传导synthesis+事务mechanism scrub) | **4门全过**:grid 7→12(5 真翻绿 trip×审计/budget×事务·配置/ent×审计·MQ)、门2 0假YES、门3 0机制词·出站签名已砍、门4 仅1条旧`[待验证]`、strict 5/5 | **✅ 干净通过**(经 v1假YES→回退→补尺→redo→收口2残留,共3轮迭代验证了 4 门各拦真问题) | **待验收** |
 | B2 | 06-22 | 非HTTP入口发现(定时/MQ消费)+活性核验防编造死壳+修悬空引用;`935795b`(spring-boot.md非HTTP段+boundary步骤2.7+synthesis非HTTP入口Requirement;不动structural) | **4门全过+回归**:门1 B2网格唯一YES=trip.sched(3/3·正确)·**budget.sched 3/3一致NO(死壳未编造)**·0机制泄漏 + B1横切12绿原样保住(零回退,96%一致);门0 validate 26/26;门2 trip活/budget无编造;门3 机制词0;门4 [待验证]0 | **✅ 干净通过**(承重=活性核验门拦住 budget 注释死壳;本语料数字不跳=设计预期,价值在系统化+防编造门+零回退) | **待验收** |
 | B3 | 06-22 | 四类位置入口强制走查(补同步Controller群按行切)+同包零import依赖标存疑+客观锚点(耦合信号);`994264b`(boundary步骤2.8外置入口+SKILL.md A-4泛化四类位置+Step2耦合信号;不动structural) | **4门全过+回归·有真增益**:门1 enterprise `/taskGetQccMessage` 补满13→16(四类全走查留痕·按行切正确排他子域)·tms RabbitMqConsumer逮回0→2/2(§8-⑤错置他包config)·同包依赖标存疑(scratchpad)+ B1横切12绿零回退·B2 trip/budget守住;门0 validate26/26;门2 grounding真;门3 机制词0;门4 [待验证]0 | **✅ 干净通过**(与B2不同·**有可测增益**;承重=「按调本模块Service判归属」逮错置入口·存疑落scratchpad不污染spec) | **待验收** |
-| B4 | | | | | TODO |
+| B4 | 06-23 | 核对门(高危断言主动证伪拦编造)+鉴权前置carve-out(深读守卫真身·空壳不写)+降级可见;`697c867`(verification核对门+降级 / structural §2.5鉴权维度+carve / synthesis写鉴权 / SKILL.md不做段澄清) | **4门全过+回归·两目标全中**:门1 T1核对门→**全5模块编造归零**(tms task-log那条'不会改写success'被拦·达成硬编造→0)·T2鉴权→enterprise正确避开JWT空壳编造·HMAC验签如实采·N/A诚实降级(深读门承重生效)+ **B1横切12绿100%一致(零回退)**·B2 trip/budget守住·B3四类位置保住;门0 validate26/26;门3 机制词0;门4 [待验证]0 | **✅ 干净通过**(承重=深读门拦JWTFilter空壳编造;T2正向footprint≈0如设计预审·价值在原则修正+防编造) | **待验收** |
 
 ---
 
