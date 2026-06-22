@@ -18,6 +18,8 @@ description: 把指定后端模块逆向为 openspec specs 基线——按行为
 
 **不做**：bug-hunting（用 code-review/security-review）、白盒设计文档（用 module-brief）、前端 UI 细节建模（specs 描述系统可观察行为）。
 
+> **安全边界澄清**：「不做安全」指**不做安全审计/漏洞挖掘**；但**端点前置鉴权契约**（登录态门 / 回调验签 / anon 公开）是**黑盒可复现的访问行为契约**，按行为维度 B5 采（见 [references/behavior-dimensions.md](references/behavior-dimensions.md)、structural §2.5）——别把它跟"安全审计"一起排掉。**前提是深读守卫真身**：恒放行 / 被注释的空壳守卫不写成强制契约（否则编造）。
+
 ## 调用方式
 
 ```
