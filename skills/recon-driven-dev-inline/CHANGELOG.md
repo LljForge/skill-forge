@@ -2,6 +2,32 @@
 
 记 what + why，不写过程流水账。
 
+## v0.3.0 — 重构为五阶段自包含流水线（融合 superpowers + mattpocock）
+
+**主题**：在保留四阶段骨架精神上,演化为**五阶段、披露模型 C（脊柱 + references 下沉）、吸收 superpowers 与 mattpocock/skills 各自优势**的自包含流水线工作流。
+
+**what**：
+- **骨架 4→5 阶段**：原「④ 落地」拆为「④ 写计划」+「⑤ 实施」两个独立阶段；「③ 评审」改为**可选**,由 ② 出口的评审决策点据 ①② 信号给建议、用户拍板。
+- **披露模型 C**：SKILL.md 收为跨阶段**脊柱**（流程图 / 全局护栏 / ⏸ / 指针,147→137 行）,各阶段细则下沉 `references/`；指针均点名该 reference 里**非默认的具体动作**（如「主会话实测门、非泛质量门」「跳过 ③ 丢定向报告验收」）。
+- **新增 reference**：`directed-analysis.md`(①) / `requirements-design.md`(②) / `planning.md`(④) / `implementation.md`(⑤) / `code-reviewer.md`(⑤ 整支评审 sub-agent 本体) / `templates/code-review.md`。共 7 reference + 3 template。
+- **② 吸收**：测试缝隙（在哪测 / mock 哪里 / 理想=1,焊到 ⑤ TDD）、深模块 / 窄接口透镜、ADR「决策 + 被否方案 + 为什么」、`design.md`「必覆盖清单」（form-flexible 检查锚点替代僵化骨架,反掉原「design 不设骨架」与「完全无骨架」两旧表述）。
+- **④ 新阶段**：曳光弹垂直切片（含极小改动退化）/ 任务右尺寸 / prefactor / 文件结构图（按职责切）/ 验收 + 依赖序（无占位符=两分支底线）/ ④自评（限设计↔任务机械对账）；分层计划——选子 agent 执行才升级到自包含（Interfaces 精确签名 + 任务级完整路径）。
+- **⑤ 新阶段**：实施前**计划冲突预检**（一次批量问 + 扫净静默继续）、收尾前**整支代码评审**（`code-reviewer.md` 两轴 Standards+Spec、per-axis 不跨轴归并、BASE 兜底）、子 agent 分支的以文件交接 / 不预判 / 进度账本 / 按角色选模型；原内联 gates + 非显性陷阱块保留,补「进度账本是 scratch」一条。
+- **单一权威 + 派发降级范式**：派发 / 降级提为脊柱单点声明（①③⑤整支评审共用）；三评审构造（`review-agent.md` 设计期 / per-task 逐任务 / `code-reviewer.md` 整支）判据各自唯一权威,脊柱与模板只路由不复述。
+
+**why**：原版四阶段全内联 SKILL.md 在「④ 落地」一段最薄弱、单文件渐胀；借两套成熟技能的方法论补强写计划 / 实施,用披露模型 C 收住脊柱可读性。守住唯一硬约束——**自包含 / 零外部依赖**：吸收一律内联重写,不调任何外部 skill、不引入任何脚本。
+
+**借鉴溯源**：
+- **superpowers**：`brainstorming`（②对话契约,原已有）/ `writing-plans`（④右尺寸 / 文件结构图 / 自包含任务 / execution handoff）/ `executing-plans` + `finishing-a-development-branch`（⑤内联 gates / 收口）/ `subagent-driven-development`（⑤计划冲突预检 / 整支终评 / 文件交接 / 不预判 / 进度账本 / 按角色选模型）。
+- **mattpocock/skills**：`to-prd`（测试缝隙）/ `to-issues`（曳光弹切片 / prefactor / 验收+依赖序）/ `codebase-design`（深模块 / 窄接口透镜）/ `domain-modeling`（ADR 中间路线）/ `review`（整支 Standards+Spec 两轴）/ `writing-great-skills`（方法论：信息阶梯 / 渐进披露 / no-op 测试 / 单一权威源 / leading word）。
+- 明确**砍掉**的过重件：项目级持久 `CONTEXT.md` / ADR 库、`codebase-design` 完整词汇表 + 禁用近义词、结构化四态实现者协议、① 引入 git 历史侦查信号、引入外部 `scripts/`、给 `review-agent.md` 加测试缝隙/ADR 探针。
+
+**冻结不动**：`recon-agent.md` / `review-agent.md` / `templates/{requirements,review}.md` 四个文件语义一字未改（它们也是本次写作的声音范本）。
+
+**诚实定性**：**结构重构 + 能力吸收**,非能力跃升或定量提升；不跑 benchmark。
+
+**设计与计划溯源**：全程经 `superpowers:brainstorming` → `writing-plans`,设计稿 [`docs/superpowers/specs/2026-06-22-recon-driven-dev-inline-refactor-design.md`](../../docs/superpowers/specs/2026-06-22-recon-driven-dev-inline-refactor-design.md)（v2.2,经 4 轮对抗评审收敛）、实施计划 [`docs/superpowers/plans/2026-06-22-recon-driven-dev-inline-refactor-plan.md`](../../docs/superpowers/plans/2026-06-22-recon-driven-dev-inline-refactor-plan.md)（9 任务）。
+
 ## v0.2.1 — review-agent.md 补派发祈使（防空转 · PATCH）
 
 **主题**：`references/review-agent.md` 文件头补一句动作工单,防评审 sub-agent 派发后只待命不开评。
