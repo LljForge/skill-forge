@@ -1,0 +1,77 @@
+{
+  "batch": "B2",
+  "title": "多入口发现:非 HTTP 入口(定时/调度 + MQ 入站消费)+ 活性核验防编造死壳 + 修悬空引用",
+  "date": "2026-06-22",
+  "commit_skill": "935795b",
+  "pre_b2_anchor": "0b30bab (skill=B1 态, 同 c6f13aa)",
+  "branch": "spec-baseline-opt",
+  "files_changed": [
+    "shared/strategies/web/spring-boot.md — 新增「非 HTTP 入口」段(关键词表 定时/MQ消费/启动钩子 + 活性核验门 + 行为优先输出)",
+    "agents/boundary-agent.md — 修第11行悬空引用 + 步骤2.7非HTTP入口扫描(活性核验深读防死壳) + 输出「非HTTP入口清单」",
+    "agents/spec-synthesis-agent.md — 读boundary纳入非HTTP入口清单 + 「非HTTP入口→行为优先Requirement」段(只写活的/禁机制词/不重复出站异步)"
+  ],
+  "design_note": "structural 刻意不动(保 B1 12 绿格零回退);活性核验门是承重设计——直接拦 budget BudgetScheduleTask 两个 @Scheduled 方法被整段注释的死壳,防把它编造成「budget 定期同步」契约。",
+
+  "ground_truth_nonhttp": {
+    "ccm-trip": "2 活定时(TripScheduleTask.tasks 每天1点拉差旅/交易数据落库 + BillComparisonTask.comparisonTask 月度对账+通知);@Scheduled(cron=${trip.cron}) 未注释、@EnableScheduling 在、trip.cron=0 0 1 * * ? 四 profile 全配 → 真活",
+    "ccm-budget": "BudgetScheduleTask 两个 @Scheduled 方法整段被 // 注释(33-49行)、类体实质为空 → 无活入口。裸 grep 会命中 → 不深读就写'定期同步'=编造",
+    "tms/ccm-paybill/mdm-enterprise": "scope 内 0 个非 HTTP 入口",
+    "RabbitMqConsumer": "唯一 @RabbitListener 物理在 masterdata/config、驱动 TMS→BFE,在全部 5 个测试模块 scope 之外 → 属 B3「入口错置他包」范畴,B2 够不着"
+  },
+
+  "gates": {
+    "gate0_validate": {
+      "verdict": "PASS",
+      "detail": "openspec validate --strict:目标 5 模块 26 capability 全过,全仓 36/36,0 失败"
+    },
+    "gate1_written": {
+      "verdict": "PASS",
+      "b2_nonhttp_grid": {
+        "ruler": "b2-nonhttp-grid-ruler.workflow.js (3 遍独立判读)",
+        "unanimity": "6/10 一致(60%);4 分歧格全是 NO-vs-N_A 空格歧义、无一假YES",
+        "key_cells": {
+          "ccm-trip.sched": "YES (3/3 一致) — 正合预期:2 活定时系统化入 spec",
+          "ccm-budget.sched": "NO (3/3 一致) — 反编造铁证:判官全读到「触发X任务」=手动,死壳没被写成定期契约",
+          "tms.sched": "NO — 同步任务是 HTTP 端点触发,非定时(正确)",
+          "all_mqcons": "NO/N_A — 无任一 scope 内有 MQ 入站消费入口(唯一 @RabbitListener 在 scope 外,正确)"
+        },
+        "only_YES_is_correct": "全网格唯一 sched=YES 是 trip(正确那个);budget 3/3 NO",
+        "mechanism_leaks": "0"
+      },
+      "b1_regression_grid": {
+        "ruler": "binary-grid-ruler.workflow.js (B1 5 横切维度原样重跑)",
+        "green_cells": 12,
+        "baseline_b1": 12,
+        "verdict": "12 绿格原样保住、零回退;B1 翻绿的 5 格(trip×audit/budget×tx,config/ent×audit,mq)全部仍 YES",
+        "unanimity": "24/25 = 96%(唯一分歧 tms.tx YES/YES/NO 是已知'原子/非原子双路径'歧义,非 B2 引入)"
+      }
+    },
+    "gate2_grounded": {
+      "verdict": "PASS",
+      "detail": "trip 2 定时入口 ground 到活代码(cron 四 profile 全配);budget 死壳未编造——budget-reminder-and-sync spec 全用「系统 SHALL 支持触发…任务」「WHEN 触发…任务」手动措辞,与 @Scheduled 已注释吻合;0 假YES"
+    },
+    "gate3_behavioral": {
+      "verdict": "PASS",
+      "detail": "机制词黑名单(@Scheduled|@RabbitListener|cron|RabbitMQ|Kafka|Quartz|线程|@Transactional|SM4|MD5|access_token 等)全 spec 0 命中;trip 用「按预置调度周期」「到达预置调度时刻」行为优先表达"
+    },
+    "gate4_pending_marker": {
+      "verdict": "PASS",
+      "detail": "[待验证] 全 spec 0 条,无回归(基线/B1 参考极少)"
+    }
+  },
+
+  "aggregate_reference_only": {
+    "note": "roadmap 明确:模糊聚合数只作参考、不作判据(测量噪声大)",
+    "validate": "5/5(不变)",
+    "nonhttp_completeness": "trip 2/2(系统化,非碰运气);budget 的 3 个 /schedule 是 HTTP 手动端点、非真非HTTP入口(scorecard 归类略松)",
+    "blind_spots": "30(基线) → 18(本次全 scorecard 重测,反映 B0+B1+B2 累计)",
+    "hallucinations": "6硬2(基线) → 3(其中2弱)。注:tms 那条 treasury-task-log「不会改写success/恒退化全量」编造与 B2 无关——是状态机推理错误,属 B4 核对门范畴;B2 未引入任何新编造"
+  },
+
+  "verdict": "B2 4门全过 + 门0回归。核心成果:① 修掉 boundary 悬空引用(定时入口现由关键词机制系统化发现,非碰运气);② 活性核验门承重生效——budget 注释死壳 3/3 一致判 NO、未编造定期契约;③ trip 2/2 定时入口仍行为优先零机制;④ B1 12 绿格零回退。本语料数字不跳(trip 本已 2/2、budget 本已正确)如设计预期——B2 价值=机制系统化 + 装上防编造门 + 零回退,而非涨数字。",
+
+  "out_of_scope_flagged": {
+    "tms_taskwlog_hallucination": "tms treasury-task-log 一处实质编造(称自动任务结果不会改写success、同步恒退化全量,与代码 set task_result_code=success + success-based 增量起点直接相反)——状态机/领域推理错误,非入口发现问题,属 B4(核对门)目标,B2 不处理",
+    "rabbitmq_consumer": "唯一活 @RabbitListener 在 scope 外(masterdata/config),其入站消费入口的跨 scope 发现属 B3「四类位置/入口错置他包」"
+  }
+}
