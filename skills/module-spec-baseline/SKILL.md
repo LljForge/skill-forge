@@ -93,6 +93,8 @@ boundary（范围/目录/枚举/回调） ─┬─> structural（端点/契约/
 - **过窄（疑似空脚手架）**：几无 Controller·Service·DAO 实现、真实现可能散在他包。
 - **过宽（疑似伞形 / 限界上下文）**：scope 跨多个不相关业务域。凭类名业务内聚性判（读一遍类名看是不是一个内聚域），不设文件数阈值。
 
+> **客观锚点（别只押"读类名"直觉）**：读类名是起点，但巨包/扁平分层里前缀不可靠（如 `Base*` 横跨多子域）。再叠**可观测的耦合信号**佐证"是不是一个内聚域"：① 这批类**相互 `@Autowired` 调用**成簇 ② **共用同一组 PO / 数据表** ③ **共围同一业务名词**。三信号聚到一起 = 强内聚域；某类只与外部簇耦合、与本簇零调用零共表 = 疑似他子域，按过宽 STOP 确认。让"为什么这样切"有可观测证据、换人重跑能收敛，而不是只剩人脑里的直觉（决策仍按 Step 3 落 `{{DECISIONS_DIR}}` 留痕）。
+
 > Why：过窄 → 下游 Agent 在空壳空转；过宽 → 把多域揉进一次基线、capability 划分失焦。
 
 ### Step 3：模块代码范围确认
@@ -116,7 +118,7 @@ boundary（范围/目录/枚举/回调） ─┬─> structural（端点/契约/
 ### A-3：启动 boundary-agent
 
 **输入**：模块名、后端代码路径、`{{MODULE_SCOPE}}`。
-**输出**：`{{SCRATCHPAD_DIR}}/module-boundary.md`（模块输入/输出边界、目录清单、状态枚举清单、状态字段线索、回调 Controller 清单）。
+**输出**：`{{SCRATCHPAD_DIR}}/module-boundary.md`（模块输入/输出边界、目录清单、状态枚举清单、状态字段线索、回调 Controller 清单、非 HTTP 入口清单、外置入口清单）。
 **详见**：[agents/boundary-agent.md](agents/boundary-agent.md)。
 
 > ⚠️ B-1 / A-4 必须在 A-3 完成后——它们依赖 `module-boundary.md`。
@@ -125,7 +127,9 @@ boundary（范围/目录/枚举/回调） ─┬─> structural（端点/契约/
 
 把模块按**行为域**拆成若干 capability（每个 = 一个 `spec.md`）：
 
-1. 读 boundary 的回调清单 + 主上下文 Grep 本模块入口面：Controller/Service 的对外方法。**必须连公共网关一起扫**——本项目对外查询/保存集中在共用 `ApiController`（`@RequestMapping("/api")`，方法如 `searchEnterprise`/`saveBaseOrganizationList`），不在各模块自己的 Controller 里；漏扫它会把模块 Service 的 `apiSearch` 等误判无入口、漏掉整片对外查询能力。
+1. 读 boundary 的回调清单 + **外置入口清单**（步骤 2.8 已按四类位置走查出的网关/同步群端点）+ 主上下文 Grep 本模块入口面：Controller/Service 的对外方法。入口枚举须**覆盖四类位置**（自有 Controller + 共享网关 + 同步 Controller 群 + MQ/定时），任一类漏掉就漏一整片对外契约面：
+   - **共享网关**——本项目对外查询/保存集中在共用 `ApiController`（`@RequestMapping("/api")`，方法如 `searchEnterprise`/`saveBaseOrganizationList`），不在各模块自己的 Controller 里；漏扫它会把模块 Service 的 `apiSearch` 等误判无入口。
+   - **同步 Controller 群**——本项目中央批量同步/任务入口（如 `TaskSyncJobController`/`SyncKingDeeController`/`SyncCcmFunController`）里**调本模块 Service 的端点**也是本模块对外面（如某模块的 `/taskGetXxx` 物理在 `TaskSyncJobController`、却调本模块 Service）；boundary 外置入口清单已按行切出，这里据它纳入对应 capability，**别因它不在本模块包里就漏**。
 2. 按行为域把入口归并成 capability，**kebab-case 按行为命名**（如 `enterprise-customer-query`、`organization-sync`），不按模块名命名。
 3. 检查 `{{SPECS_ROOT}}/` 已有 capability 名，避免冲突（capability 全局平铺、多模块共用命名空间）。
 4. 用一次 `AskUserQuestion` 跟用户敲定 capability 列表 + 各自覆盖的行为/入口（跑分析前一次问完，不加交互回合）。
