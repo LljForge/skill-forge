@@ -1,0 +1,40 @@
+{
+  "batch": "B5",
+  "title": "核对门补『注解依赖型』(注解在≠生效)——@Valid缺失/切面缺参空壳证伪",
+  "date": "2026-06-23",
+  "commit_skill": "55cc8a5",
+  "pre_b5_anchor": "7bc83b3 (= 回归后 main 态)",
+  "branch": "spec-baseline-b5",
+  "trigger": "无人值守泛化回归暴露:organization 2处空壳注解硬编造(/baseOrganization/insert 无@Valid却写'校验拒绝';@ApiOperateType未配serviceName却写'前后快照'),B4核对门拦'否定/拒绝型'却漏'注解在却未接线型'",
+  "scope_approved": "T1+T2实+T3轻外;B5验收=4回归模块(organization主靶)+原5模块B1尺(防过度证伪)",
+  "files_changed": [
+    "verification-agent.md — 核对门加第三类高危句式『注解依赖型』:靠注解兑现的契约回查接线(端点@Valid/切面注解参数),注解在却未接线即证伪;配『别过度证伪』护栏(真有@Valid/配齐参数的不动)"
+  ],
+  "design_note": "B5 只动 verification-agent 核对门(1文件),不碰采集面,B1-B4 已绿不受影响。承重=把『深读到真身』从『否定/拒绝』扩到『注解在却未接线』。",
+
+  "gates": {
+    "gate0_validate": "PASS — 4回归模块15/15 + 原5模块26/26 全过",
+    "gate1_主靶_organization_2_to_0": {
+      "verdict": "PASS — organization 编造 2→0,两处空壳注解都被核对门拦下并纠正",
+      "编造1_校验落点": "✅ 纠正——organization-management 已无『/baseOrganization/insert 校验缺失拒绝』(grep 0命中);改为真实的『空体/空列表/无标识拒绝』(size==0/空id 真有分支),@Valid字段校验如实『未单列』不挂错端点",
+      "编造2_快照": "✅ 纠正成更准——organization-change-log 现明写『变更留痕快照由数据源侧产生、不在机构主档维护应用链路中主动写入』,即不再把空壳 @ApiOperateType 当快照来源"
+    },
+    "gate1_防过度证伪_原5模块B1尺": {
+      "verdict": "PASS — 原12绿格全held + trip.tx新翻绿=13,96%一致(唯一分歧 enterprise.tx 老非原子歧义)",
+      "detail": "更严的核对门没误杀任一真审计/真事务:tms tx/audit/mq·trip audit(+tx)·budget tx/audit/config·paybill tx/audit·enterprise audit/config/mq 全YES。trip.tx NO→YES 是合法新增(saveTripBillDetail @Transactional 单条整体回滚真有),非过度证伪"
+    },
+    "gate2_no_new_hallucination": "PASS — 4回归(employee/organization/bfe/fin)+ 原5(tms/trip/paybill/enterprise)均0编造,B5未引入新编造;唯budget 1条 pre-existing tx假YES(见下,非B5)",
+    "gate3_机制词": "PASS — 4回归模块spec 0命中",
+    "gate4_待验证": "PASS — 0条;核对门是『纠正』断言(校验→真空列表拒绝/快照→数据源侧)非降级成hedge"
+  },
+
+  "byproduct_pre_existing_finding": {
+    "budget_tx_整体回滚_假YES": "深 grounding(score agent)挖出:bill-budget-execution『预算不足时整体回滚不留半成品』与代码相反——预算不足的分录是 continue 跳过 + return Result.fail(不抛异常→@Transactional不回滚,充足分录的占用/明细/流水已持久化);真正触发整体回滚的是『预算未导入』(throw CustomException)。spec 把两条路径合并写反",
+    "为何B1尺一直判YES": "B1尺只读spec(claim『整体回滚』确实写了)→判YES;读不到『预算不足走return-skip不回滚』这层路径混淆。这是 pre-existing 假YES(B1起就在),非B5引入,且B5未删它(claim仍在=没过度证伪)",
+    "budget_OBS口径": "score agent 自评『非硬性编造,spec文本无此问题』——是 capability-plan 注『华为OBS』与代码vendor-agnostic oss 的plan层出入,spec写『对象存储』正确,不算真编造"
+  },
+
+  "verdict": "B5 全门通过。**主靶达成**:organization 空壳注解型 2编造→0(@Valid缺失/@ApiOperateType未配 都被核对门『注解在≠生效』规则拦下并纠正成更准的措辞)。**防过度证伪达成**:原5模块B1横切12绿全held(+trip.tx新增=13)、4回归模块0新编造、机制词0、[待验证]0——更严的核对门没误杀任一真审计/真事务。",
+
+  "B6_候选": "把核对门再扩到『事务回滚路径混淆型』:对『整批回滚/一并撤销/不留半成品』断言,grounding 回滚的**触发路径**(是 throw 触发回滚、还是 return/continue 跳过不回滚;哪条业务路径真回滚)。budget tx假YES 即此型——B4(否定/拒绝)、B5(注解未接线)、B6(回滚路径)是『深读到真身』主题的三个递进分支。"
+}
