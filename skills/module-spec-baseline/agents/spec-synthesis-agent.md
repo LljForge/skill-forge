@@ -8,7 +8,7 @@
 
 依次读取（必须全部读完再写）：
 
-1. `{{SCRATCHPAD_DIR}}/module-boundary.md`（capability 范围、目录清单、入口/回调线索）
+1. `{{SCRATCHPAD_DIR}}/module-boundary.md`（capability 范围、目录清单、入口/回调线索、**非 HTTP 入口清单**）
 2. `{{SCRATCHPAD_DIR}}/structure-analysis.md`（端点/契约/调用链/PO-DB Schema，**必须存在**）
 3. `{{SCRATCHPAD_DIR}}/domain-modeling.md`（状态机/状态流转/字段约束；模块确为无状态 CRUD 时可不存在）
 4. `{{CAPABILITY_PLAN}}`（SKILL A-4 与用户敲定的 capability → 端点/Service 入口/状态域映射；逐个 capability 综合的切分依据）
@@ -40,6 +40,17 @@
 > **防假 YES**：只表达 scratchpad **已确认生效**的；`[待验证]`/空壳的不得写成肯定 SHALL。
 > **`[待验证]` 不当 hedge**：scratchpad 已下定论(如"非原子")的，**必须 definitive 写后果，禁降级成 `[待验证]`**——能查清却 hedge 是验收门 4 会拦的。
 > **禁全称量词**：scratchpad 记「部分」的，只能写「部分/在<某些>」，禁「每次/所有」。
+
+### 非 HTTP 入口（定时/调度 · MQ 入站消费）→ 行为优先 Requirement
+
+把 `module-boundary.md`「非 HTTP 入口清单」里**每个活的**入口写成一条 Requirement，挂到最相关 capability（与 HTTP 端点同等地位的触发面，纯后台、无 HTTP 重叠的入口尤其容易整类漏写）：
+
+- **定时/调度** → 「系统 SHALL 按预置调度周期 <可观察后果，如增量拉取并落库 / 比对差异并通知>」；Scenario：WHEN 到达预置调度时刻 / THEN <后果>（含代码里实际存在的失败分支，如"单次调度失败则记录并结束本次、不中断后续周期"）。
+- **MQ 入站消费** → 「WHEN 收到 <某> 消息 / THEN <下游可观察后果>」。
+
+> **只写活性核验通过的**：boundary 标注释 / 禁用 / `[待验证]` 的入口**不得写成肯定 SHALL**——空壳定时（方法被注释、cron 缺失）不是契约，写了即假 YES（防假 YES 红线）。
+> **禁机制词**：不出现 cron 表达式 / `@Scheduled` / `@RabbitListener` / MQ 中间件名 / 线程 / 异步线程（门 3 会拦）。触发周期写"按预置调度周期"，**不写具体 cron**（profile 相关、非稳定契约）。
+> **不重复出站异步**：MQ **入站消费**写的是"消息到达→本系统下游状态变化"；"本接口返回成功≠下游已完成"属出站发布、已在横切段表达，不在此重复。
 
 ### 行为优先抽象（写每条时执行，权威见格式文件 §3）
 
