@@ -1,0 +1,41 @@
+{
+  "kind": "无人值守泛化回归(B0-B4 优化后)",
+  "date": "2026-06-23",
+  "skill_commit": "697c867 (= main c94bb47 合并态)",
+  "purpose": "拿 4 个未参与调优的新模块净跑优化后 skill,验证在调优语料(tms/trip/budget/paybill/enterprise)之外是否泛化干净、有无过拟合",
+  "modules": ["mdm-employee", "mdm-organization", "bfe", "fin"],
+  "workflow": "regression-rerun.workflow.js (NO_STEER 零引导净跑 + 打分卡 + 汇总)",
+
+  "scorecard_table": {
+    "mdm-employee":     { "validate": "all_pass", "http": "32/32", "external_entries_四类位置": "7/7", "non_http": "0/0", "hallucinations": 0 },
+    "mdm-organization": { "validate": "all_pass", "http": "17/17", "external_entries_四类位置": "3/3", "non_http": "0/0", "hallucinations": 2 },
+    "bfe":              { "validate": "all_pass", "http": "9/9",   "external_entries_四类位置": "1/1", "non_http": "1/1", "hallucinations": 0 },
+    "fin":              { "validate": "all_pass", "http": "13/13", "external_entries_四类位置": "0/0", "non_http": "0/0", "hallucinations": 0 },
+    "合计": { "validate": "4/4 全过", "http": "71/71", "external_entries": "11/11", "hallucinations": 2 }
+  },
+
+  "gates": {
+    "gate0_validate": "PASS — 新模块 15 capability openspec --strict 全过,0 失败",
+    "gate3_机制词": "PASS — 新模块 spec 机制词黑名单 0 命中(@Valid/@RabbitListener/Shiro/存储过程等都没进 spec)",
+    "gate4_待验证": "PASS — 0 条",
+    "gate2_grounding": "见下方编造分析"
+  },
+
+  "泛化亮点": {
+    "B3_四类位置_完美泛化": "外置入口 11/11 全覆盖。employee(§8 四类散射样本·B3时故意未加入语料)网关5方法+同步群2端点(taskSyncEmpJob/taskSyncAddEmpJob)逐一按行切出·0遗漏,且正确判 BfeTaskSyncJobController 无员工端点(不虚增);organization 3/3;fin 正确判 0(网关里 BaseFinancialInstitutionService 是 masterdata 子域非 fin、没误算)——既不漏也不虚增",
+    "B2_活性核验_泛化": "遇到全新死壳均正确不编造:employee 的 @RabbitListener(receiveMessageEmployee)被注释→排除;organization 的 MQ发布(sendMessageOrganization)+MQ消费(ORGANIZATION_OBJ_QUEUES)两处注释死壳→均排除;org/employee 无活 @Scheduled→正确改述为外部调度器 HTTP 触发",
+    "B2B3_MQ消费泛化": "bfe non_http 1/1——RabbitMqConsumer.receiveTmsToBfe(物理在 masterdata/config)被『按调本模块Service判归属』正确逮回 bfe scope(§8-⑤错置他包)",
+    "B4_核对门_部分泛化": "employee/bfe/fin 三模块逐条核查的拒绝/鉴权/否定类断言(空列表拒绝/缺empCode拒绝/占位日期排除/闰年/bfe端点开放/复制三类拒绝)全部被代码证实、无一被证伪;0 硬编造"
+  },
+
+  "回归发现_核对门盲区": {
+    "verdict": "organization 暴露 2 处硬编造(与代码相反),核对门部分失守——但失守模式收敛,是『已知短板复现』非『过拟合穿帮』",
+    "编造1_校验落点错位": "spec organization-management 称 /baseOrganization/insert 校验机构ID/编号/名称非空+层级非负、缺失被拒绝。grounding 坐实:BaseOrganizationController.java:128 insert(@RequestBody BaseOrganizationPO) **无 @Valid**,PO 上 @NotBlank/@PositiveOrZero 形同虚设、缺字段直接落库。真校验在 /api/saveBaseOrganizationList(有@Valid)——能力存在但挂错端点",
+    "编造2_留痕快照恒空": "spec 称变更留痕含『变更前后数据快照』。grounding 坐实:BaseOrganizationController:126/136/146 三处 @ApiOperateType **未配 serviceName**,默认走 getBean('') 抛异常被吞→快照恒 null。留痕被组态禁用、spec 却当它生效",
+    "共性根因": "两处都是**空壳注解型**:注解在(@NotBlank/@ApiOperateType)但**没接线/组态禁用**(缺 @Valid / 缺 serviceName),skill 照注解表面意图推定生效、未回查接线。这与 budget @Scheduled 死壳、JWTFilter isAccessAllowed 空壳是**同一个『深读到真身』主题**——B4 核对门拦住了『否定/字段写』型,但未覆盖『注解在却未接线』型"
+  },
+
+  "verdict": "**优化干净泛化、无过拟合迹象。** 结构性能力(validate 4/4·自有端点 71/71·四类位置 11/11·活性核验拦新死壳·MQ消费逮回)在 4 个调优语料外的新模块上一致生效;3/4 模块 0 编造。唯一缺口:organization 2 处空壳注解型硬编造(@Valid缺失/@ApiOperateType未配),核对门未覆盖此型——属已知『深读到真身』主题的未根除分支,非新缺陷。",
+
+  "B5_候选": "强化核对门覆盖『空壳注解型』:对 spec 里『某端点校验/拒绝』断言,回查该端点是否真有 @Valid(无则 bean 校验不触发);对『留痕含快照』断言,回查切面注解是否配齐生效参数(如 @ApiOperateType serviceName)。即把 B4 的『否定/拒绝主动证伪』扩到『注解在却未接线』——同一深读主题的下一个分支。"
+}

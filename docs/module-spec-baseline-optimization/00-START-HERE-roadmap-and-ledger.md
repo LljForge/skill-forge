@@ -18,7 +18,8 @@
 
 ## 当前状态
 
-- **阶段**:🎉 **B0–B4 全部干净通过**(B4=`697c867`,4 门全过 + 回归)。**优化全程收尾,`spec-baseline-opt` 待用户拍板合回 `main`(不擅自 push)**。
+- **阶段**:🎉 **B0–B4 全部干净通过并已合 `main` + push**(合并 `c94bb47`)。**+ 无人值守泛化回归已做(2026-06-23)**:4 个未调优新模块(employee/organization/bfe/fin)净跑——validate 4/4·自有端点 71/71·**四类位置外置入口 11/11 全覆盖**·活性核验拦住多处新死壳·MQ消费逮回 bfe;3/4 模块 0 编造。**优化干净泛化、无过拟合**。
+- **回归唯一缺口 → B5 候选**:organization 暴露 2 处**空壳注解型**硬编造(`/baseOrganization/insert` 无 `@Valid` 却写"校验拒绝"、`@ApiOperateType` 未配 serviceName 却写"前后快照")。B4 核对门拦住了"否定/拒绝型"但漏了"注解在却未接线型"——同一『深读到真身』主题的未根除分支。产物 `results-regression.json` + `regression-rerun.workflow.js`。
 - **完整验收尺已定型(4 门 + 回归,B1/B2 实战验证可用)**:① 写没写(grid,尺校 96%)② 真不真(grounding)③ 行为不行为(可观察 + 无机制词)④ `[待验证]` 正当;门 2/3/4 折进 grounding 一趟 + 2 grep,成本不涨。
 - **B1 成果**:横切 grid **7→12**(5 真可观察翻绿)、0 假YES、0 机制词、出站签名已砍。产物 `results-B1.json`。
 - **B2 成果**:非 HTTP 入口发现系统化(修 boundary 悬空引用,定时入口由关键词机制找、非碰运气);**活性核验门承重生效**——budget `BudgetScheduleTask` 两 `@Scheduled` 已注释的死壳被 3/3 一致判 NO、**未编造定期契约**;trip 2/2 定时入口仍行为优先零机制;B1 12 绿格零回退。产物 `results-B2.json` + 新尺 `b2-nonhttp-grid-ruler.workflow.js`。
