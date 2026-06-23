@@ -38,6 +38,8 @@ recon-driven-dev/
 ├── SKILL.md                    # 跨阶段脊柱(流程图 + 全局护栏 + ⏸ + 指针 · 权威)
 ├── README.md                   # 本文件 · 总览与导航
 ├── MAINTAINING.md              # 维护宪法(改本 Skill 自己时读 · 防膨胀/单一权威源/provenance · 不随运行载入)
+├── BACKLOG.md                  # 候选优化清单(实测搁置项 · 运行时不读)
+├── EVAL-COVERAGE.md            # 覆盖账本(32 路径单元 × 触发态 · 运行时不读)
 ├── CHANGELOG.md                # 变更日志
 └── references/
     ├── directed-analysis.md    # ① 细则(派发路由 + 主会话实测门 + 封存边界)
@@ -54,3 +56,5 @@ recon-driven-dev/
 ```
 
 每个判据/清单只有一个家(单一权威源);SKILL.md 与模板**只路由不复述**。
+
+**实测打磨**(拿真实任务实测并优化本 Skill)怎么做——监督 / 分诊 / 验证 / 收敛——见 `MAINTAINING.md`「实测打磨协议」节;实测进度看 `EVAL-COVERAGE.md`、搁置项看 `BACKLOG.md`。
