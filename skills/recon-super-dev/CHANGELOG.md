@@ -1,9 +1,15 @@
-# recon-driven-dev 变更日志
+# recon-super-dev 变更日志
 
 > 记录版本演进与改动的 why；正文（SKILL.md）只写当下规则。
-> 常态（下面不再每版重述）：各版均走 skill-creator、对齐 SKILL-DESIGN-PHILOSOPHY.md、
-> 改前在 workspace 存快照；本 Skill 是主观流程编排件、description/触发稳定，故不跑定量 benchmark。
+> 常态（下面不再每版重述）：各版均走 skill-creator、对齐 SKILL-DESIGN-PHILOSOPHY.md；
+> 本 Skill 是主观流程编排件、description/触发稳定，故不跑定量 benchmark。
 > 价值定性一律是工程收益（产物可依赖 / 单一权威 / 抗漂移），非能力跃升。
+
+## 改名 + 去掉备份目录约定（2026-06-23 · 非行为改动、不动版本号）
+
+`recon-driven-dev` → `recon-super-dev`（自包含变体 `recon-driven-dev-inline` 不在本次范围、保持原名）。仅改 skill 名与目录名、`~/.claude/skills/` 软链一并重指；`name:` 字段、各文档标题、自指路径同步更新。**说明**：新名舍弃了上一版与 superpowers `*-driven-development` 家族对齐、并与 `-inline` 成对的命名谱系（见下条），按维护者决定取 `recon-super-dev`。
+
+同时**去掉「改前拷快照到 `…-workspace` 备份目录」这套维护约定**：该目录本就只是文档约定、磁盘上从未实存，改前备份交由 git 兜底。相关条目从 MAINTAINING.md（原 §2「如何备份」整节、§4 与 §5 的备份步）、README.md（迭代清单与「常态」行）、本日志开头「常态」preamble 一并清掉。**流程 / 产物形态 / 规则一字未改**，按本仓「非行为改动可不发版」惯例不动版本号。
 
 ## 改名 + 迁库（2026-06-15～16 · 非行为改动、不动版本号）
 

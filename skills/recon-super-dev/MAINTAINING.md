@@ -1,7 +1,7 @@
-# recon-driven-dev 版本迭代说明
+# recon-super-dev 版本迭代说明
 
 > 改本 Skill **自己**（SKILL.md / 模板 / 本流程）时读这份；改业务代码不读——那是 lite 去编排的事，不是改 lite。
-> 本 Skill 已提升个人级（`~/.claude/skills/recon-driven-dev/`），改的是这份、跨项目共用。
+> 本 Skill 已提升个人级（`~/.claude/skills/recon-super-dev/`），改的是这份、跨项目共用。
 
 ## 1. 如何迭代
 
@@ -10,11 +10,9 @@
 - **大改先确认、小改直接做**：结构性大改（动骨架 / 流程 / 产物形态）先呈现方案、能用真实数据验证就验证，再动手；措辞 / 补漏类小改可直接做。
 - **守住"薄"**：lite 的定位是薄编排件——别给定向分析加规则表、别复述子技能本职（brainstorming / superpowers 实现链）、别读写长期文档或发持久编号。改前对照 SKILL.md 末尾「守住"薄"」那组护栏。
 
-## 2. 如何备份（改前必做）
+## 2. CHANGELOG 怎么写
 
-- **固定备份目录**：`~/.claude/skills/recon-driven-dev-workspace/`（与 skill 目录同级、不在 skill 内，免得被当成 skill 内容扫描）。
-- **版本后缀**：改前把当前 `SKILL.md` / `CHANGELOG.md`（及本次要动的其它文件）整套拷进子目录 `skill-snapshot-pre-v<新版本号>/`。
-- **CHANGELOG 说明**：在 `CHANGELOG.md` 立版本条，只记 **what + why**（改了什么、为什么这么改）；过程流水账（行数核实、agent 计数、每版样板）不写——守不"写日记"。常态（走 skill-creator / 对齐哲学 / 存快照 / 不跑 benchmark）已在 CHANGELOG 开头说一次，每版不重述。
+- **只记 what + why**：在 `CHANGELOG.md` 立版本条，记改了什么、为什么这么改；过程流水账（行数核实、agent 计数、每版样板）不写——守不"写日记"。常态（走 skill-creator / 对齐哲学 / 不跑 benchmark）已在 CHANGELOG 开头说一次，每版不重述。
 
 ## 3. 如何验证
 
@@ -34,13 +32,12 @@ lite 是**主观流程编排件**、且 description / 触发稳定，所以**不
 - **MAJOR（主版本）**：稳定里程碑，或不兼容的大改。（如 v1.0.0 = 审查收口的稳定版。）
 - **MINOR**：行为改动 / 新增能力 / 流程或产物形态变化。（如 v0.2.0 ① 补"四样"、v1.1.0 ④ 全委托 superpowers、v1.3.0 立模板。）
 - **PATCH**：纯修订 / 可执行性补漏 / 不改行为的小调整。
-- **非行为改动可不发新版本条**：纯文档整理、迁移、精简这类不改 Skill 行为的事，可以**不立新版本、不动版本号**（如"提升个人级 + 精简 CHANGELOG"就没发版）。备份照做（用描述性后缀）。
+- **非行为改动可不发新版本条**：纯文档整理、迁移、精简这类不改 Skill 行为的事，可以**不立新版本、不动版本号**（如"提升个人级 + 精简 CHANGELOG"就没发版）。
 
 ## 5. 一次迭代的最小顺序
 
 1. 读 `SKILL-DESIGN-PHILOSOPHY.md` 对齐；判这次是 MAJOR / MINOR / PATCH，还是不发版。
 2. 结构性大改 → 先呈现方案、等确认；小改可跳过。
-3. 备份：拷当前文件进 `…-workspace/skill-snapshot-pre-<版本号>/`。
-4. 走 `/skill-creator` 改 SKILL.md / 模板。
-5. 验证：消费者映射只验受影响阶段 + 多 agent 对抗评审（四维度）。
-6. `CHANGELOG.md` 立条（what + why，不写日记）；该发版就动版本号。
+3. 走 `/skill-creator` 改 SKILL.md / 模板。
+4. 验证：消费者映射只验受影响阶段 + 多 agent 对抗评审（四维度）。
+5. `CHANGELOG.md` 立条（what + why，不写日记）；该发版就动版本号。

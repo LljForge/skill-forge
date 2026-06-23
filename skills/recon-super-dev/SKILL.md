@@ -1,9 +1,9 @@
 ---
-name: recon-driven-dev
+name: recon-super-dev
 description: 开发任务的轻量四阶段流程(定向分析→需求设计→评审→落地) **本 Skill 不自动触发，由用户显式调用。**
 ---
 
-# recon-driven-dev（侦察驱动开发 · 轻量四阶段工作流）
+# recon-super-dev（侦察驱动开发 · 轻量四阶段工作流）
 
 一条**即时开发轨**:开头做一份只针对本次改动的"摸底",喂给后面的需求、设计、评审、实现。
 
