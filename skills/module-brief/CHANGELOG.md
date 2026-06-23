@@ -2,6 +2,12 @@
 
 > 正文（SKILL.md / references）只写当下规则；版本演进、为什么这么改记在这。
 
+## v1.0.5 — 去 headless 模式（解除 skill-eval 耦合）
+
+Step 1 删除 `$EVAL_HEADLESS`/`$EVAL_PRESET`/`$EVAL_OUT` 的 headless 分支，回归纯交互定位；变量表 `{{OUTPUT_DIR}}` 去掉 headless 落点，仅保留 `{{PROJECT_ROOT}}/docs/module-brief/{{MODULE_NAME}}/`。references 两处把已删的 `survey-agent`（v1.0.3 移除）幽灵引用改为「主上下文（Step 2）」。
+
+**为什么**：headless 模式只为 skill-eval 批跑而存在，本身无真实用户场景；skill-eval 已整体移除，该模式即死代码。它还是历次 headless derail 的温床——其中「corpus 环境暴露 → 范围困惑 → 误弹 AskUserQuestion」缺陷（master-data/ccm-paybill 与 GMZB-NJZL/edoc-template 跨项目各复现一次）随本模式删除而**从根上消失，无需再补指令栅栏**（与本 skill「修架构、不堆『教已知』指令」的一贯哲学一致）。删除后 module-brief 回归单一交互职责，更干净。
+
 ## v1.0.4 — 新增写后核对门
 
 流程由 3 步扩为 4 步：在"写两份文档"之后、"报告"之前插入 Step 3「核对门」——对 `design.md` 的代码标识逐个跑 `rg -i`（内容）+ `find -iname`（文件名）反查，命中保留、查无就地标 `[待确认]`；报告步追加命中率作为可信度指标。

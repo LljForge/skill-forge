@@ -1,1 +1,0 @@
-{"type":"result","subtype":"success","is_error":false,"duration_ms":118000,"duration_api_ms":117000,"num_turns":8,"result":"已生成示例模块的 requirements.md + design.md","stop_reason":"end_turn","session_id":"golden-sess","total_cost_usd":0.42,"permission_denials":[],"uuid":"golden-uuid"}

@@ -37,14 +37,6 @@ Step 4：报告产出
 
 ### Step 1：定位确认
 
-**Headless 模式**（`$EVAL_HEADLESS=1`，供批跑评测用）：
-- 用 Bash 执行 `echo "$EVAL_HEADLESS"` 检查是否为 `1`。若是：
-  1. 用 Bash 执行 `echo "$EVAL_PRESET"` 读取预设 JSON，解析 `module`（模块名）、`module_cn`（中文名）、`scope`（范围）、`exclude`（排除项），**直接用这些值定模块名与范围，不另行探索、不扩展到其它模块**。
-  2. 用 Bash 执行 `echo "$EVAL_OUT"` 取**绝对路径**，令 `{{OUTPUT_DIR}}` = `<该绝对路径>/<module>/`。
-  3. **跳过下面的 AskUserQuestion**，直接进 Step 2。
-
-**交互模式**（默认，`$EVAL_HEADLESS` 未设置或非 `1`）：
-
 1. **输入归一化**：kebab / 中文 / camelCase 都接受，归一为候选名（仅用于定位）。
 2. **存在性校验**：Grep 候选名在后端源码 `service`/`dao`/`controller` 等包路径出现；未命中列相近模块名供选择。
 3. **范围预判（双侧）**：扁平分层 / 一包多模块时模块边界有歧义——给出建议前缀集合；若候选模块几乎无 Controller/Service 实现（疑似空脚手架），提示真实现可能散在调用方/上游、确认是否换定位或扩范围。**用一次 `AskUserQuestion` 跟用户敲定模块名 + 纳入/排除范围**（一次问完，不加回合）。模块有独立子包时范围即子包、可跳过。
@@ -112,7 +104,7 @@ Step 4：报告产出
 | `{{MODULE_CN_NAME}}` | 中文模块名（两份文档 H1 标题） | 用户输入或 Step 1 轻量推断（grep `@Api(tags=)` / JavaDoc 中文名；推断不出用 kebab 占位） |
 | `{{MODULE_SCOPE}}` | 扁平分层时的前缀范围+排除项 | Step 1 与用户敲定；有独立子包时为空 |
 | `{{PROJECT_ROOT}}` | 项目根目录 | 当前工作目录 |
-| `{{OUTPUT_DIR}}` | 产出目录 | 交互模式：`{{PROJECT_ROOT}}/docs/module-brief/{{MODULE_NAME}}/`；headless 模式（`$EVAL_HEADLESS=1`）：`$EVAL_OUT/{{MODULE_NAME}}/`（Step 1 用 `echo "$EVAL_OUT"` 解析为绝对路径） |
+| `{{OUTPUT_DIR}}` | 产出目录 | `{{PROJECT_ROOT}}/docs/module-brief/{{MODULE_NAME}}/` |
 
 ## 输出位置与产物
 
