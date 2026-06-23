@@ -2,6 +2,19 @@
 
 记 what + why，不写过程流水账。
 
+## v0.4.0 — 改名 recon-driven-dev-inline → recon-driven-dev + 与其他 skill 完全解耦
+
+**主题**：上游 `recon-driven-dev`（编排版）已改名 `recon-super-dev`,腾出的名由本自包含版承接;同时与其他 skill 完全解耦——README 不再以"fork 从属"自况,改纯描述本 skill 自身。
+
+**what**：
+- **改名**：目录 `skills/recon-driven-dev-inline/` → `skills/recon-driven-dev/`;frontmatter `name` / 标题;产物目录命名空间 `docs/recon-driven-dev-inline/` → `docs/recon-driven-dev/`;`references/` 内 4 处硬编码模板路径(`~/.claude/skills/recon-driven-dev/...`);`~/.claude/skills/` 软链接重建。
+- **解耦**：删 README「与 recon-driven-dev 的关系」段——改名后"本 skill 是 recon-driven-dev 的 fork"自指矛盾;README 现纯描述本 skill 自身、不提任何其他 skill。
+- **历史档案按原貌保留**：`docs/superpowers/` 下 4 个 spec/plan 历史文件、本 CHANGELOG v0.1.0–v0.3.0 历史条目均不动（记录的是"-inline 时代"的事实）。
+
+**注（消除历史歧义）**：本 CHANGELOG v0.1.0–v0.3.0 里出现的"recon-driven-dev"指**上游**（其时本 skill 名为 recon-driven-dev-inline）;上游现已改名 `recon-super-dev`,本 skill 现名 `recon-driven-dev`。早期条目按历史保留、不回改。
+
+**诚实定性**：纯改名 + 文档解耦,**流程 / 判据 / 契约零语义变更**。
+
 ## v0.3.0 — 重构为五阶段自包含流水线（融合 superpowers + mattpocock）
 
 **主题**：在保留四阶段骨架精神上,演化为**五阶段、披露模型 C（脊柱 + references 下沉）、吸收 superpowers 与 mattpocock/skills 各自优势**的自包含流水线工作流。

@@ -1,4 +1,4 @@
-# recon-driven-dev-inline（侦察驱动开发 · 自包含五阶段流水线工作流）
+# recon-driven-dev（侦察驱动开发 · 自包含五阶段流水线工作流）
 
 开发任务的**自包含五阶段流水线**:定向分析 → 需求+设计 →(评审·可选)→ 写计划 → 实施。开头做一份只针对本次改动的"摸底",喂给后面的需求、设计、计划、实现。
 
@@ -14,7 +14,7 @@
 
 **披露模型**:SKILL.md 收为跨阶段**脊柱**(流程图 / 全局护栏 / ⏸ / 指针),各阶段细则下沉 `references/`——每条路径都要的留脊柱,只某阶段才用的按指针披露。
 
-五阶段,每阶段结束**暂停**等用户确认。产物落本次改动目录 `docs/recon-driven-dev-inline/<YYYY-MM-DD>-<change-name>/`,收尾时连目录一起归档进 `docs/recon-driven-dev-inline/_archived/`。
+五阶段,每阶段结束**暂停**等用户确认。产物落本次改动目录 `docs/recon-driven-dev/<YYYY-MM-DD>-<change-name>/`,收尾时连目录一起归档进 `docs/recon-driven-dev/_archived/`。
 
 ```
 ① 定向分析   一句话粗需求 → 钻落点 + 消费面(全集) → directed-report.md
@@ -34,7 +34,7 @@
 ## 目录结构
 
 ```
-recon-driven-dev-inline/
+recon-driven-dev/
 ├── SKILL.md                    # 跨阶段脊柱(流程图 + 全局护栏 + ⏸ + 指针 · 权威)
 ├── README.md                   # 本文件 · 总览与导航
 ├── CHANGELOG.md                # 变更日志
@@ -53,11 +53,3 @@ recon-driven-dev-inline/
 ```
 
 每个判据/清单只有一个家(单一权威源);SKILL.md 与模板**只路由不复述**。
-
----
-
-## 与 recon-driven-dev 的关系
-
-本 Skill 是 `recon-driven-dev` 的**自包含 fork**:原版是个**编排者**(② 委托 `superpowers:brainstorming`、落地委托 superpowers 实现链),本 fork 去掉这层编排、把各阶段改写为**内联契约**,做到零外部 Skill 依赖、可移植。
-
-本次重构在四阶段骨架精神上演化为五阶段流水线,并吸收 superpowers 与 mattpocock/skills 两套技能的方法论(写计划、实施、整支评审、信息阶梯)——**吸收 = 内联重写,不调任何外部 skill**。逐条借鉴溯源与砍掉的过重件见 [CHANGELOG.md](CHANGELOG.md) v0.3.0。这是**冻结快照**,不追踪上游演进。
