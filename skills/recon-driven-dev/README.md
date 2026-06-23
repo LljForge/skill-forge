@@ -37,6 +37,7 @@
 recon-driven-dev/
 ├── SKILL.md                    # 跨阶段脊柱(流程图 + 全局护栏 + ⏸ + 指针 · 权威)
 ├── README.md                   # 本文件 · 总览与导航
+├── MAINTAINING.md              # 维护宪法(改本 Skill 自己时读 · 防膨胀/单一权威源/provenance · 不随运行载入)
 ├── CHANGELOG.md                # 变更日志
 └── references/
     ├── directed-analysis.md    # ① 细则(派发路由 + 主会话实测门 + 封存边界)
