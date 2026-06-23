@@ -61,14 +61,32 @@ recon-driven-dev/
 
 ---
 
-## 如何开始(实测打磨本 Skill)
+## 如何开始(直接复制 Prompt)
 
-想拿真实开发任务实测并打磨本 Skill,按这条最短路径起步(判据 / rubric 等细则都在 `MAINTAINING.md`「实测打磨协议」节,本节只给动作流):
+前提:recon-driven-dev 已装到 `~/.claude/skills/`(任何项目的会话都能调用)。实测打磨分两个会话,各复制对应 Prompt、填好 `<…>` 即可——判据细则在 `MAINTAINING.md`「实测打磨协议」节,Prompt 只负责启动、不重述。
 
-1. **挑一个真实开发任务**,在**实测会话**里用本 Skill 跑完整五阶段——只跑、不顺手改 Skill,保持纯净。
-2. **边跑边记(exception-only)**:每个 ⏸ 只在卡住 / 指令含糊 / 降级没走通时,往监督笔记写一行带现场证据;顺畅就略过。落 `docs/recon-driven-dev-eval/<日期>-<任务名>/supervision.md`。
-3. **跑完派一个复盘 sub-agent**:读监督笔记 + 实走路径 + 全部产物,补抓你没察觉的 skill 缺陷,汇成改进点清单(同目录 `improvements.md`)。
-4. **另起打磨会话**,拿改进点清单:先**三分诊**(只有"skill 自己的错"才改;任务特例 / 模型失误不动 skill)→ 小改当场改、大改进 `BACKLOG.md` → 改完过 7 条 rubric → 回填 `EVAL-COVERAGE.md`、改进沉 `CHANGELOG.md`。
-5. **看进度**:`EVAL-COVERAGE.md` 的 32 格从 `·未触发` 慢慢填起;每格至少碰一次(地板)、被碰的格连续 2 轮不再出新问题(天花板),即「实测到位」。
+**① 实测会话**(在你要做开发的那个项目里开):
 
-> 第一轮真实实跑预计能把 ~19 个主干格从 `·未触发` 推到 `✓`;降级 / 失真类的冷门格走「桌面走查」或等真实任务机会主义触发。
+```text
+用 recon-driven-dev skill 跑下面这个开发任务,并读该 skill 的 MAINTAINING.md
+「实测打磨协议」、按其中「实测会话·监督协议」全程监督:每个 ⏸ 用 exception-only
+方式记监督笔记(只在卡住/指令含糊/降级没走通时记一行带现场证据),整任务跑完后
+派一个上下文隔离的复盘 sub-agent 补抓 skill 缺陷。监督笔记与改进点清单产出到
+docs/recon-driven-dev-eval/<今天日期>-<任务短名>/。这一会话只跑、不要顺手改
+skill 本身;结束时把改进点清单路径告诉我。
+
+开发任务:<在这里写你这次要做什么>
+```
+
+**② 打磨会话**(在 recon-driven-dev 所在的仓里开):
+
+```text
+读 recon-driven-dev 的 MAINTAINING.md「实测打磨协议」,按其中「打磨会话:分诊 →
+处置 → 验证 → 沉淀」处理下面这份实测改进点清单:逐条三分诊(只有判为 skill 缺陷
+的才改,任务特例/模型失误不动 skill)→ 按处置门槛决定当场改还是进 BACKLOG.md →
+改完按改后验证 rubric 核 → 回填 EVAL-COVERAGE.md、采纳的沉 CHANGELOG.md。
+
+改进点清单:<贴上一步产出的 improvements.md 路径或内容>
+```
+
+> 进度看 `EVAL-COVERAGE.md`:每格至少碰一次(地板)、被碰的格连续 2 轮不出新问题(天花板)=「实测到位」。第一轮真实实跑预计先把 ~19 个主干格从 `·未触发` 推到 `✓`。
