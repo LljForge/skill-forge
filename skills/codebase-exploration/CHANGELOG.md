@@ -1,5 +1,42 @@
 # codebase-exploration Skill 变更日志
 
+## v0.11.0 — 2026-06-24（D6 路径接地闸 + D7 逻辑↔物理映射输出：补 reflexion map-resolution 缺位）
+
+### 背景
+
+理论底座（[docs/theory-foundation.md](docs/theory-foundation.md)）的核心发现：**D6/D7 是同一理论缺位的两面**——本 skill 缺了 Reflexion Model 的「map 条目必须 resolve 到真实 source 实体」约束。D6 写锚点路径不回查 = 写了一条无法 resolve 的 map 条目；D7 造 kebab 逻辑名却丢掉它到源码的映射 = 给了一个无法 resolve 的高层名。六个研究维度独立收敛到同一修法。本版按理论范式落地。
+
+### 实际改动
+
+| 缺口 | 文件·节 | 改动 |
+|---|---|---|
+| **D6** | SKILL.md ⑤校准 | 加**路径接地闸**：⑤ 锚点路径落笔前对**整串路径** grep/find 反查、**类名∧路径双命中**才写实（grep 到类名只证机制在、不证路径对——同名类可能在别的包/重构后移包）；只命中类名而路径核不准 → 降级只写类名或标「定位存疑」。**「机制存在」与「路径属实」是两道独立闸**。措辞用「锚点定位串」避开 line 247「写入路径」（审计写入链路）撞名 |
+| **D7** | SKILL.md 产物 schema（卡片模板 + 省略条 + 上手顺序） | 卡片加**条件 `scope` 字段**：扁平分层/造名 kebab（包路径里不字面存在）输出 1.B **已算出**的「kebab → 类名前缀/包 glob」（reflexion-style map、代表非穷举、前缀 `^` 锚定防过匹配）；下游据 scope grep 而非 grep 不到的 kebab。**包即模块（kebab≈目录）免此行——不画蛇添足**。省略条澄清（省穷举清单、代表 scope 选择器要给）；上手顺序加命令定位说明 |
+| — | SKILL.md 自检 ×2 | 卡片条加 D7（扁平分层有 scope、包即模块免）；⑤条加 D6（路径接地闸已过） |
+
+### 理论支撑
+
+docs/theory-foundation.md §2（D6/D7 同源）+ §3：D6 借 reflexion map-resolution + code-intelligence（Kythe/SCIP 符号必派生可核、grep 类名 ≠ 路径对）；D7 借 reflexion map 文件（逻辑名 + 源码选择器）、4+1 logical vs development view、RMTool 前缀选择器 `^` 锚定防过匹配。
+
+### 取证
+
+双目标 dogfood（executor×2 → 对抗式 assessor）：
+- **master-data**（Java 扁平分层伞形包）：压 D6/D7 **真实失败面 + 修复生效**——锚点路径是否整串反查、`mdm-*` kebab 是否带 scope 输出。
+- **edoc**（原 GMZB-NJZL，Java+TS）：补 **TS 侧路径接地表达** + 验改动**不回归**；首跑当变异度基线。
+- 对照组 GitNexus 已按用户要求弃用,准确度校准改源码抽样核 + 首跑基线。
+
+**判决:ship-with-followup,D6/D7 两个 PASS、零自身回归。** 产物 `runs/{masterdata,edoc}-2026-06-24-v0.11-*`。
+
+- **D6 路径接地真落地(非装饰)**：回源 grep 两目标全部锚点、整串 class∧path 双命中无漏网,**实战各救一次错判**——master-data `JWTRealm` 在 `com/itgfin/shiro/` 而非 config(只 grep 类名会误挂)、edoc `OpenApiInterceptor` 虚构名 → 降级写真实 `WebLogInterceptor`、`EdocExceptionHandler` 物理落反直觉的 `edoc-common`。两道独立闸生效(`@EnableCaching` 在但 `@Cacheable` 不在 → 写「实走手工 RedisTemplate」)。TS 侧相对路径接地成立、无 Java 残留。
+- **D7 scope 两形态都对**：master-data 扁平分层 7 个 `mdm-*` scope 回源全 grep 命中、`^Base*` 家族 `^`锚定+业务词互斥**无过匹配跨吞**；edoc 13 域 + master-data 的 ccm/tms/bfe/fin **正确免 scope(独立子包/`@MapperScan` 佐证、非漏写)**——验证「包即模块不画蛇添足」。
+- **不回归 PARTIAL(唯一扣分、非 D6/D7 引入)**：卡片 4–7 行未超 8、scope 增信息非增噪、1.B-D 全心算无脚本、慢变守住；**唯精确计数硬闸(v0.7.0 D1)有违例**——`130 个 Java 文件`(实测 148 失准)/`168 @Autowired`(实测 169)/`48 个并列类`。assessor 定性「既有纪律执行回归、非 D6/D7 新机制问题、不阻断发布」。
+
+**本版折入的 dogfood 措辞增强(三条、纯增量,同 v0.9 先例)**：D6 加「反查用绝对路径防 cwd 漂移」「非 Java 栈路径=文件/import 路径」(edoc executor 实测踩 cwd 漂移 + TS 侧 import 别名);D7 加「同词根多子模块需验前缀互斥(`^Base*` 家族)」(master-data 实测靠业务词互斥、补显式提醒)。
+
+**后续候选(v0.12)**：精确计数硬闸执行回归——dogfood 在本版产物上抓到 3 处违例(130 已失准、正中硬闸预言),说明 v0.7.0 硬闸措辞强度不足以拦「出完整图时散文/陷阱注里随手写精确数」。属既有纪律强化、与 D6/D7 正交,单独立项(自检「慢变闸生效」条强调收敛后逐处复核正文精确计数、翻数量级)。
+
+---
+
 ## v0.10.0 — 2026-06-24（§5.5 点状白名单澄清：红线划在「机械 vs 智能」、为 1.A 机械层开有围栏的小口）
 
 ### 背景
