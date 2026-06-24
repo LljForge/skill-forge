@@ -1,5 +1,5 @@
 ---
-generated_by: codebase-exploration v0.6
+generated_by: codebase-exploration v0.9
 generated_at: 2026-06-21
 stack: typescript
 backend_root: notify-hub
