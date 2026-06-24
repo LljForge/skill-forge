@@ -30,20 +30,20 @@
 - **瘦身 3 条**:剥掉与流程图重复的「线性不回流」前导式、「本次吸收全部内联重写」施工记录、「否决 `CONTEXT.md` / ADR 库」设计理由(后者移入 `MAINTAINING.md`)。
 - README 目录结构补 `MAINTAINING.md` 一行。
 
-**why**：运行脊柱只该承载跑流水线要的东西;skill 治理规则是改 skill 时才读的,留在脊柱既占运行上下文又模糊了「护栏」的受众。拆开后两边各自单一受众、互不串味。文件拓扑对齐姊妹 skill `recon-super-dev`(其同有 `MAINTAINING.md`)。
+**why**：运行脊柱只该承载跑流水线要的东西;skill 治理规则是改 skill 时才读的,留在脊柱既占运行上下文又模糊了「护栏」的受众。拆开后两边各自单一受众、互不串味。
 
 **诚实定性**：纯文档结构整理(按受众分家 + 去重),**流程 / 判据 / 契约零语义变更**;运行时载入的护栏集合在语义上是原集合的去重子集。
 
 ## v0.4.0 — 改名 recon-driven-dev-inline → recon-driven-dev + 与其他 skill 完全解耦
 
-**主题**：上游 `recon-driven-dev`（编排版）已改名 `recon-super-dev`,腾出的名由本自包含版承接;同时与其他 skill 完全解耦——README 不再以"fork 从属"自况,改纯描述本 skill 自身。
+**主题**：上游同名编排版已让出 `recon-driven-dev` 之名,由本自包含版承接;同时与其他 skill 完全解耦——README 不再以"fork 从属"自况,改纯描述本 skill 自身。
 
 **what**：
 - **改名**：目录 `skills/recon-driven-dev-inline/` → `skills/recon-driven-dev/`;frontmatter `name` / 标题;产物目录命名空间 `docs/recon-driven-dev-inline/` → `docs/recon-driven-dev/`;`references/` 内 4 处硬编码模板路径(`~/.claude/skills/recon-driven-dev/...`);`~/.claude/skills/` 软链接重建。
 - **解耦**：删 README「与 recon-driven-dev 的关系」段——改名后"本 skill 是 recon-driven-dev 的 fork"自指矛盾;README 现纯描述本 skill 自身、不提任何其他 skill。
 - **历史档案按原貌保留**：`docs/superpowers/` 下 4 个 spec/plan 历史文件、本 CHANGELOG v0.1.0–v0.3.0 历史条目均不动（记录的是"-inline 时代"的事实）。
 
-**注（消除历史歧义）**：本 CHANGELOG v0.1.0–v0.3.0 里出现的"recon-driven-dev"指**上游**（其时本 skill 名为 recon-driven-dev-inline）;上游现已改名 `recon-super-dev`,本 skill 现名 `recon-driven-dev`。早期条目按历史保留、不回改。
+**注（消除历史歧义）**：本 CHANGELOG v0.1.0–v0.3.0 里出现的"recon-driven-dev"指**上游**（其时本 skill 名为 recon-driven-dev-inline）;上游已让出该名,本 skill 现名 `recon-driven-dev`。早期条目按历史保留、不回改。
 
 **诚实定性**：纯改名 + 文档解耦,**流程 / 判据 / 契约零语义变更**。
 
