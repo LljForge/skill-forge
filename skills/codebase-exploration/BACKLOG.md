@@ -1,7 +1,7 @@
 # 候选优化清单(BACKLOG)
 
 > 已盘点、经理论对标、但**暂未实施**的候选改造项(涉能力扩张 / 动骨架 / 触发场景未到 / 触解耦声明等)。
-> 元层维护者备忘,**运行时不读**。处置纪律(理论先行 / 改根因 / 不通胀 / dogfood 协议)权威见 [MAINTAINING.md](MAINTAINING.md)。每条的理论范式 + 坑权威见 [docs/theory-foundation.md](docs/theory-foundation.md) §3/§4。
+> 元层维护者备忘,**运行时不读**。处置纪律(理论先行 / 改根因 / 不通胀 / dogfood 协议)权威见 [MAINTAINING.md](MAINTAINING.md)。每条的理论范式 + 坑权威见 [theory-foundation.md](theory-foundation.md) §3/§4。
 > 条目随实跑增;采纳后移入 [CHANGELOG.md](CHANGELOG.md) 并从本清单删。**出列入口**:下次优化时扫本清单的「待触发条件」,命中即拉进当轮一并定夺。
 >
 > 已采纳的近期项(不在本清单):D6 路径接地闸 / D7 逻辑↔物理映射(v0.11)、精确计数硬闸根因修复(v0.12)——见 CHANGELOG。

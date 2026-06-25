@@ -38,8 +38,7 @@ codebase-exploration/
 ├── BACKLOG.md            # 候选优化清单(D4/D5/②④ · 待触发条件 · 运行时不读)
 ├── COVERAGE.md           # dogfood 覆盖账本(项目×形态×维度 · 盲区可见 · 运行时不读)
 ├── CHANGELOG.md          # 变更日志(证据先行 · 已采纳的历史)
-├── docs/
-│   └── theory-foundation.md   # SAR 谱系理论底座(D4–D7+②④ 对标成熟项目 + 可借鉴范式)
+├── theory-foundation.md  # SAR 谱系理论底座(D4–D7+②④ 对标成熟项目 + 可借鉴范式 · 维护资产)
 └── references/
     ├── example.md             # 读者卡片完整范例(虚构 TS 项目)
     └── stack-recipes.md       # 框架约定速查表(派生种子 · 新栈结晶进此、不回灌 SKILL.md)
