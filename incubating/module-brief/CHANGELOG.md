@@ -2,6 +2,28 @@
 
 > 正文（SKILL.md / references）只写当下规则；版本演进、为什么这么改记在这。
 
+## v1.0.6 — 立「简报（brief）」主导词，收敛满地的"轻量"重复与沉积
+
+纯表述重构，不动 4 步流程 / 核对门 / references 骨架，**行为不变**——目的是让"简报粒度"这个执行行为靠一个主导词更可靠地复现。
+
+- **立主导词对 `brief ≠ spec`**：全文散落 7+ 处的"轻量 / 刻意不做 / 点到为止 / 不穷举 / 一次性 / 绰绰有余"，都是在反复表达同一个品质，而 skill 名字 `module-brief` 自带的"简报"一词从未被启用。本版把这些统一收敛为"**简报**"一词的复现，并显式与姊妹 skill 的产物 `spec`（规范基线）对立——一对现成的主导词。
+- **消重（duplication）**：SKILL.md 原「**刻意不做**」整段删除，内容各归其位——design 写作取舍清单交 `references/design-format.md`（该处标为**单一真相源**、SKILL.md 仅引用）；"不对账 / grep 自核"归 Step 3 与单上下文 blockquote；"去 spec-baseline / code-review"路由并入「brief ≠ spec」段（原与「分工」段三处重复，合一）。
+- **去沉积（sediment）**：「不派子 agent」由散落 5 处收敛为单上下文 blockquote 一处硬声明。同时补记一笔关键变化——v1.0.3 当年靠 skill-eval manifest 在**工具层**去掉了 Task；但 v1.0.5 移除 skill-eval 后，**真实环境的 Agent 工具已可用**，该约束须靠正文留住（故 blockquote 显式写"真实环境有 Agent 工具，但这里刻意不用"），但说一次即够，不必 5 处复述。
+- **description 瘦身**：砍掉两份文档的字段级 identity（"分层结构、关键类、核心调用链、数据模型概览"——body 表格已有）、三条同义触发短语合一，front-load「模块简报」。
+
+**为什么**：这些"轻量"申明是同一品质的反复表述（writing-great-skills 框架下的 duplication + sediment），不是新信息；靠主导词 `brief` 一词即可锚定，省 token 又给模型一个更锐的行为挂钩。`brief`（给人速读的简报）与 `spec`（机器可验的规范）本就隐含在两个姊妹 skill 的名字里，显式成对后认知更清晰，且不违反"两者运行时独立、无读写依赖"。
+
+### 附：端到端 A/B 实测（master-data/employee）与顺手补的两处既有缺口
+
+本版改完做了一次新旧版 A/B 端到端回归实测——同一真实模块（GMZB master-data 的 employee 子域，扁平分层 + 共用网关 ApiController + ccm/budget 同名 VO 边界）、同范围、同指令，旧版（HEAD）与新版各跑一遍完整 4 步，再四官评审。
+
+**回归结论：零行为回归。** 两版基础行为全一致（单上下文无 fan-out、核对门真跑、design 五节齐全、范围划界都正确排除 ccm/budget 同名 VO、简报粒度都守住）。反幻觉官独立 grep 复核新版 design.md 的 120 个标识 + 7 条高风险陷阱，逐条落到 `文件:行号`，零漏网幻觉。回归官报的产物差异（如 keyFieldEquals 是否写成独立陷阱条）经 grep 证实两版 design 都提了该标识，属 LLM run 间内容抖动、非重构删步（陷阱 / 待确认相关指令本版零改动）。
+
+**顺手补的两处缺口（实测暴露，均 skill 既有、非本版重构引入）：**
+
+1. **requirements 禁码自检漏裸字面量**：A/B 双版 requirements.md 都把 `ALL`（枚举值）、`1900-01-01`（魔法日期）这类代码裸字面量泄漏进业务文档——原自检清单只点了类名 / 方法 / SQL / HTTP，没堵枚举值 / 配置码 / 魔法值。已在 requirements-format 抽象层次约束表 + 自检补这一类，并给业务改法示例。
+2. **核对门假阴性红旗**：新版执行时首轮 `rg` 因「多路径位置参数 + `--`」写法全 MISS（0% 命中假象），靠人工识破才绕过——核对门对命令写法脆弱、假阴性会误导（判文档全错或反向放过）。已在 Step 3 加一条红旗：命中率异常低先怀疑命令写法、换写法重核，而非据此判错（只给「先疑工具」的自检动作，不规定 `rg` 语法）。
+
 ## v1.0.5 — 去 headless 模式（解除 skill-eval 耦合）
 
 Step 1 删除 `$EVAL_HEADLESS`/`$EVAL_PRESET`/`$EVAL_OUT` 的 headless 分支，回归纯交互定位；变量表 `{{OUTPUT_DIR}}` 去掉 headless 落点，仅保留 `{{PROJECT_ROOT}}/docs/module-brief/{{MODULE_NAME}}/`。references 两处把已删的 `survey-agent`（v1.0.3 移除）幽灵引用改为「主上下文（Step 2）」。
