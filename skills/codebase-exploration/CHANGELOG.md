@@ -1,5 +1,60 @@
 # codebase-exploration Skill 变更日志
 
+## v1.0.0 — 2026-06-25（首个稳定版 · 上线就绪：COVERAGE 盲区补全 + §6 跨栈诚实化 + production-ready 定位）
+
+### 为什么是 1.0
+
+12 版迭代后，能力主干（① 模块测绘 + ⑤ 约定横切，跨栈）经四个**正交真实形态** dogfood 跑透、回源核验零结构幻觉：master-data（扁平分层伞形包）· edoc（包即模块）· **slp（最大仓 1663 java，SpringCloud+React 微前端+小程序三栈）** · **flycat（Java+Next.js+uni-app/Vue 三栈最丰富）**。D6 路径接地 / D7 scope / 精确计数硬闸 / §5.5 防脚本化 / 三栈识别（含 Vue/微前端/小程序）全部在这些形态上 ship。据此定位为**首个稳定版**。
+
+### 本版改动
+
+- **§6 跨栈诚实化（BACKLOG #1 轻量项）**：依赖矩阵「单一权威源」加限定——**仅为各栈内部 import/装配边的权威源；多栈仓跨栈运行时边（前端→后端 HTTP）属暂缓的 ②④、不在矩阵内**。消除对多栈仓「名不副实」的过度声明（两个三栈仓 dogfood 已证 executor 本就正确地不画跨栈边、各前端各算一个 SPA，故此为措辞与实际行为对齐、**零行为变更、零 dogfood**）。
+- **frontmatter 加 `metadata.version: 1.0.0`**：确立版本落点（此前版本仅记 CHANGELOG）。
+
+### 紧前置（同日收口）
+
+- **v0.13**：`@Lazy` 等限定符注入根因修复（slp dogfood 抓出降档/漏环 → §1.C/§1.D 修 + 定向复验闭合）。
+- slp/flycat 两个 COVERAGE 盲区经 executor/assessor 分离 dogfood 闭合；D5-A 超大仓可读性实证守住灵魂、BACKLOG #2 出列。
+
+### 已知边界（v1.x 路线图）
+
+- **跨栈边（D4）** / **②④ 入口流·API 表面**：能力未建（多栈仓前端→后端边、入口执行流），见 BACKLOG #1/#4。
+- 精确计数闸对指令量词假阳性（#5）、dogfood 只读 vs AGENTS.md 指针（#6）、微服务自暴露 Feign 配方种子（#7）：低优 ergonomics/结晶项。
+- 高层判断（模块划分语义、平级环方向）按设计交 `/module-brief` + 用户定点抽查——SAR 谱系现实，非缺陷。
+
+---
+
+## v0.13.0 — 2026-06-25（`@Lazy` 等限定符注入根因修复：限定符只修饰不否定注入 + `@Lazy` 作循环依赖高信号）
+
+### 背景
+
+v1.0 上线前补 COVERAGE 盲区（slp 最大仓 + flycat 三栈）的 dogfood 中，slp 大仓 assessor 回源抓到一个 §1.C/§1.D 缺陷：`project-application → clue` 这条 `@Autowired @Lazy private TjdBaseClueService`（+ 活跃调用）被误判 `Import-only`，且 projapp↔clue 的 @Lazy 真双向环漏报。**对抗式三 lens 根因诊断**（语义/位置/历史）收敛到同一根因：**SKILL 从未对标 `@Lazy` 语义**——`@Lazy` 是 Spring 为打破循环依赖引入的延迟代理注入，同时拉动两处失效：1.C 把它读成「弱」而降档、1.D 漏掉它作为环标志。属 v0.7.1「真注入边不降档」硬化的**限定符变体**（当年只覆盖扁平分层/手工 wiring 坍缩、未覆盖 @Lazy）。
+
+### 实际改动（改根因、单一概念）
+
+理论先行：先在 [theory-foundation.md](theory-foundation.md) §3 补 **D8** 对标（依赖抽取强度/方向精度 Lutellier 谱系 + Spring @Lazy 破环语义），再落契约。根因修法 = 一个概念「限定符只修饰、不否定注入 + @Lazy 作环高信号」，分布在判据 home + 自检指针（与 D6/D7 同构）：
+
+| 文件·节 | 改动 |
+|---|---|
+| SKILL.md §1.C `Injected` 定义 | 加「**限定符注解（`@Lazy`/`@Qualifier`/`@Primary`）只修饰、不否定注入**」——`@Autowired @Lazy`/构造参数 `@Lazy` 仍判 `Injected`、不降 `Import-only` |
+| SKILL.md §1.C 坍缩护栏 | 点名「`@Autowired @Lazy` 是降档高发陷阱（读着像弱、实为真注入），尤须按 Injected 标」 |
+| SKILL.md §1.D 反向异味 | 加「`@Lazy` 限定的注入边是环的高信号标志（Spring 加 @Lazy 往往正为破环）、须优先进候选集；但 @Lazy 仅是环嫌疑，是否标反向异味仍按层级直觉判——相邻 hub/编排层的环可能是健康编排耦合」 |
+| SKILL.md §5.1 装配槽 | grep 锚点加 `@Lazy`/`@Qualifier`，保证含构造参数 @Lazy 的边也进候选集 |
+| SKILL.md 自检 | 矩阵条加「含 @Lazy/@Qualifier 限定的真注入边未误降；候选集含 @Lazy 环边」 |
+| theory-foundation.md | 新增 §3 D8 对标 + §4 优先级行（已修 v0.13） |
+
+### 取证
+
+定向 dogfood（盲跑 executor 用打补丁后 skill 重导 slp `{project-application, clue, loan-info, loan-orchestration}` 4 域矩阵）。**判决：ship，两处 v0.12 缺陷均闭合、无回归。** 产物 `runs/slp-2026-06-25-v0.13-lazy-dogfood.md`。
+
+- **降档闭合（主缺陷）**：`project-application → clue` 重判 **Injected**；装配证据 `@Lazy private TjdBaseClueService`（`TjdBaseProjectApplicationInfoService.java:183-184`，**主控独立回源 grep 双证**）。
+- **漏环闭合**：projapp↔clue 真双向环被识别（反向边 `TjdBaseClueService.java:86` 注入 projapp，主控回源确认），executor 按 §1.D 标反向异味提示 + 注明「相邻平级域、非地基→顶层危险反向」交核实方向；loan-info↔orchestration 双向 @Lazy 正确判为健康编排耦合、不误标。
+- **无回归**：本仓注解显式、坍缩护栏正确未触发（未把真注入降 Import-only）；1.A 止于 grep、1.B–D 全程心算无端到端脚本（守 v0.3.4）。
+
+**executor 观察（评估后判定无需行动、不列候选）**：平级实体域 @Lazy 双向环（projapp↔clue）判「谁是反向方向」靠主观层级直觉、§1.C(环嫌疑) 与 §1.D(相邻 hub 可健康) 间留判断空间。经核——这正是 SAR 平级环方向判定的**固有难点**（需领域/架构知识），skill「校准优先：拿不准标低置信+说明+交读者核实」已正确兜底（executor 恰按此标提示+说明+不臆断方向）。属设计内的诚实降级、非缺陷，**不新增契约**（守「不通胀 followup」）。
+
+---
+
 ## v0.12.0 — 2026-06-25（精确计数硬闸根因修复：消极禁令 → 机械 grep 自检，堵语义/位置/验证三盲区）
 
 ### 背景
