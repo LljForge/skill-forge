@@ -89,8 +89,8 @@ cd / && rm -rf /tmp/probe
 
 ## 4. 两个发布卫生注意点（本仓现状）
 
-1. **「陆续上线」无内建闸**：`skills/` 下**全部** skill 都会被发现、都可被 `--skill <名>` 装走——孵化中的也不例外。若要「只让成熟的可装」，唯一办法是把未上线的 skill **移出 `skills/`**（如挪到 `incubating/`），让 CLI 看不到。成熟一个、移进 `skills/` 一个 = 一种「毕业上线」闸。
-   - ⚠️ 注意：本地 `~/.claude/skills` 若有指向本仓这些目录的软链接，挪目录会断链、需重置。
+1. **本仓采「`skills/` = 发布面」约定**：`npx skills` 只发现 `skills/` 下的 skill。本仓已把**未上线的 skill 放在 [`incubating/`](../incubating/)**（CLI 看不到、装不了），`skills/` 只放已发布的（当前仅 `codebase-exploration`）。**成熟一个、`git mv incubating/<名> skills/<名>` 一个 = 「毕业上线」闸**。
+   - ⚠️ 注意：本地 `~/.claude/skills` 若有指向 `incubating/` 里 skill 的软链接，需对应重指（毕业移回 `skills/` 时同理）。
 2. **维护文档随装**：见上「装的时候拷什么」。要装出来干净，得把维护文档移出 skill 目录（会破坏「自包含维护」模型）或确认 CLI 是否支持忽略文件——属取舍，非必须。
 
 ---
