@@ -51,7 +51,7 @@
 - 产出:补充改进点,合并进改进点清单、标 `▲复盘补`。
 - 派隔离 agent 给对抗视角是本 skill 既有派发范式(①③⑤ 全用它);无隔离能力时降级主会话自跑。
 
-**监督笔记模板**(落 `docs/recon-driven-dev-eval/<date>-<task>/supervision.md`,归档即弃):
+**监督笔记模板**(落 `docs/recon-driven-dev-eval/<date>-<task-slug>/supervision.md`,归档即弃):
 
 ```
 # 实测监督笔记 · <date> · <task-slug>
