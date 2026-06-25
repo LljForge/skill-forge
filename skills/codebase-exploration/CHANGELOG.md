@@ -1,5 +1,34 @@
 # codebase-exploration Skill 变更日志
 
+## v1.1.0 — 2026-06-25（与 /module-brief 彻底解耦、自包含化 + AGENTS 指针改询问式 + 去「新人接手」定位词）
+
+### 为什么
+
+三项用户指令驱动的定位重构，把本 Skill 从「服务于 `/module-brief` 的新人上手前置」收敛为**自包含的全局结构地图工具**：
+
+1. **与 `/module-brief` 彻底解耦**：此前 `/module-brief` 是地图的「唯一下游消费者」，粒度判定 / scope 理据 / 上手顺序三态 / 产物命令 / 邻居表 / frontmatter 全绑它。现全部去依赖——产物不再产出 `/module-brief` 命令，「上手顺序」改通用三态 **✅ 深读 / ⚖️ 你定 / ⬜ 略读**，粒度约束依据由「下游单次可消化」改述「一次专注精读可消化」。地图只**标出哪些模块值得后续单独深入精读**、不替读者执行那一步，也不绑定任何具体 Skill（与 recon-driven-dev 自包含解耦同纪律）。
+2. **AGENTS.md/CLAUDE.md 指针改「询问后再加」**：从「生成后直接写」改为「**先询问用户、明确同意才加**」——顺手关闭 BACKLOG #6（dogfood 只读 vs 指针写入冲突，只读场景答否即可）。
+3. **去「新人 / 接手」定位词**：读者从「还不懂业务的新人」改述「还不熟悉本代码库的读者（也可能是 AI 编码助手）」——能力不变，去掉「面向新人」的窄定位。
+
+### 改动面（措辞 + 产物 schema 字段，非能力增减）
+
+| 文件 | 改动 |
+|---|---|
+| SKILL.md | frontmatter description（去姊妹 Skill 交叉引、去接手）/ 灵魂（读者重述、三态泛化）/ 删「与邻居 Skill 分工」表换「自包含边界」段 / 慢变闸「交 /module-brief」泛化 / 关键架构约束「粒度 = /module-brief 单次可消化」→「一次专注精读可消化」/ scope 字段 D7 下游措辞 / 上手顺序节三态（✅深读·⚖️你定·⬜略读、删 ➡️ 命令）/ AGENTS 指针改询问式 / 自检 2 条；`metadata.version` → 1.1.0 |
+| references/example.md | 范例同步：头部 + 粒度说明 + 上手顺序图例/列头/各行（删 `/module-brief` 命令、三态改名）+ 矩阵脚注；`generated_by` → v1.1 |
+| README.md | 同步：去接手/新人、删姊妹 Skill 表换「边界（自包含）」段、七节描述改三态、用法去命令 |
+| theory-foundation.md | 顶部加**解耦补注（v1.1）**；D5-A/D5-B/D7/②④ 及元结论的 `/module-brief` 泛化为「下游模块级深析/精读」（仅补注里保留 1 处指明解耦对象的刻意提及） |
+| MAINTAINING.md | 灵魂镜像同步（读者重述 + 慢变纪律「交 /module-brief」泛化） |
+| BACKLOG.md | #6 标**已解决（v1.1）**；#3 标题/措辞 `/module-brief` → 「单次精读容量」 |
+
+### 取证与诚实边界
+
+- **机械层已核**：SKILL.md / README.md / references/example.md 全文 grep `/module-brief` 与「新人/接手/新同事」均零残留；theory-foundation 仅解耦补注里 1 处刻意提及（指明解耦对象）。
+- **dogfood 已跑（双目标各压一面 · executor/assessor 分离 · 均 ship）**：edoc（包即模块·压不回归）+ master-data（扁平分层伞形包·压暴露 D7 scope / 新三态 / 粒度约束），各出完整 7 节图（`cbx-validation/runs/{edoc,master-data}-2026-06-25-v1.1-map.md`），独立 assessor 回源 grep 核验、不采信自评。两图 **A–G 全 PASS**；v1.1 专项硬核全过：全文**零 `/module-brief`**、零「新人/接手」、零旧三态/➡️命令、精确计数硬闸唯一命中均为「按需选 1-2 个代表读」式阅读区间数（非提交漂移精确计数）；**指针询问式守住、dogfood 全程只读未污染目标仓**；回源抽样锚点/scope 逐字属实（master-data `^BaseEmployee` 前缀锚定无过匹配、`tms_bfe_flow_history` 方向 tms→bfe 属实、包即模块 ccm 未画蛇添足加 scope）。改动均为措辞 / schema 字段重命名、不动 1.A–1.D 采集与判定逻辑。
+- **高层判断仍留用户定点抽查**：模块划分语义 / 伞形包边界 / 平级环方向这层无自动标尺（SAR 谱系现实），按 [MAINTAINING.md](MAINTAINING.md) 由用户对 `runs/` 两图做最终高层抽查；机械层（依赖边 / 锚点路径 / scope / 精确计数）assessor 已回源 grep、可复现。
+
+---
+
 ## v1.0.0 — 2026-06-25（首个稳定版 · 上线就绪：COVERAGE 盲区补全 + §6 跨栈诚实化 + production-ready 定位）
 
 ### 为什么是 1.0

@@ -1,12 +1,12 @@
 ---
-generated_by: codebase-exploration v0.9
+generated_by: codebase-exploration v1.1
 generated_at: 2026-06-21
 stack: typescript
 backend_root: notify-hub
 commit: 8fcee6b
 ---
 
-> **项目结构地图（活文档）**。本地图由 `codebase-exploration` 从源码客观测绘生成——给你建立结构认知，可疑边界已标低置信，核实见 `/module-brief`。
+> **项目结构地图（活文档）**。本地图由 `codebase-exploration` 从源码客观测绘生成——给你建立结构认知，可疑边界已标低置信，核实见对该模块的深入精读。
 >
 > **【格式示例】** 本文件是虚构的"通知网关服务"地图，展示 `docs/codebase-map.md` 的**读者卡片**风格。内容是构造的，不指向任何真实项目。**虚构 · 格式示例**（脱敏，不指真实项目）。
 
@@ -31,7 +31,7 @@ commit: 8fcee6b
 | `src/adapters` | 适配器集合 | 非业务，见第五节 |
 | `src/jobs` | 异步 worker | `retry-job` 失败重试 / `digest-job` 摘要聚合 |
 
-> **粒度说明**：`channel` 拆 3 子，每子对应独立渠道逻辑，可各自 `/module-brief`；若整目录当单模块会让上下文过重。`jobs` 目录无 HTTP 路由，作为 worker 单独列、不与业务模块混。
+> **粒度说明**：`channel` 拆 3 子，每子对应独立渠道逻辑，可各自独立深读；若整目录当单模块会让上下文过重。`jobs` 目录无 HTTP 路由，作为 worker 单独列、不与业务模块混。
 
 ### 模块清单
 
@@ -119,46 +119,46 @@ Fastify 插件注册顺序（`src/app.ts` 中 `register` 顺序）：
 
 ## 五、上手顺序
 
-**图例**：**✅ 跑**（值得一次深析）· **⚖️ 你定**（拿不准，跳过或跑都行）· **⬜ 不跑**（按读法扫即可）。可跑的命令用 **➡️** 标出。
+**图例**：**✅ 深读**（值得单独深入精读）· **⚖️ 你定**（拿不准，深读或跳过都行）· **⬜ 略读**（按读法扫一遍即可）。
 
-**判定依据**：扇出（第六节矩阵）+ 逻辑看着厚不厚，取「或」；地图看不进模块内部有没有藏雷，深析与否由你定。**反直觉护栏**：notification 是全系统 hub，哪怕卡片看着 CRUD，也优先深析——别因"看着薄"跳过。
+**判定依据**：扇出（第六节矩阵）+ 逻辑看着厚不厚，取「或」；地图看不进模块内部有没有藏雷，深读与否由你定。**反直觉护栏**：notification 是全系统 hub，哪怕卡片看着 CRUD，也优先深读——别因"看着薄"跳过。
 
 ### 1. 全局横切件
 
-| 项 | 干什么 | 要不要跑 `/module-brief` |
+| 项 | 干什么 | 要不要深读 |
 |---|---|---|
-| `plugins/jwtPlugin` | JWT 验签，白名单放行 | ⬜ 不跑 — 读 `plugins/jwtPlugin.ts` + `config/auth.ts` 的 `PUBLIC_ROUTES` 一遍即可 |
-| `plugins/errorHandler` | 全局错误格式化 | ⬜ 不跑 — 读 `plugins/errorHandler.ts` 一个代表，其它错误类型看 `src/errors/` |
-| `src/lib/cacheService` | Redis 缓存封装 | ⬜ 不跑 — 读 `lib/cacheService.ts` 接口 + `config/cache.ts` TTL 策略即可 |
-| `src/adapters/*` | 出站客户端（SendGrid / Twilio / FCM） | ⬜ 不跑 — 按需选 1 个代表读（如 `adapters/sendgrid/SendgridAdapter.ts`），其它同模式 |
+| `plugins/jwtPlugin` | JWT 验签，白名单放行 | ⬜ 略读 — 读 `plugins/jwtPlugin.ts` + `config/auth.ts` 的 `PUBLIC_ROUTES` 一遍即可 |
+| `plugins/errorHandler` | 全局错误格式化 | ⬜ 略读 — 读 `plugins/errorHandler.ts` 一个代表，其它错误类型看 `src/errors/` |
+| `src/lib/cacheService` | Redis 缓存封装 | ⬜ 略读 — 读 `lib/cacheService.ts` 接口 + `config/cache.ts` TTL 策略即可 |
+| `src/adapters/*` | 出站客户端（SendGrid / Twilio / FCM） | ⬜ 略读 — 按需选 1 个代表读（如 `adapters/sendgrid/SendgridAdapter.ts`），其它同模式 |
 
 ### 2. 数据与配置底层
 
-| 模块 | 干什么 | 要不要跑 `/module-brief` |
+| 模块 | 干什么 | 要不要深读 |
 |---|---|---|
-| `template` | 模板定义 + 渲染 | ✅ 跑 — 被 notification 依赖，渲染逻辑有变量替换细节 ➡️ `/module-brief template` |
-| `subscription` | 用户渠道偏好 | ⚖️ 你定 — 逻辑看着薄（读/写偏好），但被 notification 路由决策依赖；省事可跳过让 notification 深析时就地读 / 想先建立认知 ➡️ `/module-brief subscription` |
+| `template` | 模板定义 + 渲染 | ✅ 深读 — 被 notification 依赖，渲染逻辑有变量替换细节 |
+| `subscription` | 用户渠道偏好 | ⚖️ 你定 — 逻辑看着薄（读/写偏好），但被 notification 路由决策依赖；省事可跳过让 notification 深读时就地读 / 想先建立认知就单独深读 |
 
 ### 3. 渠道层（均被 notification 调）
 
-| 模块 | 干什么 | 要不要跑 `/module-brief` |
+| 模块 | 干什么 | 要不要深读 |
 |---|---|---|
-| `channel-email` | SMTP/SendGrid 发邮件 | ✅ 跑 — 渠道主体，有发送结果处理逻辑 ➡️ `/module-brief channel-email` |
-| `channel-sms` | Twilio 发短信 | ✅ 跑 — 与 email 共享 `ChannelDelivery` 表，有区分逻辑 ➡️ `/module-brief channel-sms` |
-| `channel-push` | FCM 推送 | ⚖️ 你定 — 置信中，topic 广播与点对点路径不同，地图看不透内部重试细节；要改推送再跑 ➡️ `/module-brief channel-push` |
+| `channel-email` | SMTP/SendGrid 发邮件 | ✅ 深读 — 渠道主体，有发送结果处理逻辑 |
+| `channel-sms` | Twilio 发短信 | ✅ 深读 — 与 email 共享 `ChannelDelivery` 表，有区分逻辑 |
+| `channel-push` | FCM 推送 | ⚖️ 你定 — 置信中，topic 广播与点对点路径不同，地图看不透内部重试细节；要改推送再深读 |
 
 ### 4. 顶层调度 hub
 
-| 模块 | 干什么 | 要不要跑 `/module-brief` |
+| 模块 | 干什么 | 要不要深读 |
 |---|---|---|
-| `notification` | 全系统调度中心 + 状态机 | ✅ 跑 — 高扇出 hub，逻辑最厚，是理解全系统的入口 ➡️ `/module-brief notification` |
+| `notification` | 全系统调度中心 + 状态机 | ✅ 深读 — 高扇出 hub，逻辑最厚，是理解全系统的入口 |
 
 ### 5. 异步 worker（不过 HTTP）
 
-| 模块 | 干什么 | 要不要跑 `/module-brief` |
+| 模块 | 干什么 | 要不要深读 |
 |---|---|---|
-| `retry-job` | 失败通知重试 worker | ⚖️ 你定 — 直接调 service 更新状态，不过 HTTP；改重试策略必看，否则可跳过 ➡️ `/module-brief retry-job` |
-| `digest-job` | 摘要聚合 worker | ⬜ 不跑 — 定时聚合逻辑独立，读 `jobs/digest-job.ts` 一遍即可 |
+| `retry-job` | 失败通知重试 worker | ⚖️ 你定 — 直接调 service 更新状态，不过 HTTP；改重试策略必看，否则可跳过 |
+| `digest-job` | 摘要聚合 worker | ⬜ 略读 — 定时聚合逻辑独立，读 `jobs/digest-job.ts` 一遍即可 |
 
 ---
 
@@ -182,7 +182,7 @@ Fastify 插件注册顺序（`src/app.ts` 中 `register` 顺序）：
 | subscription | (无跨模块依赖) | — | — |
 
 **强度档**：`Injected`（Fastify DI / 构造注入）/ `Import-only`（仅 import 调用，无 DI 注册）/ `Adapter`（目标在 `src/adapters`，出站基础设施）。  
-**代表非穷举**：锚点取代表，同模块其它调用见 `/module-brief`。
+**代表非穷举**：锚点取代表，同模块其它调用见模块级深析 / 精读源码。
 
 ---
 
