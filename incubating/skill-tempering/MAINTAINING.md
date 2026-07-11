@@ -18,8 +18,9 @@
 
 - **理论骨 / 先例出处** → 只在 [theory-foundation.md](theory-foundation.md)。
 - **7 条机制层判据（原则 + 触发 + 审计问句 + 强制力档默认）** → 只在 [references/principles.md](references/principles.md)。
-- **派生工序（嗅探 / 失败形态 / 条件纪律种子库 / critic / 实证 / 结晶治理 / 盲区声明）** → 只在 [references/derivation-protocol.md](references/derivation-protocol.md)。
-- **短路径细则 + 改进清单 / 部分符合声明模板** → 只在 [references/audit-lens.md](references/audit-lens.md)。
+- **派生工序（嗅探 / 失败形态 / 条件纪律种子库 / critic / 证据来源二分 / 结晶治理 / 盲区声明 / 三分诊归因闸）** → 只在 [references/derivation-protocol.md](references/derivation-protocol.md)。
+- **路线 A（静态审核）细则 + 改进清单 / 部分符合声明模板** → 只在 [references/audit-lens.md](references/audit-lens.md)。
+- **路线 B（消化用户实证）细则** → 只在 [references/evidence-lens.md](references/evidence-lens.md)（模板复用 audit-lens、不另造）。
 - SKILL.md 脊柱与本文件**只路由、不列举要素**——动了某判据的家，按名引用它的地方同步改、别漏。
 
 ### provenance 归处
@@ -49,23 +50,21 @@
 
 ## 搁置项
 
-> 本轮范围＝底座（§2）+ 短路径（§3.1）+ 骨架（§4–6）。以下两项不在本轮，登记备查。
+> 现范围＝底座（§2）+ 路线 A 静态审核 + 路线 B 消化用户实证 + 骨架（§4–6）。以下登记备查。
+>
+> **架构决策留痕（2026-07-12）**：原"长路径 · dogfood 成熟（自跑 baseline 双跑 + 覆盖账本主动收敛）"**已废弃**——它自造评测机床、与 skill-creator 重叠、且假设每个 skill 都有充足真实任务流（对低频 / 高风险 / 主观类 skill 太理想化）。**改为路线 B**：skill-tempering 自己**绝不实跑**,只**消费用户已跑完带来的实证**（卡点 / 失败案例 / trace / 反馈）;产生实证是用户真实使用或 skill-creator 的事。设计稿 [§3.2](../../docs/skill-tempering/2026-06-26-design.md) 保留作**历史设计探索记录**,不再是活规范——skill 内一切活引用以本仓现有文件为准,不得再指向 §3.2 的旧长路径要点。
 
-### ① 长路径 · dogfood 成熟（本轮不实现）
+### ① 设计稿开放问题（逐条登记）
 
-长路径细则后续单独讨论，**本文件不复述其要点**（单一权威源：foothold 唯一在设计稿 §3.2）。
-→ foothold 见 [docs/skill-tempering/2026-06-26-design.md](../../docs/skill-tempering/2026-06-26-design.md) **§3.2**。
-
-### ② 设计稿开放问题（逐条登记 · 详见设计稿文末「待评审 / 开放问题」）
-
-1. **命名仍是工作名**：`skill-tempering`（淬炼 / 回火金属隐喻＝把已有的东西变韧）可换。→ 设计稿开放问题 1。
-2. **7 通用核强制力档默认值需校准**：当前 hard / soft / advisory 默认值待**第一次真实 dogfood** 校准。→ 设计稿开放问题 2。
+1. **命名**：`skill-tempering`（淬炼 / 回火金属隐喻＝把已有的东西变韧）——2026-07-12 复议后**决定保留**：路线 B 吃真实实证,淬炼语义站得住。此项**已闭**。
+2. ~~7 通用核强制力档默认值待"真实 dogfood"校准~~ → **已废弃前提**：不再有自跑 dogfood。默认值改由**路线 B 消费用户实证时**逐次校准（实证印证某档偏严 / 偏松则现场 override 留痕,见 principles「现场覆盖须留痕」）。
 3. **结晶治理"复核责任人"如何落地**：单人维护场景下，§⑤ 复核是否"异步 fresh-eyes 自审 + 留痕"即足够，待定。→ 设计稿开放问题 3。
-4. **短路径 baseline 双跑的成本权衡**：纯静态审计里"with / without skill 双跑"成本是否划算，还是只长路径用，待定。→ 设计稿开放问题 4。
+4. ~~短路径 baseline 双跑的成本权衡~~ → **已消解**：skill-tempering 不自跑 baseline,成本权衡不存在;真实运行留痕由用户走路线 B 带入。
 
-### ③ 本轮 dogfood 沉淀（待后续处置）
+### ② dogfood 沉淀（待后续处置）
 
-> 自审（拿本 skill 审它自己）派生出的两条，守薄登记备查。
+> 历次自审（拿路线 A 审它自己）派生的沉淀，守薄登记备查。已消化的留痕、未消化的标 pending。
 
-1. **A-3（advisory · 非缺陷）**：完整性 critic 未显式给"问几轮"的上限。单会话短路径风险极低，属设计取舍；待首次真实长路径 dogfood 校准是否需要设上限。
-2. **新维度「meta-递归一致性」（结晶 pending）**：自审时派生出"被测对象若是 skill-tempering 自己，需额外核脊柱与 references 互不矛盾"这一维度——它正是这次逮到 4 处悬空指针的那把刀。按 derivation ⑤ 结晶治理**默认 pending、不自动回灌种子库**，留待复核。
+1. **A-3 + 自审递归无上限 → 已消化（守 #2）**：完整性 critic 追问、及自审时"审计者误读 / 归因存疑"的自我质疑,原**无死上限**（违 skill 自己的 #2 完成判据）。**已修**:derivation ③ 补"追问设死上限（建议 2–3 轮、轮数归模型现场判）+ 自审到顶退盲区交人"。应用现有 #2 核、非转正新维度,不受 ⑤ 约束。留痕、无待办。
+2. **新维度「自审 meta 场景额外纪律」（结晶 pending）**：拿 skill-tempering 审自己时,除七核外还需额外核**脊柱与 references 互不矛盾**（历次逮悬空指针的那把刀）。这是**新审计维度**（非现有核的应用),按 derivation ⑤ 结晶治理**默认 pending、不自动回灌种子库**,留待复核裁判放行。注:其"递归死上限"侧面已随第 1 条用 #2 消化,此处只余"自审要额外查什么内容"这一维度待定。
+3. **B-1 已消化（留痕）**：同次自审逮到 #3+输入族 soft 缺陷——路线 B 依赖用户实证却无输入可信度校验分支。**已修**（evidence-lens §二 补"先验实证够格吗"前置闸,应用种子库既有「输入族·源受控性」纪律,非新造）。留痕、无待办。

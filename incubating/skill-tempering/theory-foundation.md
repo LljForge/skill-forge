@@ -14,7 +14,7 @@
 
 - **一句结论**：在缺外部反馈的「内省式自纠」设定下，LLM 不能可靠地纠正自己的推理，常越纠越差——产出方与裁判方必须分开。
 - **出处**：Huang et al.《Large Language Models Cannot Self-Correct Reasoning Yet》，**ICLR 2024（同行评审 / peer-reviewed）**。arXiv 稳定链：<https://arxiv.org/abs/2310.01798>。
-- **给本 skill 做依据**：principles.md **#1** 的承重梁——「无外部真值 → 退到诚实标低置信 / 交人，绝不自评放行」。也是派生工序 ③ 完整性 critic「不可只靠内省自封」、④ 实证验真「别只靠 critic 内省定生死」、⑤ 结晶治理「裁判角色 ≠ 当场派生者」的同一根理论。
+- **给本 skill 做依据**：principles.md **#1** 的承重梁——「无外部真值 → 退到诚实标低置信 / 交人，绝不自评放行」。也是派生工序 ③ 完整性 critic「不可只靠内省自封」、④ 证据来源二分「未经实证不冒充已验证、skill-tempering 自己不自跑取证」、⑤ 结晶治理「裁判角色 ≠ 当场派生者」、以及**三分诊归因闸「审计者自己判出的每条问题也不默认为真值,先归因」**的同一根理论。
 
 ### #2 完成判据（completion criterion）
 
