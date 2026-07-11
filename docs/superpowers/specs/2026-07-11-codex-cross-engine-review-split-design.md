@@ -33,8 +33,10 @@
 沿用仓库现有 Skill(如 recon-driven-dev)"零外部 Skill 依赖、自包含"的风格——两个 Skill 只**共享约定**,不互相调用:
 
 - **引擎分离铁律**:writer 是 Claude,reviewer 固定是 Codex;reviewer 只审不改;裁决权在 controller。
-- **安全传参**:focus text 先用 Write 落临时文件,bash 只 `cat` 该文件传参;绝不把仓库内容(含 markdown 反引号、`$()`)直接拼进 shell 命令串,否则外层 shell 会在只读沙箱生效前做命令替换/执行。
-- **read-only 审查**:调 codex companion 的 `adversarial-review` 子命令(read-only 沙箱、接受自定义审查指令);绝不 pre-judge(不得指示 reviewer 忽略/降级某问题)。
+- **安全传参**:审查重点/内容先用 Write 落临时文件,bash 只 `cat` 该文件传参;绝不把仓库内容(含 markdown 反引号、`$()`)直接拼进 shell 命令串,否则外层 shell 会在只读沙箱生效前做命令替换/执行。
+- **read-only 沙箱**:都调 codex companion、都跑 read-only 沙箱、都绝不 pre-judge(不得指示 reviewer 忽略/降级某问题)。但**两者用不同子命令**(见下,是探查 companion v1.0.5 源码后的定论):
+  - `codex-code-review` → `adversarial-review`(审 git diff;硬依赖 git 仓库;内置对抗式 prompt 模板 + severity/`file:line` 输出契约)。
+  - `codex-design-review` → `task`(read-only)(通用 Codex 提问器;**不依赖 git**;无内置代码契约,rubric 由本 Skill 自带 prompt 定义)。
 - **显式触发**:两者均**不自动触发**,必须用户显式说出"**Codex 审**"这个词根 + 对象("Codex 审这个设计/这个方案/本次变更")才启动。关键锚点是 "Codex 审",不是泛泛的 "review/审一下"。与 recon-driven-dev "由用户显式调用、不自动触发" 同一套规矩。
 
 ## 组件一:codex-code-review(审代码改动)
@@ -53,16 +55,14 @@
 ## 组件二:codex-design-review(审设计方案)—— 新建
 
 - **触发**:用户说 "Codex 审这个设计 / 这个方案"。
+- **引擎**:codex companion `task` 子命令,read-only 沙箱(不 `--write`)。**不用 `adversarial-review`**——后者硬依赖 git、且是"审 diff/改动"语义,不匹配"审一份完整设计"。`task` 不依赖 git,故非 git 目录与 inline 方案都能跑。
 - **输入来源(两类)**:
-  - (a) **路径**(文件或目录):Read 目标文件;目录则枚举其中的设计文档。git 可有可无。
-  - (b) **一段还没落文档的 Prompt / 想法**:直接在对话里描述的方案,Claude 把方案文本当 focus 喂给 reviewer,不碰 git/scope。
+  - (a) **路径**(文件或目录):Claude 用 Read 读目标文件(目录则枚举其中的设计文档),把内容写进喂给 `task` 的 prompt。由 Claude 侧读文件,不依赖沙箱去取——彻底绕开非 git 目录的取文件问题。
+  - (b) **一段还没落文档的 Prompt / 想法**:直接在对话里描述的方案,Claude 把方案文本写进 prompt。
 - **范围收口(A)**:对象限"设计意图类"内容——design / spec / plan / brief / RFC。不滑向"审任意内容",以守住聚焦。
 - **无自证**:没有可编译/可跑之物,不做本机验证。
-- **评审视角**:假设是否成立 / 完整性(有没有漏的场景与边界)/ 内部一致性(章节间不矛盾)/ DoD 可验证性 / 有无更优解 / 风险与未决点。
-- **契约重映射**:companion `adversarial-review` 的固定输出契约面向代码,需重映射为设计语义:
-  - `severity` → 阻断 / 重要 / 建议
-  - `可利用场景` → "这个缺口会让方案在什么情况下崩"
-  - `file:line` → 文件:章节 / 段落定位
+- **评审视角(由本 Skill 自带 prompt 定义,非 companion 内置契约)**:假设是否成立 / 完整性(有没有漏的场景与边界)/ 内部一致性(章节间不矛盾)/ DoD 可验证性 / 有无更优解 / 风险与未决点。
+- **自带输出格式**:因不再套 `adversarial-review` 的代码契约,由本 Skill 的 prompt 直接规定设计语义输出:每条发现 `严重度`(阻断 / 重要 / 建议)+ `定位`(文件:章节 / 段落)+ `问题`(这缺口会让方案在什么情况下崩)+ `建议`;末尾给 `verdict`(可发布 / 需修正)。
 
 ## 呈现裁决(两者共通)
 
@@ -73,10 +73,14 @@
 - 两个 Skill 都在 `incubating/` 起步,成熟后毕业到 `skills/`,期间过一遍 skill-tempering 打磨。
 - 旧的 `~/.claude/commands/codex-review.md` 命令**暂留**,等新 Skill 毕业后再退役(记为后续项)。
 
-## 实施阶段待验证(第一优先)
+## companion 源码探查结论(v1.0.5,规划期已落实)
 
-- **path 输入的取文件机制**:`codex-design-review` 走 (a) 路径输入时,靠 companion `adversarial-review` 的 read-only 沙箱里 reviewer `Read` 取文件,需核实沙箱对指定路径(尤其非 git 目录)的文件读取权限与可行方式。companion 已知有 `--scope working-tree`,只覆盖 git 工作区,抓不到普通非 git 目录里的设计稿,故此路不能依赖 scope,需另走 reviewer 直读路径的方式。
-- (b) inline prompt 输入不涉及此问题(方案文本直接进 focus)。
+拆 `codex-companion.mjs` v1.0.5 的定论,已并入上面两组件的引擎选型:
+
+- `adversarial-review`:`executeReview` 第 360 行 `ensureGitRepository()` **硬依赖 git**;scope 仅 `auto|working-tree|branch`,本质审 git diff;prompt 为内置对抗式模板,输出契约强制 `file` + `line_start/line_end` + `confidence`。→ 适配 `codex-code-review`。
+- `task`:`executeTaskRun` **无 git 依赖**;`--write` 缺省时 `sandbox: "read-only"`;prompt 完全由调用方给。→ 适配 `codex-design-review`,消掉 git 依赖与"取文件/契约重映射"两个原待验证点。
+
+实施期仍需在真实环境各跑一次冒烟(见实施计划 Task 1),确认参数与输出符合上述判断。
 
 ## 明确不做(YAGNI)
 
