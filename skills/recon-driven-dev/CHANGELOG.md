@@ -2,6 +2,16 @@
 
 记 what + why，不写过程流水账。
 
+## v0.5.8 — 补两条运行护栏:② 澄清硬闸「别猜先问」+ ⑤ 分支命名规范(对齐 superpowers)
+
+**what**:
+- **② 澄清硬闸(`requirements-design.md` 三硬规则→四硬规则)**:新增「别猜、先问(don't guess)」硬规则——遇实质不确定 / 分叉先问用户、不自行拍板;有合理默认可自决但须按 ADR 记进必覆盖清单②。配反合理化红旗表(4 行)。脊柱 ② 段同名亮牌、判据只住 reference。
+- **⑤ 分支命名(`implementation.md` ISOLATE 闸)**:补「起隔离分支从当前 HEAD 切(不强制回 main)+ 分支名 `<type>/<change-name>`(type∈{feature,fix,chore,docs,refactor}、change-name 复用起步生成的)」。脊柱 ⑤ ISOLATE 一行加 nod。BASE 口径不动(本就别默认 main)。
+
+**why**:用户通过他模型实测报两个现场问题——① ② 遇不确定不问、自作主张(结构层"一次一问"已有,缺命令层那句祈使被提升为硬规则);② ⑤ 建分支无命名规范。参照本地 superpowers 仓对齐:问题①承 `executing-plans`「Ask for clarification rather than guessing」+ `brainstorming` Q&A;问题②承 `using-git-worktrees`(`-b` 默认从当前 HEAD 切、描述性名)+ `finishing-a-development-branch`(BASE 不假设 main)。校准式(ADR 逃生阀)防矫枉过正成"事事都问"。
+
+**诚实定性**:**运行行为变更 / 能力提升**(非纯元层)——② ⑤ 运行行为各加一道护栏;守自包含(零外部依赖、承 superpowers 是借鉴非调用)+ 单一权威(澄清判据仅 requirements-design、分支规范仅 implementation、脊柱只亮牌 / nod)+ 防膨胀(②+~6 行、⑤+~3 行)。
+
 ## v0.5.7 — 打磨协议两补:出列判据「第二样本须根因同源 + 多面按面计样本」+ 复盘「过归因」防线(防凑样本越级出列 / 防修错机制 · 元层)
 
 **what(均落 `MAINTAINING.md`、元层运行不载入)**:
