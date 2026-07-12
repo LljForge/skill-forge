@@ -11,8 +11,8 @@
 
 | 批次 | 内容 | 证伪宿主 | plan 就绪? | 代码落地? | 实跑证伪? | 状态 |
 |---|---|---|---|---|---|---|
-| **0** | 前置修订 + 工作台(调 spec + 写 plan + 建进度/对照表) | 单宿主(纯文档) | — | — | — | 🟡 进行中(本会话) |
-| **A** | 工作区地基(preflight + 隔离前移 + run-state + 去硬编码) | 单宿主可验 | ✅ 见 plan.md | ⬜ | ⬜ | ⬜ 待执行 |
+| **0** | 前置修订 + 工作台(调 spec + 写 plan + 建进度/对照表) | 单宿主(纯文档) | — | — | — | ✅ 完成 |
+| **A** | 工作区地基(preflight + 隔离前移 + run-state + 去硬编码) | 单宿主可验 | ✅ 见 plan.md | ✅ A1–A6 已提交 | ⬜ 待用户实跑 | 🟡 代码就绪·待实跑 |
 | **B** | 阶段状态机(①封存序 + ②③闭合 + ③回流 + ④审批 + 两轮上限 + 口号改写) | 单宿主可验 | ⬜ 待写 | ⬜ | ⬜ | ⬜ 未开始 |
 | **C** | 实现与验证契约(task-agent/reviewer + 三 verification-mode + 终态快照/复评 + BASE=START_SHA) | TDD/manual 单宿主;子agent 建议 Codex | ⬜ 待写 | ⬜ | ⬜ | ⬜ 未开始 |
 | **D** | 跨宿主契约补实(Codex 能力映射 + 文件系统降级 + 工具名→能力名全量) | **需 Codex 实跑** | ⬜ 待写 | ⬜ | ⬜ | ⬜ 未开始(前置骨架在 A 已落) |
@@ -22,11 +22,11 @@
 
 ## 下一步（续接指令）
 
-**当前:** 批次 0 收尾中——四件套(design/plan/progress/batch-map)已建齐,批次 A 的 plan 已就绪。
+**当前:** 批次 A 代码已落地(Task A1–A6 逐任务提交:去硬编码 / run-state 模板 / runtime-contract 骨架 / preflight gate / 隔离前移)。**卡在单宿主实跑证伪**——尚未跑。
 
-**下一动作:** 执行**批次 A**(见 [`plan.md`](plan.md) Task A1–A6)。执行方式二选一(plan.md「Execution Handoff」):subagent-driven(推荐)/ inline。
+**下一动作:** 做**批次 A 单宿主实跑证伪**(inline 执行的 A6 Step 4)——拿一个真实开发任务在 Claude Code 跑一遍 recon-driven-dev 五阶段,按 [`batch-map.md`](batch-map.md) 批次 A 的 ⚠️ 五条验(产物不散落 / START_SHA 记准 / dirty 不丢不误提 / preflight 不啰嗦 / Claude 行为不变),监督笔记落 `docs/recon-driven-dev-eval/<date>-<task>/`、路径回填本表。**发现退化 → 只回退批次 A。**
 
-**再往后:** 批次 A 代码落地 + 单宿主实跑证伪通过后,回本目录**就地写批次 B 的 plan**(把 plan.md 追加批次 B 段,或另起 `plan-B.md`),同法推进 C → D → E。**不要提前把 B/C/D/E 全部 plan 写死**——每批等前一批实跑反馈,避免返工(design §13)。
+**再往后:** 批次 A 实跑证伪通过后,回本目录**就地写批次 B 的 plan**(把 plan.md 追加批次 B 段,或另起 `plan-B.md`),同法推进 C → D → E。**不要提前把 B/C/D/E 全部 plan 写死**——每批等前一批实跑反馈,避免返工(design §13)。
 
 ## 跨会话续接协议
 
@@ -40,3 +40,4 @@
 ## 变更记录（本表自身）
 
 - 2026-07-12:批次 0 建立四件套;spec 落三条修订(薄账 §4.3 / 批次序+证伪宿主 §13 / 接缝口号 §4.2·§8);spec 从 `specs/` 移入本目录为 design.md;批次 A plan 就绪。
+- 2026-07-12:批次 A 代码落地(A1–A6 提交,CHANGELOG v0.5.9);隔离细则 + 分支命名 + dirty 归属迁入 runtime-contract 单一权威。**待单宿主实跑证伪。**

@@ -2,7 +2,19 @@
 
 记 what + why，不写过程流水账。
 
-## v0.5.8 — 补两条运行护栏:② 澄清硬闸「别猜先问」+ ⑤ 分支命名规范(对齐 superpowers)
+## v0.5.9 — 整改批次 A:工作区地基(preflight + 隔离前移 + run-state + 去硬编码)
+
+> 整改工作台见 `docs/superpowers/recon-driven-dev-remediation/`(design/plan/progress/batch-map)。本条为 6 批(0/A/B/C/D/E)中批次 A;后续批次逐批落地 + 单宿主实跑证伪。
+
+**what**:
+- 去 5 处 `~/.claude` 安装根硬编码(references 引模板/判据改相对路径)、README 安装前提去 `~/.claude`、`incubating/`→`skills/`(纯清理)。
+- 新建 `references/runtime-contract.md`(能力握手 6 能力名 + Claude 映射 + 路径事实,起步常载;隔离建立/分支名/dirty 三分支归属/isolation-waiver 迁入此处为单一权威;Codex 映射/文件系统降级/权限细则标批次 D TODO)与 `references/templates/run-state.md` 模板(design §7 全字段,per-change scratch)。
+- 加 **preflight gate**:进 ① 前 7 步(检测→判归属→WORK_ROOT→START_SHA→ARTIFACT_ROOT→run-state→①);脊柱只路由、判据住 runtime-contract。
+- **隔离从 ⑤ 前移到 preflight**:① 至 ⑤ 跑同一 WORK_ROOT / ARTIFACT_ROOT;⑤ 只在最终 WORK_ROOT 跑 clean-baseline;implementation/脊柱只 nod。
+
+**why**:修 design §1 两个根因——① 至 ④ 在原 checkout 产文档、⑤ 才建 worktree 导致代码快照 / 产物 / 工作区分裂、dirty 改动可能静默丢失;安装根硬编码伤可移植性。
+
+**诚实定性**:**运行行为变更 / 正确性修复**(非纯元层);跨宿主效果本批不宣称(Codex 映射属批次 D)。改后验证 rubric 自核:A1 自包含(run-state 是 per-change scratch、同进度账本豁免)✓;A2 单一权威(分支命名/dirty 仅 runtime-contract,`type ∈ {feature` 全仓单点,脊柱/implementation 只 nod)✓;A3 分层归位 ✓;A4 派发-降级本批未动(属批次 D)N/A;A5 阶段衔接(preflight→① 接缝新增,directed-analysis 未硬编码冲突路径)✓;B1 可执行 ✓;B2 单路径承载**结构就绪、完整字节核账待批次 E** §4.3 兑现。**批次 A 单宿主实跑证伪待补**(design §14/§17,未跑前只称静态改完)。
 
 **what**:
 - **② 澄清硬闸(`requirements-design.md` 三硬规则→四硬规则)**:新增「别猜、先问(don't guess)」硬规则——遇实质不确定 / 分叉先问用户、不自行拍板;有合理默认可自决但须按 ADR 记进必覆盖清单②。配反合理化红旗表(4 行)。脊柱 ② 段同名亮牌、判据只住 reference。

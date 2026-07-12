@@ -42,6 +42,7 @@ recon-driven-dev/
 ├── EVAL-COVERAGE.md            # 覆盖账本(32 路径单元 × 触发态 · 运行时不读)
 ├── CHANGELOG.md                # 变更日志
 └── references/
+    ├── runtime-contract.md     # preflight 能力握手 + 路径事实 + 隔离/dirty 归属(起步常载)
     ├── directed-analysis.md    # ① 细则(派发路由 + 主会话实测门 + 封存边界)
     ├── recon-agent.md          # ① 定向侦查 sub-agent 本体(四样契约单一权威)
     ├── requirements-design.md  # ② 细则(对话契约 + 必覆盖清单 + 评审决策点判据)
@@ -52,7 +53,8 @@ recon-driven-dev/
     └── templates/
         ├── requirements.md     # ② 业务需求模板
         ├── review.md           # ③ 评审模板(纯填空,判据归 review-agent.md)
-        └── code-review.md      # ⑤ 整支评审模板(纯填空,两轴 per-axis,判据归 code-reviewer.md)
+        ├── code-review.md      # ⑤ 整支评审模板(纯填空,两轴 per-axis,判据归 code-reviewer.md)
+        └── run-state.md        # per-change 运行状态(preflight 建、随归档清)
 ```
 
 每个判据/清单只有一个家(单一权威源);SKILL.md 与模板**只路由不复述**。
