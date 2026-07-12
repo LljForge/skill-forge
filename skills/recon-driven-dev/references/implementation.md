@@ -19,8 +19,8 @@
 
 ## 共有硬闸（两分支都生效 · 依序）
 
-1. **clean-baseline**:进工作区后**先跑现有测试确认绿底,再写新码**;红底 → 停下问用户(继续 / 先查)——否则分不清新坏旧坏。
-2. **ISOLATE**:别直接在 main / master 上动手。先检测是否已隔离 → **优先用原生 worktree 工具** → 没有才 `git worktree` 兜底;普通 checkout 里建 worktree 前先征得用户同意(除非已声明偏好)。**起隔离分支从当前 HEAD 切**(承接你所在分支、**不强制回到 main**;`git worktree add -b <name>` 的 `-b` 默认即从当前 HEAD 切)。**分支名 = `<type>/<change-name>`**——`type ∈ {feature, fix, chore, docs, refactor}`(按本次改动性质选),`<change-name>` **复用起步生成的那个**(与产物目录 `<YYYY-MM-DD>-<change-name>` 的 change-name 同名、kebab-case,**分支不带日期**),如 `feature/clarify-gate`。收尾 BASE 口径见下「收尾前整支代码评审」段(已"别默认 main"、不在此重复)。
+1. **clean-baseline**:进工作区后**先跑现有测试确认绿底,再写新码**;红底 → 停下问用户(继续 / 先查)——否则分不清新坏旧坏。**本闸在 preflight 定下的最终 WORK_ROOT 内、依赖就绪后运行**(隔离已前移,不再等到此刻建工作区)。
+2. **ISOLATE(已在 preflight 完成)**:隔离在起步 preflight 就已建立(design §6.1),⑤ 不再新建 worktree,只在 preflight 定下的 WORK_ROOT 内落地——建立细则(优先原生 worktree 工具 → `git worktree` 兜底、从 START_SHA 所在 HEAD 切、`<type>/<change-name>` 分支名、dirty 三分支归属、isolation-waiver)单一权威住 [`runtime-contract.md`](runtime-contract.md),此处不复述;⑤ 只**确认** WORK_ROOT 与依赖就绪。收尾 BASE 口径见下「收尾前整支代码评审」段(已"别默认 main"、不在此重复)。
 3. **TDD 铁律**:每个特性 / 修复**先写失败测试 → 亲眼看它按预期失败 → 写最小代码转绿(输出干净)→ 重构保持绿**。**失败测试写在 ② 预先约定的测试缝隙上**(`design.md` 必覆盖清单④ 谈定的那个缝隙);修 bug 先用失败测试复现。
 4. **per-task 两阶段评审(两分支共有 · 按序)**:每个任务实现 + commit 后——**先 spec 符合性评审**(不缺、不过度造额外没要的东西),**再代码质量评审**;有发现 → 改 → 复评,任一阶段未清不进下一任务。这道评审评的是**每个已实现任务对设计的符合度**——区别于 ② 自评(卫生扫描)、③(评设计本身)、收尾前整支评审(评全分支)。**子 agent 分支由派发的实现 / 评审子 agent 承担这道闸**,别因分支重构静默丢了它。
 5. **continuous execution**:开跑后一路做到底,**别在任务间反复问"要继续吗"**;只在 blocker(缺依赖 / 反复验证失败 / 指令不清 / 计划有洞)时停下——计划错**上报用户**、别静默绕过。

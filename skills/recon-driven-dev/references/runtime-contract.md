@@ -30,6 +30,20 @@
 
 任何 reference 或模板不得再猜 `~/.claude/skills` 等安装根。
 
+## 隔离建立（isolate-workspace · preflight 第 3 步）
+
+别直接在 main / master 上动手。先检测是否已隔离 → **优先用原生 worktree 工具** → 没有才 `git worktree` 兜底;普通 checkout 里建 worktree 前先征得用户同意(除非已声明偏好)。**起隔离分支从 START_SHA 所在 HEAD 切**(承接你所在分支、**不强制回到 main**;`git worktree add -b <name>` 的 `-b` 默认即从当前 HEAD 切)。**分支名 = `<type>/<change-name>`**——`type ∈ {feature, fix, chore, docs, refactor}`(按本次改动性质选),`<change-name>` **复用起步生成的那个**(与产物目录 `<YYYY-MM-DD>-<change-name>` 的 change-name 同名、kebab-case,**分支不带日期**),如 `feature/clarify-gate`。
+
+用户显式拒绝 worktree 时走 **isolation-waiver**(design §6.3):记录 START_SHA 与 INITIAL_STATUS、每次提交只 stage 本任务拥有的路径、FINISH 菜单移除依赖独立 worktree 的动作、**不宣称标准 ISOLATE 已满足**。
+
+## dirty worktree 归属（preflight 判，落一处）
+
+初始工作区有未提交改动时:
+
+- **属于本任务且实施须承接**:不从裸 HEAD 建新 worktree 后静默丢失;让用户选「原隔离工作区继续」或「先把改动形成可追踪快照」。
+- **与本任务无关**:不自动 stash / reset / stage / commit;新工作区从 START_SHA 建、① 也只读新工作区。
+- **归属不清**:暂停、列文件、交用户判断。
+
 ## 权限边界与降级（按需读、不进常载）
 
 <!-- 批次 D 补:prompt 工具列表是能力需求非安全 ACL;宿主不能给子 agent 配只读权限时主会话的核对流程(派发前记 git status/预期输出、派发后核对、发现非预期修改即停)(design §5.2);spawn-fresh-agent 不可用 / 文件系统不共享的降级(design §5.1) -->
