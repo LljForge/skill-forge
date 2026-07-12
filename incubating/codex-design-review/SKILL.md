@@ -11,10 +11,14 @@ description: 用户显式说「Codex 审这个设计 / 这个方案」时,拉 Co
 
 ## 执行流程
 
+### 0. 前置闸(缺一即停)
+- **companion 就位**:`ls ~/.claude/plugins/cache/openai-codex/codex/*/scripts/codex-companion.mjs` 为空即停,提示「未检测到 codex 插件 companion,无法跨引擎审」——不静默 `node ""`。
+
 ### 1. 识别输入
 - **路径**(文件/目录):用 Read 读入;目录则枚举其中的设计文档(*.md 等),逐个读入。
 - **inline 文本**:用户在对话里直接给的方案,直接取用。
 - 范围收口:只审 design/spec/plan/brief/RFC 这类"设计意图"。若被要求审代码改动,改指 codex-code-review。
+- **空输入即停**:路径不存在 / 目录枚举不到设计文档 / inline 为空——读不到任何设计内容就提示用户补输入并停,**不带空 `{{REVIEW_INPUT}}` 去派审**。
 
 ### 2. 组装 prompt(安全传参)
 - Read `references/design-review-prompt.md` 模板。
@@ -31,6 +35,7 @@ node "$CODEX" task --wait "$(cat -- "$PROMPT_FILE")"
 
 ### 4. 呈现裁决
 把 Codex 的发现按其自带格式原样呈现,逐条给裁决建议(修 / 归后续 / 记录),由用户拍板。
+- 若有上位约束/既定 spec 可作外部标尺,controller 可另附与其的对齐结论(✅/❌);**本情境通常设计自身即标尺、无上位约束,此时以 reviewer 的 verdict 为准**(不强凑外部对齐)。
 
 ## 铁律
 - 引擎分离:reviewer 固定 Codex,只审不改;裁决权在 controller。

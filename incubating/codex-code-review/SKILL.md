@@ -19,6 +19,11 @@ description: 用户显式说「Codex 审本次变更 / 我刚写的改动」时,
 
 ## 执行流程
 
+### 0. 前置闸(缺一即停,不硬往下跑)
+
+- **git 仓库**:`git -C <repo> rev-parse --is-inside-work-tree` 失败即停,提示「此处非 git 仓库;`adversarial-review` 硬依赖 git,审设计/方案改用 `codex-design-review`」。
+- **companion 就位**:`ls ~/.claude/plugins/cache/openai-codex/codex/*/scripts/codex-companion.mjs` 为空即停,提示「未检测到 codex 插件 companion,无法跨引擎审」——不静默 `node ""`。
+
 ### 1. 收集改动(机械硬步骤)
 
 ```bash
@@ -62,7 +67,7 @@ node "$CODEX" adversarial-review --wait --scope working-tree "$(cat -- "$PROMPT_
 - **标尺发现(默认自动)**:把本次工作区里**变更过的** `*.md` 设计/spec/plan(在 git 三类改动内的)自动列为验收标尺,要求 reviewer 逐条对照代码兑现度。
 - **可选显式**:用户在参数里给了 spec/plan 路径时(即便本次未改动、不在 diff),以该路径为准补作标尺。
 - 设计本身的合理性**不在此审**(假定已由 codex-design-review 在写码前审过);此处只把设计当 DoD 尺子。
-- spec 对齐由 controller 侧另判:逐条给 `spec ✅/❌`,无依据标 `spec: n/a`,不逼 reviewer 给伪精确结论。
+- spec 对齐口径同第 3 步「spec 对齐由 controller 侧另判」,不复述。
 
 ### 4. 呈现裁决
 
