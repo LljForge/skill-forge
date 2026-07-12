@@ -1,7 +1,7 @@
 # 整支代码评审 — <change-name>
 
 > 收尾前整支评审本次分支改动(`merge-base..HEAD`),由 ⑤ 整支评审 sub-agent 产出。
-> 两轴判据与档位见 `~/.claude/skills/recon-driven-dev/references/code-reviewer.md`,本表只填结论与发现。
+> 两轴判据与档位见 `../code-reviewer.md`,本表只填结论与发现。
 
 ## 评审范围
 - 分支 diff:`<BASE>..HEAD`　|　设计依据:`design.md` + `requirements.md`

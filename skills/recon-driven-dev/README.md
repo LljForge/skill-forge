@@ -63,7 +63,7 @@ recon-driven-dev/
 
 ## 如何开始(直接复制 Prompt)
 
-前提:recon-driven-dev 已装到 `~/.claude/skills/`(任何项目的会话都能调用)。实测打磨分两个会话,各复制对应 Prompt、填好 `<…>` 即可——判据细则在 `MAINTAINING.md`「实测打磨协议」节,Prompt 只负责启动、不重述。
+前提:recon-driven-dev 已按你宿主的 skill 装载方式装好(任何项目的会话都能调用)。实测打磨分两个会话,各复制对应 Prompt、填好 `<…>` 即可——判据细则在 `MAINTAINING.md`「实测打磨协议」节,Prompt 只负责启动、不重述。
 
 **① 实测会话**(在你要做开发的那个项目里开):
 
@@ -75,7 +75,7 @@ recon-driven-dev/
 docs/recon-driven-dev-eval/<今天日期>-<任务短名>/。这一会话只跑、不要顺手改
 skill 本身;结束时把改进点清单路径告诉我。
 
-Skill 位置:`/Users/lilongjian/Projects/AI/skill-forge/incubating/recon-driven-dev`
+Skill 位置:`skills/recon-driven-dev`(本仓已毕业,不再在 incubating/)
 
 开发任务:<在这里写你这次要做什么>
 ```

@@ -18,7 +18,7 @@
 
 ## 出口
 
-- 写 `code-review.md`,落输入文档同目录(模板:`~/.claude/skills/recon-driven-dev/references/templates/code-review.md`;两轴 per-axis 结论 + 逐条发现 + 修订清单)。
+- 写 `code-review.md`,落输入文档同目录(模板:`templates/code-review.md`;两轴 per-axis 结论 + 逐条发现 + 修订清单)。
 - 回主 agent **一段简短结论**(两轴各一档 + 修订项逐行),不回灌完整推理。
 
 ## 判据（两轴 · 同一 prompt 两段落,不派两个子 agent）
