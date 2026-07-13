@@ -16,3 +16,15 @@
 - [ ] **X2(副作用族)**:两 Skill 的 `$PROMPT_FILE` 无唯一命名/清理约定,并发调用可能互踩。静态推定未实证,毕业前走查时留意。
 
 > 已在本次 skill-tempering 打磨落地的 soft 项(不再列为待办):C1/C2 git+companion 前置闸、C4 spec 对齐去重(code-review);D1 空输入即停、D2 companion 前置闸、D3 呈现裁决(design-review)。
+
+## 2026-07-13 skill-tempering(路线 A 静态审计 · 外部证据 obra/superpowers)
+
+> 借 obra receiving-code-review / requesting-code-review 做外部证据。**已落地 2 条 soft(真·缺陷,不再列待办)**:
+> - E1(#1+#3 假阴性放行):第 3 步补 `adversarial-review` 非零/超时/空返回即停,不当"零发现=可合并"(对称姊妹 design-review)。
+> - E2(#1+输入族·源受控性 假阳性透传):第 4 步补 controller 验真——Codex 是外部异构引擎、发现可能假阳性,给建议前对照实际代码核实,但不删减/改写原始发现(守铁律原样呈现)。借 receiving-code-review"对外部 reviewer 先存疑再核对"。
+
+- [ ] **E3(advisory,留裁量)**:mattpocock code-review 的双轴 Standards(是否合仓库编码规范)可作补充维度;现仅以 `CLAUDE.md` Global Constraints verbatim 部分覆盖。非命脉,边缘适用,可选。
+- [ ] **E4(advisory,留裁量)**:wshobson code-review-excellence 四级 severity(blocking/important/nit/suggestion)与 companion 契约的 critical/high/medium/low 只是粒度差异;不采纳(companion severity 为准),记此备查。
+- [ ] **E5(设计取舍,不改)**:obra/wshobson 给 reviewer 注入显式 rubric 维度清单;本 skill rubric 归 companion `adversarial-review` 自带(专用对抗审查器),再注入犯 #5 冗余、且可能与其原生 rubric 打架,故不注入。
+
+> E1/E2 为路线 A 静态推定、未在本仓实证,待攒真实评审 trace 走 skill-tempering 路线 B 复核。

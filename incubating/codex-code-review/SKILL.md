@@ -52,6 +52,8 @@ node "$CODEX" adversarial-review --wait --scope working-tree "$(cat -- "$PROMPT_
 # 大改动改后台:Bash run_in_background:true 调 node "$CODEX" adversarial-review --background --scope working-tree "$(cat -- "$PROMPT_FILE")",再看 /codex:status
 ```
 
+- **派审失败即停,不静默放行**:`adversarial-review` 非零退出 / 超时 / 返回空发现时,显式提示「Codex 侧未产出有效评审」并停,交用户定夺——**绝不把空返回当成「零发现=可合并」**(那是假阴性放行)。前置闸只挡了 companion 缺失;此处挡的是 companion 在位但派审失败。
+
 `$PROMPT_FILE` 的内容(作为尾部 focus text 传入)**必含**:
 - 改动文件清单 + **untracked 清单** + 仓库路径;要求 reviewer 在 self-collect(大改动 companion 不内联全 diff)时**逐项自取**:`git diff --cached`(staged)+ `git diff`(unstaged)+ `Read` untracked——**别漏 staged**
 - 完成度对照的标尺路径(见下「完成度对照」小节)
@@ -72,6 +74,7 @@ node "$CODEX" adversarial-review --wait --scope working-tree "$(cat -- "$PROMPT_
 ### 4. 呈现裁决
 
 把发现原样呈现给用户(不删减、不改写 severity),附 controller 侧 **spec 对齐结论**(有依据 ✅/❌,无则 n/a),逐条给出裁决建议(修 / 归后续 / 记录),由用户拍板。
+- **裁决建议须验真,不透传**:Codex 是**外部异构引擎**,其发现可能对本仓不成立(假阳性:违 YAGNI、撞了一处刻意决策、或对本技术栈判断有误)。controller 在给「修 / 归后续 / 记录」建议前,逐条**对照实际代码核实该发现是否成立**;核不动的存疑项标「待核」交用户,不硬给建议。此步只校准 controller 的**建议**,**不删减、不改写 reviewer 原始发现与 severity**(守上「原样呈现」)——验真是为不把外部发现当真值透传,非 pre-judge。
 
 ## 铁律
 
