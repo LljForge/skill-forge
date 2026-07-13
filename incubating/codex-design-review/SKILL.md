@@ -18,6 +18,7 @@ description: 用户显式说「Codex 审这个设计 / 这个方案」时,拉 Co
 - **路径**(文件/目录):用 Read 读入;目录则枚举其中的设计文档(*.md 等),逐个读入。
 - **inline 文本**:用户在对话里直接给的方案,直接取用。
 - 范围收口:只审 design/spec/plan/brief/RFC 这类"设计意图"。若被要求审代码改动,改指 codex-code-review。
+- **标注成熟度阶段**:判这份设计处于「早期想法 / 成型草案 / 近落地 RFC」哪一档,作为 `{{USER_FOCUS}}` 的一部分一并传入,供 reviewer 按阶段调校严苛度(见 prompt 模板 `<maturity_calibration>`)。判不准则默认按「近落地」从严。
 - **空输入即停**:路径不存在 / 目录枚举不到设计文档 / inline 为空——读不到任何设计内容就提示用户补输入并停,**不带空 `{{REVIEW_INPUT}}` 去派审**。
 
 ### 2. 组装 prompt(安全传参)
@@ -32,6 +33,7 @@ node "$CODEX" task --wait "$(cat -- "$PROMPT_FILE")"
 # 大设计可后台:Bash run_in_background + --background,再看 /codex:status
 ```
 `task` 缺省 read-only(不 --write),reviewer 只审不改。**不加 --write。**
+- **派审失败即停,不静默放行**:`node "$CODEX" task` 非零退出 / 超时 / 返回空发现时,显式提示「Codex 侧未产出有效评审」并停,交用户定夺——**绝不把空返回当成「零发现=可发布」**(那是假阴性放行)。前置闸只挡了 companion 缺失;此处挡的是 companion 在位但派审失败。
 
 ### 4. 呈现裁决
 把 Codex 的发现按其自带格式原样呈现,逐条给裁决建议(修 / 归后续 / 记录),由用户拍板。
