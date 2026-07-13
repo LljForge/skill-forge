@@ -1,7 +1,7 @@
 # recon-driven-dev 整改 · 进度表（跨会话续接入口）
 
 > **新会话从这里开始。** 一眼看清:整改走到哪批、下一步做什么、哪批已有 plan、哪批还等实跑。
-> 本目录四件套:[`design.md`](design.md)(已获批设计 · 权威)· [`plan.md`](plan.md)(逐批实施计划)· 本文件(进度)· [`batch-map.md`](batch-map.md)(批次×spec§×文件×回归验证×验收对照)。
+> 本目录:[`design.md`](design.md)(已获批设计 · 权威)· 逐批 plan([`plan.md`](plan.md)=批次 A、[`plan-B.md`](plan-B.md)=批次 B,后续批就地续写)· 本文件(进度)· [`batch-map.md`](batch-map.md)(批次×spec§×文件×回归验证×验收对照)· [`batch-A-validation.md`](batch-A-validation.md)(批次 A 实跑观测规格)。
 
 ## 这是什么
 
@@ -13,7 +13,7 @@
 |---|---|---|---|---|---|---|
 | **0** | 前置修订 + 工作台(调 spec + 写 plan + 建进度/对照表) | 单宿主(纯文档) | — | — | — | ✅ 完成 |
 | **A** | 工作区地基(preflight + 隔离前移 + run-state + 去硬编码) | 单宿主可验 | ✅ 见 plan.md | ✅ A1–A6 已提交 | 🟢 4/5 硬过·#4 待补样本 | 🟢 实质通过·带尾账 |
-| **B** | 阶段状态机(①封存序 + ②③闭合 + ③回流 + ④审批 + 两轮上限 + 口号改写) | 单宿主可验 | ⬜ 待写 | ⬜ | ⬜ | ⬜ 未开始 |
+| **B** | 阶段状态机(①封存序 + ②③闭合 + ③回流 + ④审批 + 两轮上限 + 口号改写)+ IP-R03 状态模型 | 单宿主可验 | ✅ 见 plan-B.md | ⬜ | ⬜ | 🟡 plan 就绪·待实施 |
 | **C** | 实现与验证契约(task-agent/reviewer + 三 verification-mode + 终态快照/复评 + BASE=START_SHA) | TDD/manual 单宿主;子agent 建议 Codex | ⬜ 待写 | ⬜ | ⬜ | ⬜ 未开始 |
 | **D** | 跨宿主契约补实(Codex 能力映射 + 文件系统降级 + 工具名→能力名全量) | **需 Codex 实跑** | ⬜ 待写 | ⬜ | ⬜ | ⬜ 未开始(前置骨架在 A 已落) |
 | **E** | 维护资产收口(README/模板/描述 + BACKLOG/EVAL/CHANGELOG + §4.3 薄账兑现 + 7 rubric) | 单宿主可验 | ⬜ 待写 | ⬜ | ⬜ | ⬜ 未开始 |
@@ -28,7 +28,7 @@
 1. **#4 待补样本**:补一个"干净工作区 + 简单任务"的小样本坐实 preflight 不啰嗦(host 无关,Claude Code 自跑即可)。
 2. **复盘挖出 3 个新缺陷**(非批次 A 回归、非 D-gap,见下"变更记录")——按归属分流,不阻塞批次 A 判定。
 
-**下一动作:** 就地**写批次 B 的 plan**(阶段状态机)。批次 B 天然吸收两个新缺陷:IP-R02(⑤ 续做重扫/重闸)、IP-R03(在 runtime-contract 建状态机、兑现 run-state 模板已埋的指针)——写 plan 时作为额外 scope 输入。**#4 小样本可与批次 B 并行补。**
+**下一动作:** 就地**写批次 B 的 plan**(阶段状态机 = design §8)。批次 B 吸收 **IP-R03**(在 runtime-contract 建 §7 状态模型、兑现 run-state 模板已埋的指针)作为额外 scope;**IP-R02 不并入**(留打磨轨 BACKLOG#2)。**#4 小样本可与批次 B 并行补。**
 
 **再往后:** 同法推进 C → D → E。**不要提前把 C/D/E 全部 plan 写死**——每批等前一批实跑反馈(design §13)。
 
@@ -48,6 +48,7 @@
 - 2026-07-13:批次 A 实跑证伪(Codex,跨 4 独立 git 仓真实任务,trace `docs/recon-driven-dev-eval/2026-07-13-batchA-customer-ownership-info/`)。判定:**5 条 1/2/3/5 硬过,#4 证据不足(样本非"干净+简单")非回归 → 不回退**。分流:
   - 🔶 **IP-D01**(D-gap):runtime-contract 只有 Claude 映射,Codex 自映射走通 → 批次 D 输入(预期)。
   - **IP-R01**(高,多独立 git 仓拓扑):preflight 路径事实只容单 WORK_ROOT/一分支 → **BACKLOG#5 又一不同任务样本**,交打磨会话累积/评估出列。
-  - **IP-R02**(高,⑤ false-premise 续做后 design/tasks/review 失同步)→ **批次 B 输入**(续做重扫/重闸)+ BACKLOG#2 第三面。
-  - **IP-R03**(中,run-state 模板指向的状态机在 runtime-contract 为空)→ **批次 B 输入**(建状态机、兑现已埋指针);批次 A 不订正(改则 churn,根因是"批次 B 未建"非"批次 A 写错")。
+  - **IP-R02**(高,⑤ false-premise 续做后 design/tasks/review 失同步)→ **BACKLOG#2 第三面第二样本**,交打磨会话按其既定红线(落 implementation.md、非 SKILL 事实订正)评估出列。**不并入批次 B**(2026-07-13 定:批次 B 只做 design §8 状态机、不跨整改/打磨两轨)。
+  - **IP-R03**(中,run-state 模板指向的状态机在 runtime-contract 为空)→ **批次 B 范围**(把 design §7 状态模型落进 runtime-contract、兑现已埋指针);批次 A 不订正(改则 churn,根因是"批次 B 未建"非"批次 A 写错")。
   - **尾账 #4**:补一个"干净+简单"小样本坐实 preflight 不啰嗦(host 无关)。
+- 2026-07-13:批次 B plan 就绪(`plan-B.md`,7 任务 B1–B7)。范围 = design §8 状态机 + IP-R03 状态模型;IP-R02 明确不并入(留打磨轨)。B2 顺带闭合 BACKLOG#7(§8.2 核销表+残留定义)。**待实施 + 单宿主实跑证伪。**
