@@ -1,6 +1,6 @@
 ---
 name: codex-task
-description: codex 全包实现并自测,Claude 只做头尾 + 安全关键任务跨引擎审查;工具无关推进实现计划中的单个任务。**不自动触发,由用户显式调用。**
+description: codex 全包实现并自测,Claude 只做头尾 + 安全关键任务跨引擎审查;工具无关推进实现计划中的单个任务。**本 Skill 不自动触发，由用户显式调用。**
 ---
 
 用「Claude 头尾 + codex 逐任务实现并自测」的分工,落地实现计划中的一个任务。**目标:把 Claude token 花在头(抽 brief)、尾(裁决/记账)和少数安全关键任务的审查上,中间非关键任务近乎零介入。** 计划来源**工具无关**:superpowers / recon-driven-dev / 未来任意工具产出的计划都能喂进来。
