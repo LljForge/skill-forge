@@ -30,6 +30,25 @@
 
 任何 reference 或模板不得再猜 `~/.claude/skills` 等安装根。
 
+## per-change 状态模型（按需读:compaction 恢复 / 任务续接时读）
+
+run-state.md 是本次变更的运行状态(非跨项目长期上下文)。字段 `phase`(①–⑤)与 `state` 组成一个状态点。
+
+**`state` 枚举语义**(通用、跨阶段一致):
+
+| state | 语义 |
+|---|---|
+| draft | 当前 phase 的产物在写、未过本阶段质量门 |
+| gated | 过了本阶段质量门、待用户批准 |
+| user-approved | 用户已批准本阶段产物 |
+| superseded | 本版被回流修订取代(如 ③ 有条件通过后回 ② 的旧版设计) |
+| completed | 五阶段走完、已归档 |
+| aborted | 用户中止 |
+
+**各阶段的 phase-specific 合法转移**(谁的下一态是谁)住对应 reference,本段**不复制**:① 见 `directed-analysis.md` 封存边界(recon-draft→main-gate-passed→user-approved→sealed);②③ 见 `requirements-design.md`(②状态流 + ③ 结论回流处置、≤2 轮);④ 见 `planning.md`(六步顺序)。
+
+**compaction 恢复口径**:恢复后只据 run-state 的 `phase` + `state` + 已落盘产物机械判断当前位置——`phase` 定在第几阶段,`state` 定该阶段处于草稿/待批/已批/被取代,对照该阶段 reference 的转移表取合法下一步;不靠会话记忆。用户中止(`aborted`)时给保留草稿 / 归档草稿 / 删除本次未提交产物三个显式选项,破坏性删除仍需明确确认。
+
 ## 隔离建立（isolate-workspace · preflight 第 3 步）
 
 别直接在 main / master 上动手。先检测是否已隔离 → **优先用原生 worktree 工具** → 没有才 `git worktree` 兜底;普通 checkout 里建 worktree 前先征得用户同意(除非已声明偏好)。**起隔离分支从 START_SHA 所在 HEAD 切**(承接你所在分支、**不强制回到 main**;`git worktree add -b <name>` 的 `-b` 默认即从当前 HEAD 切)。**分支名 = `<type>/<change-name>`**——`type ∈ {feature, fix, chore, docs, refactor}`(按本次改动性质选),`<change-name>` **复用起步生成的那个**(与产物目录 `<YYYY-MM-DD>-<change-name>` 的 change-name 同名、kebab-case,**分支不带日期**),如 `feature/clarify-gate`。
