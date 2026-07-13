@@ -1,6 +1,5 @@
 # BACKLOG
 
-- [ ] 两 Skill 毕业到 `skills/` 后,退役旧命令 `~/.claude/commands/codex-review.md`(暂留至毕业,避免青黄不接)。
 - [ ] 毕业前过一遍 skill-tempering 打磨。
 
 ## 终审(whole-branch review)留给打磨批的 Minor(均非阻塞)
