@@ -91,6 +91,7 @@
 - **Gap 明示**(已被用户接受):本轮后 `/codex-task`、`/codex-batch`、`/codex-review` 全部不可调用,直至家族毕业。
 - **文档一致性**:更新 `incubating/codex-code-review/BACKLOG.md`(其"两 Skill 毕业后再退役旧命令、暂留避免青黄不接"的前提已被本轮"先退役、接受 gap"覆盖);本 spec 于顶部注明取代旧 split-spec 的"暂留至毕业"立场。
 - **追踪后续(本轮范围外)**:新增一条毕业清单项——把 codex-code-review / codex-design-review / codex-task / codex-batch 一并毕业到 `skills/` + symlink,恢复可调用。此为 gap 的闭合动作,单独一轮做。
+- **毕业进度(2026-07-13 更新)**:codex-task / codex-batch 已毕业到 `skills/` + symlink,gap **部分闭合**、二者恢复可调用(详见 `2026-07-13-codex-task-batch-graduation-design.md`);codex-code-review / codex-design-review 仍在 `incubating/`,待各自过 skill-tempering 后单独毕业。
 
 ## 风险 / 边界
 
