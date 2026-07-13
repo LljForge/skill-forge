@@ -58,11 +58,12 @@
    本整改批次 D 的待办)。凡因"Codex 没有对应指引"导致的卡顿,单独标 🔶D-gap 列出,
    不要计入上面 5 条的判定——那是喂给批次 D 的信号、不是批次 A 的回归。
 
-监督笔记 + 改进点清单 improvements.md + 批次 A 观测回执,都产出到
-docs/recon-driven-dev-eval/<今天日期>-batchA-<任务短名>/。这一会话只跑、不要顺手
-改 skill 本身;结束时把该目录路径告诉我。
+监督笔记 + 改进点清单 improvements.md + 批次 A 观测回执,都产出到(绝对路径,
+不管你在哪个项目跑本开发任务,这三份 eval 产物都落回下面这个 skill 仓):
+/Users/lilongjian/Projects/AI/skill-forge/docs/recon-driven-dev-eval/<今天日期>-batchA-<任务短名>/
+这一会话只跑、不要顺手改 skill 本身;结束时把该目录**绝对路径**告诉我。
 
-Skill 位置:`skills/recon-driven-dev`
+Skill 位置(绝对路径):/Users/lilongjian/Projects/AI/skill-forge/skills/recon-driven-dev
 
 开发任务:<在这里写你这次要做什么>
 ```
