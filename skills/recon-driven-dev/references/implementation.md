@@ -17,11 +17,25 @@
 
 与 ④ 自评的分工:④ 自评 = 计划**自身**完备性(覆盖 / 签名,写计划时做);本预检 = **跨**计划 ↔ 约束 ↔ rubric 的冲突(执行前做)。两者不重叠。
 
+## 验证契约（三 verification-mode + verification-profile · 单一权威）
+
+⑤ 按 **design.md 声明的 verification-mode** 实施(声明落 run-state 的 `verification-mode` 字段;② 产 design 时据必覆盖清单④「测试缝隙 + 降级形态」定,preflight/② 后填)。三选一:
+
+| 模式 | 适用条件 | 规则 |
+|---|---|---|
+| automated-tdd | 有可执行测试 runner + 稳定测试缝隙 | 失败测试 → 确认按预期失败 → 最小实现转绿 → 重构保持绿 |
+| executable-check | 可用命令 / 编译 / lint / 查询 / 快照验证,但不适合常规单测 | 先记录失败证据 → 修改 → 同一检查通过 |
+| manual-evidence | 无 runner / 纯文档 / 客观无法自动执行 | 事先批准步骤 + 预期结果 + 实际证据 + 未覆盖风险 |
+
+- **只有 automated-tdd 适用「生产代码先于失败测试写则删掉重来」规则**(下方陷阱块「TDD 反合理化红旗」仅约束此模式);executable-check / manual-evidence 不套删码规则,但**各自的「先证据、后改」纪律照走**(executable-check 先落失败证据、manual-evidence 先批准步骤与预期)。
+- **verification-profile**(落 design.md 或 run-state 的 `verification-profile` 字段):`scoped tests / full tests / lint / format check / typecheck / build`,每条记**适用范围 + 预期结果 + 最长运行时间**;无法执行的记**原因 + 替代证据**。现有测试 / 全测试**不再作为无范围、无时间上限的模糊命令**。
+- 收尾整支 reviewer 只有收到某项检查**已成功运行的证据**(verification-profile 结果),才能跳过机器已覆盖的发现——判据住 `code-reviewer.md`,本文不复述。
+
 ## 共有硬闸（两分支都生效 · 依序）
 
 1. **clean-baseline**:进工作区后**先跑现有测试确认绿底,再写新码**;红底 → 停下问用户(继续 / 先查)——否则分不清新坏旧坏。**本闸在 preflight 定下的最终 WORK_ROOT 内、依赖就绪后运行**(隔离已前移,不再等到此刻建工作区)。
 2. **ISOLATE(已在 preflight 完成)**:隔离在起步 preflight 就已建立(design §6.1),⑤ 不再新建 worktree,只在 preflight 定下的 WORK_ROOT 内落地——建立细则(优先原生 worktree 工具 → `git worktree` 兜底、从 START_SHA 所在 HEAD 切、`<type>/<change-name>` 分支名、dirty 三分支归属、isolation-waiver)单一权威住 [`runtime-contract.md`](runtime-contract.md),此处不复述;⑤ 只**确认** WORK_ROOT 与依赖就绪。收尾 BASE 口径见下「收尾前整支代码评审」段(已"别默认 main"、不在此重复)。
-3. **TDD 铁律**:每个特性 / 修复**先写失败测试 → 亲眼看它按预期失败 → 写最小代码转绿(输出干净)→ 重构保持绿**。**失败测试写在 ② 预先约定的测试缝隙上**(`design.md` 必覆盖清单④ 谈定的那个缝隙);修 bug 先用失败测试复现。
+3. **按 verification-mode 实施**:据 run-state 声明的 mode 走上方「验证契约」三路径之一。**automated-tdd**——每个特性 / 修复先写失败测试 → 亲眼看它按预期失败 → 写最小代码转绿(输出干净)→ 重构保持绿;失败测试写在 ② 预约的测试缝隙上(必覆盖清单④),修 bug 先用失败测试复现。**executable-check / manual-evidence**——按验证契约各自的「先证据、后改」纪律走,不套 automated-tdd 的删码规则。
 4. **per-task 两阶段评审(两分支共有 · 按序)**:每个任务实现 + commit 后——**先 spec 符合性评审**(不缺、不过度造额外没要的东西),**再代码质量评审**;有发现 → 改 → 复评,任一阶段未清不进下一任务。这道评审评的是**每个已实现任务对设计的符合度**——区别于 ② 自评(卫生扫描)、③(评设计本身)、收尾前整支评审(评全分支)。**子 agent 分支由派发的实现 / 评审子 agent 承担这道闸**,别因分支重构静默丢了它。
 5. **continuous execution**:开跑后一路做到底,**别在任务间反复问"要继续吗"**;只在 blocker(缺依赖 / 反复验证失败 / 指令不清 / 计划有洞)时停下——计划错**上报用户**、别静默绕过。
 
