@@ -2,6 +2,19 @@
 
 记 what + why，不写过程流水账。
 
+## v0.7.0 — 整改批次 C:实现与验证契约(三 verification-mode + per-task 双 agent + BASE/终态/复评)
+
+**what**:
+- ⑤ 验证契约:三 verification-mode(automated-tdd / executable-check / manual-evidence)各有合法闭合路径 + verification-profile 记录义务;闸3 从单一 TDD 假设改为「按 design 声明的 mode 实施」,仅 automated-tdd 套删码规则(design §9)。
+- 每任务实现与评审分家:新建 `task-agent.md`(实现契约:入口7/出口6/不自宣通过)与 `task-reviewer.md`(Spec+Quality 两轴/严重度三档/两轮上限/内联非独立评审),implementation.md 闸4 改路由(design §10)。
+- 整支评审 BASE 钉 preflight 的 START_SHA(不再 merge-base 猜);终态证据覆盖 committed/staged/unstaged/untracked + 范围说明五项;凭 verification-profile 成功证据才跳机器覆盖项(design §11.1/§11.2/§9.2)。
+- 复评重做:核旧发现 + 对修复触及文件/邻接做新缺陷扫描 + 扩出/改接口重跑两轴,消除旧「只核上轮 delta」口径(design §11.3)。
+- 脊柱 ⑤ 亮牌与 code-review 模板同步(只路由/填空、不复述)。
+
+**why**:修 design §1 的实现-验证根因——单一 TDD 假设排斥无 runner 场景、merge-base 事后猜起点会漏本次真实改动、复评只核旧 delta 放过修复带出的新问题。各判据单一权威落各 agent 本体,脊柱/implementation 只路由。
+
+**诚实定性**:**运行行为变更**(⑤ 执行契约)。单宿主可验 TDD/manual 路径;**子 agent 执行分支 + 终态覆盖建议 Codex 实跑(与批次 D 合并)**。守自包含 + 单一权威;§4.3 薄账完整核账与 MAINTAINING 7 rubric 留批次 E。**单宿主实跑证伪待 fresh runner 跑一个多任务/含验证降级的任务后回填。**
+
 ## v0.6.1 — 批次 B 实跑证伪收尾:受控回路证据留存 + 必覆盖清单计数订正
 
 **what**:
