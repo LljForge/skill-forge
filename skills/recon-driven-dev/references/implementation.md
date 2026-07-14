@@ -1,6 +1,6 @@
 # ⑤ 实施 细则（两条执行分支 gates + 通用吸收 + 非显性陷阱块）
 
-> ⑤ 阶段的细则,由 SKILL.md ⑤ 指针引入。两分支(内联 / 子 agent)由 ④ 末执行方式 `⏸` 选出。per-task 两阶段评审判据住本文件;收尾前整支评审判据住 `code-reviewer.md`(本文只路由、不复述)。每个 gate 写"达成什么 / 何时停",具体怎么做(TDD 红绿、git / worktree 命令)模型自己会、不在此教。
+> ⑤ 阶段的细则,由 SKILL.md ⑤ 指针引入。两分支(内联 / 子 agent)由 ④ 末执行方式 `⏸` 选出。per-task 两轴评审判据住 `task-reviewer.md`、实现契约住 `task-agent.md`,收尾前整支评审判据住 `code-reviewer.md`——本文只路由、不复述。每个 gate 写"达成什么 / 何时停",具体怎么做(TDD 红绿、git / worktree 命令)模型自己会、不在此教。
 
 ## 实施前:计划冲突预检（两分支都做）
 
@@ -34,7 +34,7 @@
 ## 共有硬闸（两分支都生效 · 依序）
 
 1. **clean-baseline**:进工作区后**先跑现有测试确认绿底,再写新码**;红底 → 停下问用户(继续 / 先查)——否则分不清新坏旧坏。**本闸在 preflight 定下的最终 WORK_ROOT 内、依赖就绪后运行**(隔离已前移,不再等到此刻建工作区)。
-2. **ISOLATE(已在 preflight 完成)**:隔离在起步 preflight 就已建立(design §6.1),⑤ 不再新建 worktree,只在 preflight 定下的 WORK_ROOT 内落地——建立细则(优先原生 worktree 工具 → `git worktree` 兜底、从 START_SHA 所在 HEAD 切、`<type>/<change-name>` 分支名、dirty 三分支归属、isolation-waiver)单一权威住 [`runtime-contract.md`](runtime-contract.md),此处不复述;⑤ 只**确认** WORK_ROOT 与依赖就绪。收尾 BASE 口径见下「收尾前整支代码评审」段(已"别默认 main"、不在此重复)。
+2. **ISOLATE(已在 preflight 完成)**:隔离在起步 preflight 就已建立(design §6.1),⑤ 不再新建 worktree,只在 preflight 定下的 WORK_ROOT 内落地——建立细则(优先原生 worktree 工具 → `git worktree` 兜底、从 START_SHA 所在 HEAD 切、`<type>/<change-name>` 分支名、dirty 三分支归属、isolation-waiver)单一权威住 [`runtime-contract.md`](runtime-contract.md),此处不复述;⑤ 只**确认** WORK_ROOT 与依赖就绪。收尾 BASE 口径见下「收尾前整支代码评审」段(已钉 START_SHA、不在此重复)。
 3. **按 verification-mode 实施**:据 run-state 声明的 mode 走上方「验证契约」三路径之一。**automated-tdd**——每个特性 / 修复先写失败测试 → 亲眼看它按预期失败 → 写最小代码转绿(输出干净)→ 重构保持绿;失败测试写在 ② 预约的测试缝隙上(必覆盖清单④),修 bug 先用失败测试复现。**executable-check / manual-evidence**——按验证契约各自的「先证据、后改」纪律走,不套 automated-tdd 的删码规则。
 4. **per-task 两轴评审(两分支共有 · 按序)**:每个任务实现 + commit 后过 **Spec 符合 + Quality 质量** 两轴——判据、严重度三档、两轮上限、内联「非独立评审」标注**单一权威住 [`task-reviewer.md`](task-reviewer.md)**,每任务实现子 agent 的输入 / 输出契约住 [`task-agent.md`](task-agent.md),本文只路由、不复述。**子 agent 分支**:派 task-agent 实现、派 task-reviewer 评审。**内联分支**:主会话按同一两轴自评、**标「非独立评审」**(收尾整支 reviewer 不得因此省略)。有发现 → 改 → 复评,任一阶段未清**不进下一任务**;实现 agent 不自宣通过。这道评的是**每个已实现任务对设计的符合度**——区别于 ② 自评、③(评设计本身)、收尾整支评审(评全分支)。
 5. **continuous execution**:开跑后一路做到底,**别在任务间反复问"要继续吗"**;只在 blocker(缺依赖 / 反复验证失败 / 指令不清 / 计划有洞)时停下——计划错**上报用户**、别静默绕过。

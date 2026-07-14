@@ -10,10 +10,11 @@
 - 整支评审 BASE 钉 preflight 的 START_SHA(不再 merge-base 猜);终态证据覆盖 committed/staged/unstaged/untracked + 范围说明五项;凭 verification-profile 成功证据才跳机器覆盖项(design §11.1/§11.2/§9.2)。
 - 复评重做:核旧发现 + 对修复触及文件/邻接做新缺陷扫描 + 扩出/改接口重跑两轴,消除旧「只核上轮 delta」口径(design §11.3)。
 - 脊柱 ⑤ 亮牌与 code-review 模板同步(只路由/填空、不复述)。
+- 落地自审补强(实跑前):per-task 判据归属元注释订正为 task-reviewer/task-agent(P1)、收尾 BASE 指路句对齐 START_SHA(P3)、②端必覆盖清单④**显式声明 verification-mode + 写 run-state** 以闭合 §9.1 生产端(P2)、红旗块跨文件行号引用去脆(P4)。
 
 **why**:修 design §1 的实现-验证根因——单一 TDD 假设排斥无 runner 场景、merge-base 事后猜起点会漏本次真实改动、复评只核旧 delta 放过修复带出的新问题。各判据单一权威落各 agent 本体,脊柱/implementation 只路由。
 
-**诚实定性**:**运行行为变更**(⑤ 执行契约)。单宿主可验 TDD/manual 路径;**子 agent 执行分支 + 终态覆盖建议 Codex 实跑(与批次 D 合并)**。守自包含 + 单一权威;§4.3 薄账完整核账与 MAINTAINING 7 rubric 留批次 E。**单宿主实跑证伪待 fresh runner 跑一个多任务/含验证降级的任务后回填。**
+**诚实定性**:**运行行为变更**(⑤ 执行契约)。单宿主可验 TDD/manual 路径;**子 agent 执行分支 + 终态覆盖建议 Codex 实跑(与批次 D 合并)**。守自包含 + 单一权威(落地自审补强修正 plan 原「不碰 requirements-design.md」边界——verification-mode 契约天然跨 ②⑤,②端补声明义务闭合 §9.1);§4.3 薄账完整核账与 MAINTAINING 7 rubric 留批次 E。**单宿主实跑证伪待 fresh runner 跑一个多任务/含验证降级的任务后回填。**
 
 ## v0.6.1 — 批次 B 实跑证伪收尾:受控回路证据留存 + 必覆盖清单计数订正
 
