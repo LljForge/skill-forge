@@ -1,10 +1,13 @@
 # 整支代码评审 — <change-name>
 
-> 收尾前整支评审本次分支改动(`merge-base..HEAD`),由 ⑤ 整支评审 sub-agent 产出。
+> 收尾前整支评审本次分支改动(`START_SHA..HEAD` + 未提交/未跟踪),由 ⑤ 整支评审 sub-agent 产出。
 > 两轴判据与档位见 `../code-reviewer.md`,本表只填结论与发现。
 
 ## 评审范围
-- 分支 diff:`<BASE>..HEAD`　|　设计依据:`design.md` + `requirements.md`
+- BASE = START_SHA:`<START_SHA>`　|　HEAD:`<HEAD>`
+- 终态覆盖:committed / staged / unstaged / untracked　|　终态 patch:`<路径>`
+- verification-profile 结果:`<各检查 范围/预期/实际/时限,或不可执行原因>`
+- 设计依据:`design.md` + `requirements.md`
 
 ## 轴一 · Standards(代码质量)
 - 结论:[✅ 通过 / ⚠️ 须改 / ❌ 阻断]
