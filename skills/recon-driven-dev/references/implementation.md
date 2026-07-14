@@ -36,7 +36,7 @@
 1. **clean-baseline**:进工作区后**先跑现有测试确认绿底,再写新码**;红底 → 停下问用户(继续 / 先查)——否则分不清新坏旧坏。**本闸在 preflight 定下的最终 WORK_ROOT 内、依赖就绪后运行**(隔离已前移,不再等到此刻建工作区)。
 2. **ISOLATE(已在 preflight 完成)**:隔离在起步 preflight 就已建立(design §6.1),⑤ 不再新建 worktree,只在 preflight 定下的 WORK_ROOT 内落地——建立细则(优先原生 worktree 工具 → `git worktree` 兜底、从 START_SHA 所在 HEAD 切、`<type>/<change-name>` 分支名、dirty 三分支归属、isolation-waiver)单一权威住 [`runtime-contract.md`](runtime-contract.md),此处不复述;⑤ 只**确认** WORK_ROOT 与依赖就绪。收尾 BASE 口径见下「收尾前整支代码评审」段(已"别默认 main"、不在此重复)。
 3. **按 verification-mode 实施**:据 run-state 声明的 mode 走上方「验证契约」三路径之一。**automated-tdd**——每个特性 / 修复先写失败测试 → 亲眼看它按预期失败 → 写最小代码转绿(输出干净)→ 重构保持绿;失败测试写在 ② 预约的测试缝隙上(必覆盖清单④),修 bug 先用失败测试复现。**executable-check / manual-evidence**——按验证契约各自的「先证据、后改」纪律走,不套 automated-tdd 的删码规则。
-4. **per-task 两阶段评审(两分支共有 · 按序)**:每个任务实现 + commit 后——**先 spec 符合性评审**(不缺、不过度造额外没要的东西),**再代码质量评审**;有发现 → 改 → 复评,任一阶段未清不进下一任务。这道评审评的是**每个已实现任务对设计的符合度**——区别于 ② 自评(卫生扫描)、③(评设计本身)、收尾前整支评审(评全分支)。**子 agent 分支由派发的实现 / 评审子 agent 承担这道闸**,别因分支重构静默丢了它。
+4. **per-task 两轴评审(两分支共有 · 按序)**:每个任务实现 + commit 后过 **Spec 符合 + Quality 质量** 两轴——判据、严重度三档、两轮上限、内联「非独立评审」标注**单一权威住 [`task-reviewer.md`](task-reviewer.md)**,每任务实现子 agent 的输入 / 输出契约住 [`task-agent.md`](task-agent.md),本文只路由、不复述。**子 agent 分支**:派 task-agent 实现、派 task-reviewer 评审。**内联分支**:主会话按同一两轴自评、**标「非独立评审」**(收尾整支 reviewer 不得因此省略)。有发现 → 改 → 复评,任一阶段未清**不进下一任务**;实现 agent 不自宣通过。这道评的是**每个已实现任务对设计的符合度**——区别于 ② 自评、③(评设计本身)、收尾整支评审(评全分支)。
 5. **continuous execution**:开跑后一路做到底,**别在任务间反复问"要继续吗"**;只在 blocker(缺依赖 / 反复验证失败 / 指令不清 / 计划有洞)时停下——计划错**上报用户**、别静默绕过。
 
 ## 收尾前整支代码评审（派 `code-reviewer.md`）
@@ -44,9 +44,9 @@
 FINISH 前,对本次分支的整支改动做一道宽口径冷视角评审:
 
 - **触发与派 / 降级**:派隔离子 agent 跑 `code-reviewer.md`(按 SKILL.md「派发与降级」走),无隔离能力降级主会话自跑判据。**派 / 降级只看隔离能力,与 ④ 选的执行分支正交**——内联执行完、若有隔离能力,照样派独立 reviewer(冷视角防 per-task 漏的跨任务 / 集成问题)。
-- **取 diff**:主会话用**原生 git**(非脚本)取 `merge-base..HEAD` 的 diff,写成文件传路径给 reviewer(**禁落 `.git/`**;落**本次产物目录**、非 scratchpad / 临时区——它是评审的 provenance、随归档保留,否则归档后评审输入证据缺失、不可复现)。**BASE = 本分支起点 commit**(如 `git merge-base <主干> HEAD`;主干参照按收口分支态定、**别默认 main**;detached-HEAD / 独立子仓按下方陷阱块口径)。**未起独立分支**(用户拒隔离 / 原地执行)时,BASE = ⑤ 开跑前记录的起点 commit(取自进度账本),而非默认 `merge-base main`。
+- **取终态证据**:整支评审前须满足其一——(1) 本任务所有改动已提交、工作区无本任务未提交内容;或 (2) 生成一份**同时覆盖 committed / staged / unstaged / untracked 的完整终态证据**(§11.2)。主会话用**原生 git**(非脚本)据 **BASE = preflight 记录的 START_SHA**(§11.1,不再事后 `git merge-base` 猜起点;用户明确把分支上多笔既有提交纳入本任务时,在 preflight 选更早的显式 BASE 并记理由)取 `START_SHA..HEAD` diff + 未提交 / 未跟踪补丁,写成文件传路径给 reviewer(**禁落 `.git/`**;落本次产物目录、随归档保留)。reviewer 范围说明须列五项:START_SHA / HEAD / staged·unstaged·untracked 状态 / 终态 patch 路径 / verification-profile 结果(判据住 `code-reviewer.md`,本文不复述)。
 - **判据**:两轴(Standards + Spec)+ per-axis 结论住 `code-reviewer.md`,本文不复述。
-- **回流**:任一轴的阻断 / 须改 → 修 → 复评(复评只核上轮 delta);可改 → 记进度账本 / 收口菜单前提示。**任一轴发现一旦改了码(须改修复 / 可改采纳),归档前重取 diff 覆盖归档 patch,并逐条核 `code-review.md` 对应发现的状态对齐 diff 终态——改了的标「已核销 / 已采纳」、不留评审前残值,否则归档里 review 与代码自相矛盾。**
+- **回流与复评**:任一轴阻断 / 须改 → 修 → 复评。**复评判据**(重新生成终态快照、核销旧发现、对修复触及文件 + 邻接范围做**新缺陷扫描**、修复扩出原文件 / 改接口时**重跑两轴完整评审**、更新 code-review.md 终态)**单一权威住 [`code-reviewer.md`](code-reviewer.md)「复评」段、本文不复述**——**不得只核旧 delta 就宣布完成**(§11.3)。可改 → 记进度账本 / 收口菜单前提示。**任一轴改了码(须改修复 / 可改采纳),归档前重取终态 patch 覆盖归档、逐条核 code-review.md 状态对齐 diff 终态**——改了的标「已核销 / 已采纳」、不留评审前残值。
 
 ## 收口与归档
 
