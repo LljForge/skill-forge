@@ -1,7 +1,7 @@
 # recon-driven-dev 整改 · 进度表（跨会话续接入口）
 
 > **新会话从这里开始。** 一眼看清:整改走到哪批、下一步做什么、哪批已有 plan、哪批还等实跑。
-> 本目录:[`design.md`](design.md)(已获批设计 · 权威)· 逐批 plan([`plan.md`](plan.md)=批次 A、[`plan-B.md`](plan-B.md)=批次 B,后续批就地续写)· 本文件(进度)· [`batch-map.md`](batch-map.md)(批次×spec§×文件×回归验证×验收对照)· [`batch-A-validation.md`](batch-A-validation.md)(批次 A 实跑观测规格)。
+> 本目录:[`design.md`](design.md)(已获批设计 · 权威)· 逐批 plan([`plan.md`](plan.md)=批次 A、[`plan-B.md`](plan-B.md)=批次 B、[`plan-C.md`](plan-C.md)=批次 C,后续批就地续写)· 本文件(进度)· [`batch-map.md`](batch-map.md)(批次×spec§×文件×回归验证×验收对照)· [`batch-A-validation.md`](batch-A-validation.md)(批次 A 实跑观测规格)。
 
 ## 这是什么
 
@@ -14,7 +14,7 @@
 | **0** | 前置修订 + 工作台(调 spec + 写 plan + 建进度/对照表) | 单宿主(纯文档) | — | — | — | ✅ 完成 |
 | **A** | 工作区地基(preflight + 隔离前移 + run-state + 去硬编码) | 单宿主可验 | ✅ 见 plan.md | ✅ A1–A6 已提交 | 🟢 4/5 硬过·#4 待补样本 | 🟢 实质通过·带尾账 |
 | **B** | 阶段状态机(①封存序 + ②③闭合 + ③回流 + ④审批 + 两轮上限 + 口号改写)+ IP-R03 状态模型 | 单宿主可验 | ✅ 见 plan-B.md | ✅ B1–B7 + 收尾补强(v0.6.1) | 🟢 4/5 硬过·②未触发记尾账 | 🟢 实质通过·带尾账 |
-| **C** | 实现与验证契约(task-agent/reviewer + 三 verification-mode + 终态快照/复评 + BASE=START_SHA) | TDD/manual 单宿主;子agent 建议 Codex | ⬜ 待写 | ⬜ | ⬜ | ⬜ 未开始 |
+| **C** | 实现与验证契约(task-agent/reviewer + 三 verification-mode + 终态快照/复评 + BASE=START_SHA) | TDD/manual 单宿主;子agent 建议 Codex | ✅ 见 plan-C.md | ⬜ | ⬜ | 🟡 plan 就绪·待实施 |
 | **D** | 跨宿主契约补实(Codex 能力映射 + 文件系统降级 + 工具名→能力名全量) | **需 Codex 实跑** | ⬜ 待写 | ⬜ | ⬜ | ⬜ 未开始(前置骨架在 A 已落) |
 | **E** | 维护资产收口(README/模板/描述 + BACKLOG/EVAL/CHANGELOG + §4.3 薄账兑现 + 7 rubric) | 单宿主可验 | ⬜ 待写 | ⬜ | ⬜ | ⬜ 未开始 |
 
@@ -57,3 +57,4 @@
   - **IP-02**(中,受控回路可审计性):③受控回路只记轮次、未规定评审证据逐轮留存 → `requirements-design.md`「③结论回流处置」补「每轮评审证据逐轮留存」(评审 sub-agent 无状态只写 review.md、主会话逐轮归档 review-r<N>.md);review-agent.md 元注释加指针、run-state 模板轮次字段补对齐。
   - **IP-01**(低,文字):必覆盖清单「四要素」→「五条」(B2 加⑤核销表后计数漏改)。
   - **尾账**:②「③直通简单样本」未触发,记尾账、可与 #4「干净+简单」合并一次轻量跑补验。
+- 2026-07-14:批次 C plan 就绪(`plan-C.md`,7 任务 C1–C7)。范围 = design §9/§10/§11/§8.5(三 verification-mode + 新建 task-agent/task-reviewer + BASE=START_SHA + 完整终态快照 + 复评§11.3)。边界:**不碰** requirements-design.md(verification-mode 声明借 run-state 已有字段)/ recon-agent.md / frontmatter / Codex 映射(批次 D);IP-R02 留 BACKLOG#2;§4.3 薄账核账 + MAINTAINING 7 rubric 完整跑留批次 E。**待实施(C1–C7)+ 单宿主实跑证伪(不由改 skill 的人自验)。**
