@@ -1,7 +1,7 @@
 # recon-driven-dev 整改 · 进度表（跨会话续接入口）
 
 > **新会话从这里开始。** 一眼看清:整改走到哪批、下一步做什么、哪批已有 plan、哪批还等实跑。
-> 本目录:[`design.md`](design.md)(已获批设计 · 权威)· 逐批 plan([`plan.md`](plan.md)=批次 A、[`plan-B.md`](plan-B.md)=批次 B、[`plan-C.md`](plan-C.md)=批次 C,后续批就地续写)· 本文件(进度)· [`batch-map.md`](batch-map.md)(批次×spec§×文件×回归验证×验收对照)· [`batch-A-validation.md`](batch-A-validation.md)(批次 A 实跑观测规格)。
+> 本目录:[`design.md`](design.md)(已获批设计 · 权威)· 逐批 plan([`plan.md`](plan.md)=批次 A、[`plan-B.md`](plan-B.md)=批次 B、[`plan-C.md`](plan-C.md)=批次 C,后续批就地续写)· 本文件(进度)· [`batch-map.md`](batch-map.md)(批次×spec§×文件×回归验证×验收对照)· [`batch-A-validation.md`](batch-A-validation.md) / [`batch-B-validation.md`](batch-B-validation.md) / [`batch-C-validation.md`](batch-C-validation.md)(各批实跑观测规格 + fresh runner 启动 Prompt)。
 
 ## 这是什么
 
