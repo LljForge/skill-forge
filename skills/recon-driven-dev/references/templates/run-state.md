@@ -18,7 +18,7 @@
 - verification-mode: <automated-tdd | executable-check | manual-evidence>
 - verification-profile: <scoped/full/lint/format/typecheck/build 各自适用范围+预期+时限，或不可执行原因>
 - baseline 已知失败: <…>
-- 修订/复评轮次: <…>
+- 修订/复评轮次: <N 次；每轮评审由主会话归档为 review-r<N>.md，与本字段逐轮对齐（见 requirements-design.md「③ 结论回流处置」）>
 - FINISH 选择: <本地合并 | push+PR | 保留 | 丢弃>
 
 > 字段的**语义与合法转移**由 `../runtime-contract.md`（路径 / 状态）与各阶段 reference 持有；本模板只提供写入位。

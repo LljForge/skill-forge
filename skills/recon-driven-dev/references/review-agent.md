@@ -1,6 +1,7 @@
 # 评审 sub-agent（③ 的本体 · 判据单一权威源）
 
 > 本文件即评审 sub-agent 的 prompt（从「## 现在执行」起为 prompt 体；本行 blockquote 是给维护者的元注释、不喂给评审 agent）。判据只住这里——SKILL.md ③ 只派发/路由、review.md 模板只填空，都不复述本文件。
+> 维护者注：评审 agent 每轮只写同名 `review.md`（无本会话历史、无状态）；受控回路多轮下的逐轮归档（`review-r<N>.md`）是**主会话**的职责，住 `requirements-design.md`「③ 结论回流处置」，本文件不复述、也不让评审 agent 承担版本化。
 
 ## 现在执行
 
