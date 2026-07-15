@@ -27,7 +27,7 @@
 ⑤ 实施       两分支 gates(隔离 + TDD + per-task 评审)+ 收尾前整支评审 → 代码 + 归档 ⏸
 ```
 
-`① → ② → (③?) → ④ → ⑤` 线性主干 + 受控回路(仅 `③ → ②`、设计层修订、≤2 轮),各阶段在自己出口守住产物质量;**事实订正**是另一条跨全程例外(见 SKILL.md 全局护栏)。
+`① → ② → (③?) → ④ → ⑤` 线性不回流,各阶段在自己出口守住产物质量;**事实订正**是唯一例外(见 SKILL.md 全局护栏)。
 
 ---
 
@@ -42,7 +42,6 @@ recon-driven-dev/
 ├── EVAL-COVERAGE.md            # 覆盖账本(32 路径单元 × 触发态 · 运行时不读)
 ├── CHANGELOG.md                # 变更日志
 └── references/
-    ├── runtime-contract.md     # preflight 能力握手 + 路径事实 + 隔离/dirty 归属(起步常载)
     ├── directed-analysis.md    # ① 细则(派发路由 + 主会话实测门 + 封存边界)
     ├── recon-agent.md          # ① 定向侦查 sub-agent 本体(四样契约单一权威)
     ├── requirements-design.md  # ② 细则(对话契约 + 必覆盖清单 + 评审决策点判据)
@@ -53,8 +52,7 @@ recon-driven-dev/
     └── templates/
         ├── requirements.md     # ② 业务需求模板
         ├── review.md           # ③ 评审模板(纯填空,判据归 review-agent.md)
-        ├── code-review.md      # ⑤ 整支评审模板(纯填空,两轴 per-axis,判据归 code-reviewer.md)
-        └── run-state.md        # per-change 运行状态(preflight 建、随归档清)
+        └── code-review.md      # ⑤ 整支评审模板(纯填空,两轴 per-axis,判据归 code-reviewer.md)
 ```
 
 每个判据/清单只有一个家(单一权威源);SKILL.md 与模板**只路由不复述**。
@@ -65,7 +63,7 @@ recon-driven-dev/
 
 ## 如何开始(直接复制 Prompt)
 
-前提:recon-driven-dev 已按你宿主的 skill 装载方式装好(任何项目的会话都能调用)。实测打磨分两个会话,各复制对应 Prompt、填好 `<…>` 即可——判据细则在 `MAINTAINING.md`「实测打磨协议」节,Prompt 只负责启动、不重述。
+前提:recon-driven-dev 已装到 `~/.claude/skills/`(任何项目的会话都能调用)。实测打磨分两个会话,各复制对应 Prompt、填好 `<…>` 即可——判据细则在 `MAINTAINING.md`「实测打磨协议」节,Prompt 只负责启动、不重述。
 
 **① 实测会话**(在你要做开发的那个项目里开):
 
@@ -77,7 +75,7 @@ recon-driven-dev/
 docs/recon-driven-dev-eval/<今天日期>-<任务短名>/。这一会话只跑、不要顺手改
 skill 本身;结束时把改进点清单路径告诉我。
 
-Skill 位置:`skills/recon-driven-dev`(本仓已毕业,不再在 incubating/)
+Skill 位置:`/Users/lilongjian/Projects/AI/skill-forge/incubating/recon-driven-dev`
 
 开发任务:<在这里写你这次要做什么>
 ```
