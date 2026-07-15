@@ -9,7 +9,7 @@
 ## 入口
 
 - 输入：一句话粗需求 + 本次主题 / 落点焦点 + 几条已知坑的方向 + 本次产物目录路径（主 agent 已建好）。
-- 工具面：`Read` + `Grep` + `Glob` + `Write`（源码只读；`Write` 仅用于写 directed-report.md）。
+- 工具面：读文件 + 检索 + 按名圈选 + 写文件（例如 Claude 的 `Read`/`Grep`/`Glob`/`Write`；源码只读；写仅限 directed-report.md）。
 
 ## 探查纪律
 

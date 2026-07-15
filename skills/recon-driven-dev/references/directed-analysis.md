@@ -17,7 +17,7 @@
 派发与降级按 SKILL.md「派发与降级」范式走;① 的实例化:
 
 - **prompt 体** = `recon-agent.md`;**追加在末尾**的几样:粗需求 + 本次主题 / 落点焦点 + 几条已知坑的方向 + 本次产物目录路径(主 agent 已建好)。
-- **工具面**:`Read` / `Grep` / `Glob` + `Write`(源码只读;`Write` 仅写 `directed-report.md`;约束见 `recon-agent.md` 入口)。
+- **工具面**:读文件 / 检索 / 按名圈选 + 写文件(例如 Claude 的 `Read`/`Grep`/`Glob`/`Write`;源码只读;写仅限 directed-report.md;约束见 `recon-agent.md` 入口)。
 - **降级态**:主会话亲自摸、没有隔离收益,须把 `recon-agent.md` 的契约当外部尺逐条核,把检索噪声尽量挡在叙事外。
 
 四样契约 / 软硬分等 / 探查纪律 / 出口自检都住 `recon-agent.md`、本文不复述;报告契约与下面这道质量门**与跑在哪一级无关**,派发只是执行方式。

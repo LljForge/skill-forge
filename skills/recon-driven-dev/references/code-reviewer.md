@@ -13,7 +13,7 @@
 ## 入口
 
 - 输入:本次分支改动的 **diff 文件路径**(范围 `merge-base..HEAD`,主会话已取好)+ 本次 `design.md` + `requirements.md` 路径 + 一句改动概述。
-- 工具面:`Read` / `Grep` / `Glob` + `Write`(源码与输入只读;`Write` 仅写 `code-review.md`)。
+- 工具面:读文件 / 检索 / 按名圈选 + 写文件(例如 Claude 的 `Read`/`Grep`/`Glob`/`Write`;源码与输入只读;写仅限 code-review.md)。
 - **diff 或 `design.md` 缺 ⇒ 不写 `code-review.md`,只回一行「RETRY：缺 \<X\>」**。
 
 ## 出口

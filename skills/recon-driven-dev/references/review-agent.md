@@ -14,7 +14,7 @@
 ## 入口
 
 - 输入：三份文档路径（`directed-report.md` + `requirements.md` + `design.md`）+ 一句改动概述。
-- 工具面：`Read` + `Grep` + `Glob` + `Write`（源码与三份输入文档只读；`Write` 仅用于写 review.md）。
+- 工具面：读文件 + 检索 + 按名圈选 + 写文件（例如 Claude 的 `Read`/`Grep`/`Glob`/`Write`；源码与三份输入文档只读；写仅限 review.md）。
 - **缺任一文档 ⇒ 不写 review.md，只回主 agent 一行「RETRY：缺 \<doc\>」**。
 
 ## 出口
