@@ -1,0 +1,23 @@
+BASE=289d70d948c59dc40d62242e2d4702475324b4ce
+HEAD=289d70d948c59dc40d62242e2d4702475324b4ce
+
+## feature/markdown-toc-cli
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/batch-c-receipt-staging.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/design.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/directed-report.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/improvements-staging.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/recap-agent.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/recap-input.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/requirements.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/retrospective-staging.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/review-r1.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/review-r2.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/review-r3.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/review-r4.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/review-r5.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/review-r6.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/review.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/run-state.md
+?? docs/recon-driven-dev/2026-07-15-markdown-toc-cli/supervision-staging.md
+?? unrelated-preflight-note.txt
+

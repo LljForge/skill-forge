@@ -13,8 +13,8 @@
 |---|---|---|---|---|---|---|
 | **0** | 前置修订 + 工作台(调 spec + 写 plan + 建进度/对照表) | 单宿主(纯文档) | — | — | — | ✅ 完成 |
 | **A** | 工作区地基(preflight + 隔离前移 + run-state + 去硬编码) | 单宿主可验 | ✅ 见 plan.md | ✅ A1–A6 已提交 | 🟢 4/5 硬过·#4 待补样本 | 🟢 实质通过·带尾账 |
-| **B** | 阶段状态机(①封存序 + ②③闭合 + ③回流 + ④审批 + 两轮上限 + 口号改写)+ IP-R03 状态模型 | 单宿主可验 | ✅ 见 plan-B.md | ✅ B1–B7 + 收尾补强(v0.6.1) | 🟢 4/5 硬过·②未触发记尾账 | 🟢 实质通过·带尾账 |
-| **C** | 实现与验证契约(task-agent/reviewer + 三 verification-mode + 终态快照/复评 + BASE=START_SHA) | TDD/manual 单宿主;子agent 建议 Codex | ✅ 见 plan-C.md | ✅ C1–C7 已提交(v0.7.0) | ⬜ 待 fresh runner 实跑 | 🟢 代码就绪·待实跑 |
+| **B** | 阶段状态机(①封存序 + ②③闭合 + ③回流 + ④审批 + 两轮上限 + 口号改写)+ IP-R03 状态模型 | 单宿主可验 | ✅ 见 plan-B.md | ✅ B1–B7 + 收尾(v0.6.1)+ ③复评收口(v0.7.1) | 🔶 ③受控回路经 markdown-toc 实跑证伪(6轮不收敛)→ 已补收口、待重验 | 🔧 补收口·待重新实跑 |
+| **C** | 实现与验证契约(task-agent/reviewer + 三 verification-mode + 终态快照/复评 + BASE=START_SHA) | TDD/manual 单宿主;子agent 建议 Codex | ✅ 见 plan-C.md | ✅ C1–C7 已提交(v0.7.0) | ⬜ markdown-toc 实跑卡③未进⑤·五条全未触发(未证实/未证伪) | 🟡 代码就绪·待与 B 修项合并重跑 |
 | **D** | 跨宿主契约补实(Codex 能力映射 + 文件系统降级 + 工具名→能力名全量) | **需 Codex 实跑** | ⬜ 待写 | ⬜ | ⬜ | ⬜ 未开始(前置骨架在 A 已落) |
 | **E** | 维护资产收口(README/模板/描述 + BACKLOG/EVAL/CHANGELOG + §4.3 薄账兑现 + 7 rubric) | 单宿主可验 | ⬜ 待写 | ⬜ | ⬜ | ⬜ 未开始 |
 
@@ -22,13 +22,13 @@
 
 ## 下一步（续接指令）
 
-**当前:** 批次 C 代码落地(C1–C7 逐任务提交,CHANGELOG v0.7.0)——三 verification-mode + 新建 task-agent/task-reviewer + BASE=START_SHA + 完整终态快照 + 复评§11.3;全批终核过(三模式表单一权威、merge-base 整支口径零残留)。批次 B 实跑证伪**已实质通过**(fresh runner,preserve-login-source-account,trace: [`docs/recon-driven-dev-eval/2026-07-14-batchB-preserve-login-source-account/`](../../recon-driven-dev-eval/2026-07-14-batchB-preserve-login-source-account/);详见变更记录 2026-07-14)。
+**当前:** 批次 C 代码落地(v0.7.0)后交 fresh runner 实跑(Codex,任务 markdown-toc)——**卡在 ③、六轮 fresh 复评不收敛后用户终止,未进 ⑤**;批次 C 五条**全未触发**(HEAD=START_SHA、无实现/失败测试/task-agent/reviewer/manual evidence/整支 code-reviewer,代码既未证实也未证伪、**验证债仍在**)。该实跑意外**证伪批次 B 的 ③ 受控回路**(每轮 fresh 全量重判无界外扩、两轮上限后「继续修」无口径),已就地补收口(CHANGELOG v0.7.1):review-agent 加发现分层 L1/L2、③ 复评有界口径(fresh 全量+分层+主会话核销 review-r<N-1>)、逐轮连输入快照、继续修先冻 scope。**根因:非批次 C 引入,是批次 B ③ 受控回路三个未收口分支 + 既有 review-agent 无分层被高边界任务逼出**(详见变更记录 2026-07-15)。
 
 **尾账(不阻塞往下):**
 1. **②「③直通简单样本」未触发**(批次 B)+ 批次 A 遗留 **#4「干净+简单」样本** → **合并成一次轻量跑**补验(host 无关,Claude Code 自跑即可)。
 2. **IP-R01 / IP-R02**(批次 A 复盘挖出、非本批回归)仍挂 BACKLOG#5 / #2 打磨轨,不阻塞。
 
-**下一动作:** 做**批次 C 单宿主实跑证伪**——交 **fresh runner** 拿一个**多任务 / 含验证降级(无 runner 逼出 manual-evidence)**的真实任务跑五阶段,验 [`batch-map.md`](batch-map.md) 批次 C ⚠️ 五条:①老 TDD 未坏 / ②BASE 正面回归(**故意留 untracked 新文件**验证没漏)/ ③三模式各自闭合 / ④per-task 评审真在跑 / ⑤复评不走过场。**子 agent 执行 + 终态覆盖建议 Codex 跑(与批次 D 合并);TDD/manual 路径 Claude Code 可验**。监督笔记落 `docs/recon-driven-dev-eval/<date>-batchC-<task>/`、路径回填本表。**不该由改 skill 的人自验。发现退化 → 只回退批次 C。**
+**下一动作:** 新开一个**低边界密度**开发任务(markdown-toc 跨 Unicode/打包/预览器、边界密度太高是放大器,换个收敛的),交 **fresh runner** 一次实跑,**合并验批次 C 五条 + 批次 B 补收口项**:批次 C ⚠️ 五条(①老 TDD 未坏 / ②BASE 正面回归·**留 untracked** / ③三模式闭合 / ④per-task 评审真跑 / ⑤复评不走过场)+ 批次 B 收口项(③ 复评有界·不再全量重判 / 发现分层·L2 不当阻断 / 继续修·冻 scope / 逐轮输入快照成对)。**子 agent 执行 + 终态覆盖建议 Codex 跑(与批次 D 合并);TDD/manual 路径 Claude Code 可验**。落 `docs/recon-driven-dev-eval/<date>-batchC-<task>/`、路径回填本表。**不由改 skill 的人自验;C 退化 → 回退批次 C,B 收口无效 → 回退 v0.7.1。**
 
 **再往后:** 批次 C 实跑证伪通过 → **批次 D**(跨宿主契约补实,**需真实 Codex trace**)→ 批次 E(维护资产收口 + §4.3 薄账核账 + MAINTAINING 7 rubric)。**不要提前把 D/E plan 写死**——每批等前一批实跑反馈(design §13)。
 
@@ -60,3 +60,4 @@
 - 2026-07-14:批次 C plan 就绪(`plan-C.md`,7 任务 C1–C7)。范围 = design §9/§10/§11/§8.5(三 verification-mode + 新建 task-agent/task-reviewer + BASE=START_SHA + 完整终态快照 + 复评§11.3)。边界:**不碰** requirements-design.md(verification-mode 声明借 run-state 已有字段)/ recon-agent.md / frontmatter / Codex 映射(批次 D);IP-R02 留 BACKLOG#2;§4.3 薄账核账 + MAINTAINING 7 rubric 完整跑留批次 E。**待实施(C1–C7)+ 单宿主实跑证伪(不由改 skill 的人自验)。**
 - 2026-07-14:批次 C 代码落地(C1–C7 逐任务提交,CHANGELOG v0.7.0)。三 verification-mode 执行契约(implementation.md 验证契约段 + 闸3)/ 新建 `task-agent.md`(实现契约:入口7出口6不自宣通过)+ `task-reviewer.md`(per-task 两轴 Spec+Quality、严重度三档、两轮上限、内联非独立评审)/ code-reviewer.md 升级(BASE=START_SHA + 完整终态快照 committed·staged·unstaged·untracked + 凭 profile 证据跳机器覆盖项 + 复评§11.3 核旧+新扫描+扩出重跑)/ implementation.md 闸4 改路由 + 收尾接契约 / 脊柱+模板同步。**全批终核过**(三模式表仅 implementation.md、merge-base 整支口径零残留)。执行中修 1 处 plan old_string 空格误差(SKILL.md「per-task 两阶段评审」)。**待 fresh runner 单宿主实跑证伪(多任务/含验证降级;子 agent+终态覆盖建议 Codex 与批次 D 合并;不由改 skill 的人自验)。**
 - 2026-07-14:批次 C **落地自审补强**(CHANGELOG v0.7.0 并入)。自审代码终态挖出 4 处改动引入的收尾问题,就地补:**P1**(implementation.md:3 per-task 判据归属元注释与闸4「判据住 task-reviewer」矛盾 → 订正为判据住 task-reviewer/task-agent、本文只路由)、**P2**(§9.1 verification-mode 声明义务②端悬空 → requirements-design.md 必覆盖清单④显式声明 mode 三选一+写 run-state,**修正 plan 原「不碰 requirements-design.md」边界**:mode 契约天然跨 ②⑤)、**P3**(收尾 BASE 指路句「别默认 main」→「已钉 START_SHA」)、**P4**(C1 插入验证契约段致红旗块行号漂移、requirements-design.md:57 硬引用 implementation.md:59 失效 → 去行号)。单一权威未破(三模式规则表仍仅 implementation.md)。
+- 2026-07-15:批次 C 单宿主实跑(fresh runner,Codex,任务 markdown-toc,trace `docs/recon-driven-dev-eval/2026-07-14-batchC-markdown-toc/`)**卡在 ③、六轮 fresh 复评不收敛后用户终止,未进 ⑤**。判定:**批次 C 五条全「未触发」**(HEAD=START_SHA、无实现/失败测试/task-agent/reviewer/manual evidence/整支 code-reviewer)——批次 C 代码**既未证实也未证伪、验证债仍在**。该实跑意外**证伪批次 B 的 ③ 受控回路**:每轮 fresh 全量重判持续外扩「合理但没写死」的新边界(slug 碰撞 / 标签转义 / 围栏语法 / 跳级缩进,均真 bug),两轮上限拦住却在用户选「继续修」后无口径、退回无界全量。**根因判定:非批次 C 引入**——批次 B 建 ③ 受控回路时三个未收口分支(继续修无口径 / 逐轮只冻结论不冻输入 = IP-02 补得不全 / ③ 复评无有界口径)+ 既有 review-agent 无发现分层,被高边界任务逼出(批次 B 上次 preserve-login 只 2 轮收敛、走正常路径没碰到)。就地补收口(CHANGELOG v0.7.1,commit 4ac9964):review-agent 加 L1/L2 分层 + ⑤「只剩可改」改判通过;requirements-design 新增 ③ 复评有界口径(fresh 全量 + 分层 + 主会话核销 review-r<N-1>)+ 逐轮连输入快照 + 继续修先冻 scope;run-state 模板补输入快照义务。**批次 B ✅→🔧 补收口·待重验;批次 B 修项 + 批次 C 五条待新开低边界任务合并实跑证伪**(markdown-toc 跨 Unicode/打包/预览器边界密度过高是放大器,换收敛任务)。同现 🔶D-gap(空目录 preflight 初始化 + Codex 子 agent 产物同步无指引)→ 批次 D 输入。trace 入库随本条提交。
