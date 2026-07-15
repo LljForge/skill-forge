@@ -79,14 +79,19 @@ per-change 状态机、per-task 双 agent、证据链契约等一大堆架构件
    这对 Claude 零回归(Claude 的 Task 本就冷启动),只补上「默认继承型引擎」的必要动作。
 
 2. **去路径硬编码**(机制:**主 agent 派发时以绝对路径追加模板位置**——主 agent 知道
-   skill 根、本就在派发处追加本次路径,顺带追加模板绝对路径):
-   - `review-agent.md:22` / `code-reviewer.md:21`:把 `~/.claude/skills/...` 换成
-     「模板在本 skill `references/templates/xxx.md`;**由主 agent 派发时以绝对路径追加**」。
-   - `templates/review.md:4` / `code-review.md:4`:反向引用改为相对表达
-     (「判据见本 skill `references/xxx.md`」,不写实安装路径)。
-   - `README.md:66`:安装前提改「装到**宿主的** skill 目录」。
+   skill 根、本就在派发处追加本次路径,顺带追加模板绝对路径)。逐处最终成文:
 
-   此项与 3a 同处收口——都是「主 agent 派发时传什么」。
+   | 处 | 文件:行 | before → after |
+   |---|---|---|
+   | ① | `review-agent.md:22` | `模板:~/.claude/skills/.../templates/review.md` → `模板:本 skill 的 references/templates/review.md，其绝对路径由主 agent 在派发材料末尾给出` |
+   | ② | `code-reviewer.md:21` | `模板:~/.claude/skills/.../templates/code-review.md` → `模板:本 skill 的 references/templates/code-review.md，其绝对路径由主 agent 在派发材料末尾给出` |
+   | ③ | `templates/review.md:4` | `判据…见 ~/.claude/skills/.../review-agent.md` → `判据与结论档位见本 skill 的 references/review-agent.md（即派发你的那份评审 prompt）` |
+   | ④ | `templates/code-review.md:4` | `两轴判据…见 ~/.claude/skills/.../code-reviewer.md` → `两轴判据与档位见本 skill 的 references/code-reviewer.md（即派发你的那份评审 prompt）` |
+   | ⑤ | `README.md:66` | `前提:已装到 ~/.claude/skills/` → `前提:已装到宿主的 skill 目录(Claude Code 默认 ~/.claude/skills/;其它宿主按其约定),任何项目的会话都能调用` |
+
+   **配套(机制的另一半)**:`SKILL.md:38` 派发段兑现「绝对路径由主 agent 给出」的承诺——
+   「把本次的路径与上下文追加在末尾」→「把本次的路径与上下文**(含子 agent 要读的模板绝对路径)**
+   追加在末尾」。此项与 3a 同处收口——都是「主 agent 派发时传什么」。
 
 ### 批次2 · 🟡
 
