@@ -63,7 +63,7 @@ recon-driven-dev/
 
 ## 如何开始(直接复制 Prompt)
 
-前提:recon-driven-dev 已装到 `~/.claude/skills/`(任何项目的会话都能调用)。实测打磨分两个会话,各复制对应 Prompt、填好 `<…>` 即可——判据细则在 `MAINTAINING.md`「实测打磨协议」节,Prompt 只负责启动、不重述。
+前提:recon-driven-dev 已装到宿主的 skill 目录(Claude Code 默认 `~/.claude/skills/`;其它宿主按其约定),任何项目的会话都能调用。实测打磨分两个会话,各复制对应 Prompt、填好 `<…>` 即可——判据细则在 `MAINTAINING.md`「实测打磨协议」节,Prompt 只负责启动、不重述。
 
 **① 实测会话**(在你要做开发的那个项目里开):
 

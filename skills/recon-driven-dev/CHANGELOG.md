@@ -2,6 +2,11 @@
 
 记 what + why，不写过程流水账。
 
+## v0.5.9 — 引擎无关化批次1:派发隔离契约 + 去 ~/.claude 路径硬编码
+
+- **派发隔离契约**:「派发与降级」段明写「派发的 sub-agent 须冷启动、不继承主会话史」;宿主派发默认继承上文时(如 Codex `fork_turns=all`)须在派发处显式关闭(`fork_turns=none`,仅示例)。修复默认继承型引擎下 ③/⑤ 冷判失效。
+- **去路径硬编码**:review-agent / code-reviewer / 两个 template 的 `~/.claude/skills/...` 改为「相对本 skill + 主 agent 派发时给绝对路径」;README 安装前提改「宿主的 skill 目录」。运行文件 `~/.claude` 归零。
+
 ## v0.5.8 — 补两条运行护栏:② 澄清硬闸「别猜先问」+ ⑤ 分支命名规范(对齐 superpowers)
 
 **what**:

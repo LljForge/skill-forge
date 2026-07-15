@@ -19,7 +19,7 @@
 
 ## 出口
 
-- 写 `review.md`，落三份输入文档的同目录（模板：`~/.claude/skills/recon-driven-dev/references/templates/review.md`；四块判据结论 + 逐条发现 + 三档总体结论 + 修订清单）。
+- 写 `review.md`，落三份输入文档的同目录（模板：本 skill 的 references/templates/review.md，其绝对路径由主 agent 在派发材料末尾给出；四块判据结论 + 逐条发现 + 三档总体结论 + 修订清单）。
 - 回主 agent **一段简短结论**（三档 + 修订项逐行），不回灌完整推理。返回的是 review.md 的摘要，非第二次判断。
 
 ## 判据
