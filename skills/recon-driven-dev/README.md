@@ -75,7 +75,7 @@ recon-driven-dev/
 docs/recon-driven-dev-eval/<今天日期>-<任务短名>/。这一会话只跑、不要顺手改
 skill 本身;结束时把改进点清单路径告诉我。
 
-Skill 位置:`/Users/lilongjian/Projects/AI/skill-forge/incubating/recon-driven-dev`
+Skill 位置:`/Users/lilongjian/Projects/AI/skill-forge/skills/recon-driven-dev`
 
 开发任务:<在这里写你这次要做什么>
 ```
