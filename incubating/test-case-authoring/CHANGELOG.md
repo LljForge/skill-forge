@@ -11,7 +11,7 @@
 **纪律层与维度表均未在正向场景验证。**
 
 - **纪律层**（三铁律 + 出口三门）：零真实任务验证，是设计推演的产物。
-- **维度表 D1–D6**：拄自 `module-spec-baseline/references/behavior-dimensions.md`。该表有真实来历（生自 GitNexus 对照复盘 + 5 模块实测，`782a7ec` 的 "redo" 印证了回退重做），**但**：① 其 `evals/` 是空目录、复盘产物已在 `eb475fa` 清除，实测结论无法独立复核；② 它验证的是**逆向 as-built** 场景，本 skill 是**正向**——这 6 条在正向下够不够、准不准，**均未验证**。
+- **维度表 D1–D6**：拄自 `incubating/module-spec-baseline/references/behavior-dimensions.md`。该表有真实来历（生自 GitNexus 对照复盘 + 5 模块实测，`782a7ec` 的 "redo" 印证了回退重做），**但**：① 其 `evals/` 是空目录、复盘产物已在 `eb475fa` 清除，实测结论无法独立复核；② 它验证的是**逆向 as-built** 场景，本 skill 是**正向**——这 6 条在正向下够不够、准不准，**均未验证**。
 
 **第一版不建 evals**，直接拿真实后端接口开发任务跑。理由：纪律层零验证时，先撞真实任务比先造 eval 架子有信息量；反面教材就在隔壁（`module-spec-baseline/evals/` 是从无提交的空目录）。
 
