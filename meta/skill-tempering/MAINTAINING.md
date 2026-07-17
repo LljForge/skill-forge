@@ -25,8 +25,10 @@
 
 ### provenance 归处
 
-- **理论骨与先例出处只在 [theory-foundation.md](theory-foundation.md)**。principles.md 的 #1–#7、derivation-protocol.md 的"点名见"都**反向指**到它，不在本体内嵌出处。
-- 改本 skill 时新引一条理论 / 先例：写进 theory-foundation.md（含 URL 核实留痕），别把出处散落进可执行的脊柱或工序里。
+- **理论骨与先例出处只在 [theory-foundation.md](theory-foundation.md)**——它住 `meta/`、不随安装分发。
+- **出处不出厂**（2026-07-17 起）：`skills/` 侧只留那条理论**已嚼碎的一句结论**（inline 写死），**不留任何指回 theory-foundation.md 的指针**——那边会被分发，指了就是指向使用者拿不到的文件（破 #7）。两侧靠 `#1`–`#7` / 「先例 ①–⑥」**编号人工对位**，无机械关联。
+- 改本 skill 时新引一条理论 / 先例：出处写进 theory-foundation.md（含 URL 核实留痕）、结论嚼碎后 inline 进用它的那个文件；别把出处散落进可执行的脊柱或工序里。
+- **改任一侧必手动核另一侧**：动 theory-foundation 的编号 / 结论，或动 principles.md 某条理论骨——没有链接会替你发现漂移，自己走一遍编号。
 
 ### 结晶闸（新条件纪律进种子库前的治理动作）
 
