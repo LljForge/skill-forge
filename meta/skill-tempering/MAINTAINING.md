@@ -1,6 +1,6 @@
 # skill-tempering 维护宪法
 
-> **改本 skill 自己**（SKILL.md / references / theory-foundation / 本文件）时读这份；**不随运行载入**——跑两路径优化别人 skill 的 AI 不需要这些治理规则，故不进 SKILL.md 脊柱。运行护栏（反"过度报缺口"刹车 / 三态分级 / 部分符合声明等）在 [SKILL.md](SKILL.md) 与 [references/](references/) 各自的家。
+> **改本 skill 自己**（SKILL.md / references / theory-foundation / 本文件）时读这份；**不随运行载入**——跑两路径优化别人 skill 的 AI 不需要这些治理规则，故不进 SKILL.md 脊柱。运行护栏（反"过度报缺口"刹车 / 三态分级 / 部分符合声明等）在 [SKILL.md](../../skills/skill-tempering/SKILL.md) 与 [references/](../../skills/skill-tempering/references/) 各自的家。
 >
 > 本文件是**治理宪法 + 搁置项登记**，**不复述** principles / derivation-protocol / theory-foundation 的任何内容——一律指针指向。出现复述即破坏单一权威源（本 skill 的第 #5 核），是缺陷。
 
@@ -17,10 +17,10 @@
 每类内容只有一个权威家，其余文件**只指针、不复述**（复述＝第二权威源、会漂移）：
 
 - **理论骨 / 先例出处** → 只在 [theory-foundation.md](theory-foundation.md)。
-- **7 条机制层判据（原则 + 触发 + 审计问句 + 强制力档默认）** → 只在 [references/principles.md](references/principles.md)。
-- **派生工序（嗅探 / 失败形态 / 条件纪律种子库 / critic / 证据来源二分 / 结晶治理 / 盲区声明 / 三分诊归因闸）** → 只在 [references/derivation-protocol.md](references/derivation-protocol.md)。
-- **路线 A（静态审核）细则 + 改进清单 / 部分符合声明模板** → 只在 [references/audit-lens.md](references/audit-lens.md)。
-- **路线 B（消化用户实证）细则** → 只在 [references/evidence-lens.md](references/evidence-lens.md)（模板复用 audit-lens、不另造）。
+- **7 条机制层判据（原则 + 触发 + 审计问句 + 强制力档默认）** → 只在 [references/principles.md](../../skills/skill-tempering/references/principles.md)。
+- **派生工序（嗅探 / 失败形态 / 条件纪律种子库 / critic / 证据来源二分 / 结晶治理 / 盲区声明 / 三分诊归因闸）** → 只在 [references/derivation-protocol.md](../../skills/skill-tempering/references/derivation-protocol.md)。
+- **路线 A（静态审核）细则 + 改进清单 / 部分符合声明模板** → 只在 [references/audit-lens.md](../../skills/skill-tempering/references/audit-lens.md)。
+- **路线 B（消化用户实证）细则** → 只在 [references/evidence-lens.md](../../skills/skill-tempering/references/evidence-lens.md)（模板复用 audit-lens、不另造）。
 - SKILL.md 脊柱与本文件**只路由、不列举要素**——动了某判据的家，按名引用它的地方同步改、别漏。
 
 ### provenance 归处
@@ -30,7 +30,7 @@
 
 ### 结晶闸（新条件纪律进种子库前的治理动作）
 
-当场派生的新维度沉回 derivation 种子库前，**默认 `pending` + 留痕 + 复核**。**这道闸的判据全文在 [references/derivation-protocol.md §⑤](references/derivation-protocol.md)，本文件不复述。** 这里只规定**改 skill 自己时该怎么执行这道闸**：
+当场派生的新维度沉回 derivation 种子库前，**默认 `pending` + 留痕 + 复核**。**这道闸的判据全文在 [references/derivation-protocol.md §⑤](../../skills/skill-tempering/references/derivation-protocol.md)，本文件不复述。** 这里只规定**改 skill 自己时该怎么执行这道闸**：
 
 - 任何想把"某次派生的新维度"提为种子库常驻默认的改动，**必须经过 §⑤ 三件套**（pending 入库 → 留痕来源 → 裁判复核放行），**禁止在 commit 里把 `pending` 直接改成默认纪律而不留复核痕**。
 - 复核裁判须**不是当场派生它的同一判断者**（守 #1 产出 ≠ 裁判）；单人维护场景下的最低落地（异步 fresh-eyes 自审 + 留痕是否足够）仍是开放问题，见下「搁置项 ②.3」。
