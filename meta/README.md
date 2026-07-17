@@ -65,4 +65,4 @@ done
 | codex-batch | `incubating/` | MAINTAINING（**毕业闸：跨 skill 委托破 #7，必须先解**） |
 | codex-code-review | `incubating/` | BACKLOG |
 | module-spec-baseline | `incubating/` | CHANGELOG |
-| test-case-authoring | `incubating/` | CHANGELOG |
+| test-case-design | `incubating/` | CHANGELOG |

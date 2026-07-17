@@ -1,6 +1,21 @@
-# CHANGELOG — test-case-authoring
+# CHANGELOG — test-case-design
 
 > 正文（SKILL.md / references）只写当下规则；版本演进、为什么这么改记在这。
+
+## v0.1.1 — 重命名 + description 纠偏
+
+**`test-case-authoring` → `test-case-design`**。「测试用例设计」是行业标准说法；`references/backend-api.md` §1 的等价类划分 + 边界值分析，在教科书里本就归在「用例设计方法」名下。
+
+**description 两处失真，一并修正**：
+
+1. 原写「**显式调用，不自动触发**」——照抄了 `codex-task` / `skill-tempering` 的模式，但没检查前提。那两个是重型委托 / 重型 meta 动作，误触发代价高；写测试用例不是这类，用户说「给这个接口写测试用例」它就该触发。已改为主动触发。
+2. 原写「**第一版仅后端接口，前端 E2E 不在范围**」——把**进度**写进了**触发面**。description 该写职责边界（如 `codebase-exploration` 的「全局结构 vs 单模块精读」），那是永久的；「仅后端」下个版本就假了，且主动拒绝了既定的后续方向（E2E）。现 description 只描述职责；范围降为正文里的行为指令——遇 E2E 任务，纪律层照常适用，如实告知领域维度未覆盖，不拿后端 6 条硬套。
+
+保留的职责边界：**产「测什么」的规范，不产可跑的测试代码**。这条不随版本变，也是本 skill 区别于测试代码生成器的地方。
+
+**v0.1.0 的设计文档与实施计划仍在旧名下**，未改：`docs/superpowers/specs/2026-07-17-test-case-authoring-design.md`、`docs/superpowers/plans/2026-07-17-test-case-authoring.md`。它们是那天的历史快照，不是活规范——改名不该回头篡改「当时做了什么」。下方 v0.1.0 记的也是当时的账，同样保留原样。
+
+**行为验证状态未变**：仍是零真实任务验证。改名不产生任何实证。
 
 ## v0.1.0 — 首版（孵化）
 
