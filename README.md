@@ -24,7 +24,7 @@ skill-forge/
 
 `npx skills` 只发现 `skills/` 下的 skill（向下走一层找 `skills/<名>/SKILL.md`）。**放进 `skills/` 就等于发布**——没有别的开关。
 
-当前已发布：`codebase-exploration` · `recon-driven-dev` · `skill-tempering` · `module-brief` · `codex-batch` · `codex-task`
+当前已发布：`codebase-exploration` · `recon-driven-dev` · `skill-tempering` · `module-brief` · `codex-task`
 
 ### `incubating/` = 孵化 + 毕业闸
 
@@ -38,7 +38,7 @@ skill-forge/
 
 代价是清醒的：**skill 目录里不得以任何形态引用 `meta/`**——链接会 404，裸文本路径更阴险（不报错，只是安静地指向使用者永远拿不到的文件）。出厂的 skill 必须 100% 自包含。
 
-约定权威在 [`meta/README.md`](meta/README.md)——含指针纪律（两个方向不对称）、扁平结构的理由、新 skill 怎么建账。
+约定权威在 [`meta/README.md`](meta/README.md)——含指针纪律（单向，只许 `meta/` → `skills/`）、扁平结构的理由、新 skill 怎么建账。
 
 > **改任何 skill 之前先读它的 `meta/<名>/`。** skill 目录里没有线索会告诉你那里存在，这一步靠纪律、不靠发现。
 

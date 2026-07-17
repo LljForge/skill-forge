@@ -48,7 +48,7 @@ done
 
 ## 新增一个 skill 的账
 
-`mkdir meta/<名>/`，按需建文件。不必凑齐五件——`skills/codex-batch`、`skills/codex-task` 至今没有账，也没问题。
+`mkdir meta/<名>/`，按需建文件。不必凑齐五件——`skills/codex-task` 至今没有账，也没问题。
 
 ## 优化某个 skill 时
 
@@ -62,6 +62,7 @@ done
 | recon-driven-dev | `skills/` | MAINTAINING（含实测打磨协议 + 启动 Prompt）· BACKLOG · EVAL-COVERAGE · CHANGELOG |
 | skill-tempering | `skills/` | MAINTAINING · theory-foundation |
 | module-brief | `skills/` | CHANGELOG |
+| codex-batch | `incubating/` | MAINTAINING（**毕业闸：跨 skill 委托破 #7，必须先解**） |
 | codex-code-review | `incubating/` | BACKLOG |
 | module-spec-baseline | `incubating/` | CHANGELOG |
 | test-case-authoring | `incubating/` | CHANGELOG |
