@@ -52,8 +52,3 @@ recon-driven-dev/
 ```
 
 每个判据/清单只有一个家(单一权威源);SKILL.md 与模板**只路由不复述**。
-
-> **维护治理资产不在本目录**——维护宪法 / 候选优化清单 / 覆盖账本 / 变更日志是**元层账**(运行时不读),住在 skill-forge 仓的 `meta/recon-driven-dev/`,**随仓、不随安装分发**。
-
-**实测打磨**(拿真实任务实测并优化本 Skill)怎么做——监督 / 分诊 / 验证 / 收敛,连同两段可直接复制的启动 Prompt——权威在 `meta/recon-driven-dev/MAINTAINING.md`「实测打磨协议」节;实测进度看同目录 `EVAL-COVERAGE.md`、搁置项看 `BACKLOG.md`。
-
