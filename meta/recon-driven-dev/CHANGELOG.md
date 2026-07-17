@@ -246,7 +246,7 @@
 
 **诚实定性**：**结构重构 + 能力吸收**,非能力跃升或定量提升；不跑 benchmark。
 
-**设计与计划溯源**：全程经 `superpowers:brainstorming` → `writing-plans`,设计稿 [`docs/superpowers/specs/2026-06-22-recon-driven-dev-inline-refactor-design.md`](../../docs/superpowers/specs/2026-06-22-recon-driven-dev-inline-refactor-design.md)（v2.2,经 4 轮对抗评审收敛）、实施计划 [`docs/superpowers/plans/2026-06-22-recon-driven-dev-inline-refactor-plan.md`](../../docs/superpowers/plans/2026-06-22-recon-driven-dev-inline-refactor-plan.md)（9 任务）。
+**设计与计划溯源**：全程经 `superpowers:brainstorming` → `writing-plans`,设计稿 `docs/superpowers/specs/2026-06-22-recon-driven-dev-inline-refactor-design.md`（v2.2,经 4 轮对抗评审收敛）、实施计划 `docs/superpowers/plans/2026-06-22-recon-driven-dev-inline-refactor-plan.md`（9 任务）。两份**已被 `eb475fa 过程产物清理` 删除**,此处保留文件名作历史留痕、不做链接（链接 404 比不给链接更糟）。
 
 ## v0.2.1 — review-agent.md 补派发祈使（防空转 · PATCH）
 

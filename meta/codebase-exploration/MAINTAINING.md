@@ -1,6 +1,6 @@
 # codebase-exploration 维护宪法
 
-> **改本 Skill 自己**(SKILL.md / references / 本套维护文档)时读这份;**运行时不载入**——出地图的 AI 不需要治理规则,故不进 SKILL.md 脊柱。运行护栏(慢变闸 / 完整性闸 §5.5.1 / §5.5 机械智能铁律 / D6 路径接地闸 / D7 scope 等)在 [SKILL.md](SKILL.md) 正文。
+> **改本 Skill 自己**(SKILL.md / references / 本套维护文档)时读这份;**运行时不载入**——出地图的 AI 不需要治理规则,故不进 SKILL.md 脊柱。运行护栏(慢变闸 / 完整性闸 §5.5.1 / §5.5 机械智能铁律 / D6 路径接地闸 / D7 scope 等)在 [SKILL.md](../../skills/codebase-exploration/SKILL.md) 正文。
 >
 > 本套机制借 recon-driven-dev 的**形式骨架**(MAINTAINING / BACKLOG / COVERAGE / README),**内容从 codebase-exploration 自身长出**——不借它的方法论(薄 / 会话分离实测 / 三分诊 / 曳光弹,那些是 recon 特有)。两 Skill 各自自包含、互不读写依赖。
 
@@ -9,7 +9,7 @@
 - **产物是项目结构地图(活文档)**,给**还不熟悉本代码库**的读者 5 分钟建立全局认知——不是给分析师的报告。
 - **慢变纪律**:只写抗重构的慢变结构;易变细节(行号 / 精确计数 / 穷举清单 / impact)落「出」栏、交后续模块级深析。
 - **读者优先**:讲业务结论、不讲分析过程;度量数字翻成读者结论。
-- 完整定义在 [SKILL.md](SKILL.md)「灵魂」节,此处只锚、不复述。
+- 完整定义在 [SKILL.md](../../skills/codebase-exploration/SKILL.md)「灵魂」节,此处只锚、不复述。
 
 ## 维护纪律
 
@@ -25,7 +25,7 @@
 - **何时必跑**:动 SKILL.md 契约段(灵魂 / 慢变闸 / 完整性闸 / §5.5 / 1.A–1.D / 产物 schema / ⑤校准 / D6 / D7)或新增散文区——必配 ≥1 跑;纯文档 / 纯增量措辞可免(CHANGELOG 注明)。
 - **结构:executor / assessor 分离**(防自评偏差)——executor 盲跑出图,独立 assessor 评分、不采信 executor 自评结论(实证:executor 自评建议曾被 assessor 用历史实证否决)。
 - **对抗式 + 回源核验**:多 lens;assessor 回源码 grep 核实(锚点路径 / scope / 依赖边 / 精确计数),不信自报。
-- **目标只从用户自有项目选**:`~/Projects/GMZB/{edoc, factoring, master-data, slp}` / `~/Projects/XMYH/flycat`(清单 + 栈 + 规模见 [`../../../../cbx-validation/targets.md`](../../../../cbx-validation/targets.md),即 `~/Projects/AI/cbx-validation/targets.md`)。**GitNexus 已弃用、不再作目标**;无 ground truth,准确度靠源码抽样回核 + 首跑当变异度基线。
+- **目标只从用户自有项目选**:`~/Projects/GMZB/{edoc, factoring, master-data, slp}` / `~/Projects/XMYH/flycat`(清单 + 栈 + 规模见 `~/Projects/AI/cbx-validation/targets.md`——**仓外**、非 git,故只给绝对路径不做链接)。**GitNexus 已弃用、不再作目标**;无 ground truth,准确度靠源码抽样回核 + 首跑当变异度基线。
 - **双目标各压一面**:一个压「暴露」(改动最易踩的形态,如扁平分层压 D6/D7)、一个压「不回归」(不同形态,如包即模块验不画蛇添足)。对正交维度,不对同质堆叠。
 - **完整图整体回归准入**(v0.12):触 schema / 新散文区的版本,至少一次出**完整 7 节图** + 全文精确计数 grep 整体回归——防局部验证累积欠账(v0.8–v0.10 只压局部、v0.11 才引爆散文区)。
 

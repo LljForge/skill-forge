@@ -37,10 +37,6 @@
 recon-driven-dev/
 ├── SKILL.md                    # 跨阶段脊柱(流程图 + 全局护栏 + ⏸ + 指针 · 权威)
 ├── README.md                   # 本文件 · 总览与导航
-├── MAINTAINING.md              # 维护宪法(改本 Skill 自己时读 · 防膨胀/单一权威源/provenance · 不随运行载入)
-├── BACKLOG.md                  # 候选优化清单(实测搁置项 · 运行时不读)
-├── EVAL-COVERAGE.md            # 覆盖账本(32 路径单元 × 触发态 · 运行时不读)
-├── CHANGELOG.md                # 变更日志
 └── references/
     ├── directed-analysis.md    # ① 细则(派发路由 + 主会话实测门 + 封存边界)
     ├── recon-agent.md          # ① 定向侦查 sub-agent 本体(四样契约单一权威)
@@ -57,38 +53,7 @@ recon-driven-dev/
 
 每个判据/清单只有一个家(单一权威源);SKILL.md 与模板**只路由不复述**。
 
-**实测打磨**(拿真实任务实测并优化本 Skill)怎么做——监督 / 分诊 / 验证 / 收敛——见 `MAINTAINING.md`「实测打磨协议」节;实测进度看 `EVAL-COVERAGE.md`、搁置项看 `BACKLOG.md`。
+> **维护治理资产不在本目录**——维护宪法 / 候选优化清单 / 覆盖账本 / 变更日志是**元层账**(运行时不读),住在 skill-forge 仓的 `meta/recon-driven-dev/`,**随仓、不随安装分发**。
 
----
+**实测打磨**(拿真实任务实测并优化本 Skill)怎么做——监督 / 分诊 / 验证 / 收敛,连同两段可直接复制的启动 Prompt——权威在 `meta/recon-driven-dev/MAINTAINING.md`「实测打磨协议」节;实测进度看同目录 `EVAL-COVERAGE.md`、搁置项看 `BACKLOG.md`。
 
-## 如何开始(直接复制 Prompt)
-
-前提:recon-driven-dev 已装到宿主的 skill 目录(Claude Code 默认 `~/.claude/skills/`;其它宿主按其约定),任何项目的会话都能调用。实测打磨分两个会话,各复制对应 Prompt、填好 `<…>` 即可——判据细则在 `MAINTAINING.md`「实测打磨协议」节,Prompt 只负责启动、不重述。
-
-**① 实测会话**(在你要做开发的那个项目里开):
-
-```text
-用 recon-driven-dev skill 跑下面这个开发任务,并读该 skill 的 MAINTAINING.md
-「实测打磨协议」、按其中「实测会话·监督协议」全程监督:每个 ⏸ 用 exception-only
-方式记监督笔记(只在卡住/指令含糊/降级没走通时记一行带现场证据),整任务跑完后
-派一个上下文隔离的复盘 sub-agent 补抓 skill 缺陷。监督笔记与改进点清单产出到
-docs/recon-driven-dev-eval/<今天日期>-<任务短名>/。这一会话只跑、不要顺手改
-skill 本身;结束时把改进点清单路径告诉我。
-
-Skill 位置:`/Users/lilongjian/Projects/AI/skill-forge/skills/recon-driven-dev`
-
-开发任务:<在这里写你这次要做什么>
-```
-
-**② 打磨会话**(在 recon-driven-dev 所在的仓里开):
-
-```text
-读 recon-driven-dev 的 MAINTAINING.md「实测打磨协议」,按其中「打磨会话:分诊 →
-处置 → 验证 → 沉淀」处理下面这份实测改进点清单:逐条三分诊(只有判为 skill 缺陷
-的才改,任务特例/模型失误不动 skill)→ 按处置门槛决定当场改还是进 BACKLOG.md →
-改完按改后验证 rubric 核 → 回填 EVAL-COVERAGE.md、采纳的沉 CHANGELOG.md。
-
-改进点清单:<贴上一步产出的 improvements.md 路径或内容>
-```
-
-> 进度看 `EVAL-COVERAGE.md`:每格至少碰一次(地板)、被碰的格连续 2 轮不出新问题(天花板)=「实测到位」。第一轮真实实跑预计先把 ~19 个主干格从 `·未触发` 推到 `✓`。

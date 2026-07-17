@@ -239,7 +239,7 @@ metadata:
 ### 校准（延续灵魂）
 
 - **约定确认不了标存疑**，绝不脑补——写进产物前必须有锚点文件支撑。
-- **锚点定位串落笔前过「路径接地闸」**：⑤ 写进产物的锚点路径（如 `security/JwtAuthFilter` / `com.x.aspect.LogAspect`）——**grep 到类名只证机制在、不证这串路径对**（同名类可能在别的包、重构后移过包）。落笔前对**整串路径**（全限定包路径 / 相对路径 + 类名）做一次 `grep`/`find` 反查、**类名∧路径同时命中**才写实；只命中类名而路径核不准 → 退回只写类名（弱锚）或标「定位存疑」。**「机制存在」与「路径属实」是两道独立闸、分别过**。**反查用绝对路径**（防工作目录在多次 Bash 调用间漂移、`find .` 给半截致假阴/假阳）；**非 Java 栈**「路径」= 文件相对路径 / 模块 import 路径（如 `@/api/fetch`），原理同。（理据见 [theory-foundation.md](theory-foundation.md) §3 D6：reflexion map 必 resolve / code-intelligence 符号必派生可核）
+- **锚点定位串落笔前过「路径接地闸」**：⑤ 写进产物的锚点路径（如 `security/JwtAuthFilter` / `com.x.aspect.LogAspect`）——**grep 到类名只证机制在、不证这串路径对**（同名类可能在别的包、重构后移过包）。落笔前对**整串路径**（全限定包路径 / 相对路径 + 类名）做一次 `grep`/`find` 反查、**类名∧路径同时命中**才写实；只命中类名而路径核不准 → 退回只写类名（弱锚）或标「定位存疑」。**「机制存在」与「路径属实」是两道独立闸、分别过**。**反查用绝对路径**（防工作目录在多次 Bash 调用间漂移、`find .` 给半截致假阴/假阳）；**非 Java 栈**「路径」= 文件相对路径 / 模块 import 路径（如 `@/api/fetch`），原理同。（理据见 meta/codebase-exploration/theory-foundation.md §3 D6：reflexion map 必 resolve / code-intelligence 符号必派生可核）
 - **判「无」与判「有」对称都要锚点 — 过完整性闸（§5.5.1）逐项核**：下「无 X」前按完整性闸正向反证；⑤ 高发的具体锚点——全局 error：Java `@ControllerAdvice`/`@ExceptionHandler`、Express 4-arg `app.use((err,req,res,next))`、FastAPI `exception_handler`；对外表面如鉴权先认全类目再枚举，免漏旁路 token 守卫这类第二表面。**命中却写「无」= 事实错误**；确空才可下「无」。
 - **写入路径必须 grep 核实**（trigger / AOP / 拦截器，呼应 v0.1.1 审计陷阱）：横切件名字有了但找不到切面定义 → 标「写入路径存疑」；勿因命名推断就当真。
 - 非 Java 栈：换该栈等价锚点 grep（如 NestJS `useGlobalGuards` / Express `app.use` / Django `MIDDLEWARE`），原理同。
@@ -282,7 +282,7 @@ metadata:
 
 **伞形包子模块标题必须带 `(<伞形包名> 子模块)` 归属标识**；独立单一模块（如 `tms` / `bfe`）标题不带括号归属。
 
-**`scope` 字段（D7 逻辑↔物理映射）**：扁平分层/造名 kebab（如 `mdm-app-cfg`）在包路径里**不字面存在**，下游想精读该模块时按 kebab grep 不到——故卡片把 1.B **已算出**的「kebab → 类名前缀/包 glob」就近输出（reflexion-style map：**代表选择器、非穷举类清单**；前缀务必 `^` 锚定起点防过匹配；**同词根多子模块（如 `^Base*` 家族）需验前缀互斥**——`^BaseBank` vs `^BaseEmployee`，别让一前缀跨吞两子模块），下游据此 grep 定位、不 grep kebab。**包即模块（kebab≈目录、独立子包）免此行**——目录即 scope、写了是画蛇添足。理据见 [theory-foundation.md](theory-foundation.md) §3 D7。
+**`scope` 字段（D7 逻辑↔物理映射）**：扁平分层/造名 kebab（如 `mdm-app-cfg`）在包路径里**不字面存在**，下游想精读该模块时按 kebab grep 不到——故卡片把 1.B **已算出**的「kebab → 类名前缀/包 glob」就近输出（reflexion-style map：**代表选择器、非穷举类清单**；前缀务必 `^` 锚定起点防过匹配；**同词根多子模块（如 `^Base*` 家族）需验前缀互斥**——`^BaseBank` vs `^BaseEmployee`，别让一前缀跨吞两子模块），下游据此 grep 定位、不 grep kebab。**包即模块（kebab≈目录、独立子包）免此行**——目录即 scope、写了是画蛇添足。理据见 meta/codebase-exploration/theory-foundation.md §3 D7。
 
 **省略**：不要塞内聚度量、被注入次数、**穷举** scope 实体/PO 列表、grep 命令、判型依据展开——这些是**分析者的工具**，不是**给读者的内容**。（省的是**穷举清单**；扁平分层模块的**代表性 scope 选择器**（类名前缀/包 glob）按上面 D7 要给、不在省略之列。）
 

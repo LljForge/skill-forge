@@ -1,6 +1,6 @@
 # codebase-exploration（代码探索 · 跨栈项目结构活地图)
 
-帮**不熟悉某个项目**的读者快速建立结构认知:有哪些模块、各自干什么、模块间怎么调、哪里有坑、从哪读起。从源码客观测绘,产出 [docs/codebase-map.md](../../docs/codebase-map.md) 一份**活地图**。
+帮**不熟悉某个项目**的读者快速建立结构认知:有哪些模块、各自干什么、模块间怎么调、哪里有坑、从哪读起。从源码客观测绘,产出 `docs/codebase-map.md` 一份**活地图**(落在**被探索的那个项目**里,不是本仓)。
 
 > 完整运行规则见 [SKILL.md](SKILL.md),本文件只做总览与导航。
 
@@ -28,18 +28,15 @@
 codebase-exploration/
 ├── SKILL.md              # 运行脊柱 + 全部能力(① 模块测绘 / ⑤ 约定横切 / 信号配方层 / 产物 schema / 自检 · 权威)
 ├── README.md             # 本文件 · 总览与导航
-├── MAINTAINING.md        # 维护宪法(改本 Skill 自己时读 · 纪律 / dogfood 协议 / 质量边界 · 不随运行载入)
-├── BACKLOG.md            # 候选优化清单(D4/D5/②④ · 待触发条件 · 运行时不读)
-├── COVERAGE.md           # dogfood 覆盖账本(项目×形态×维度 · 盲区可见 · 运行时不读)
-├── CHANGELOG.md          # 变更日志(证据先行 · 已采纳的历史)
-├── theory-foundation.md  # SAR 谱系理论底座(D4–D7+②④ 对标成熟项目 + 可借鉴范式 · 维护资产)
 └── references/
     ├── example.md             # 读者卡片完整范例(虚构 TS 项目)
     └── stack-recipes.md       # 框架约定速查表(派生种子 · 新栈结晶进此、不回灌 SKILL.md)
 ```
 
+> **维护治理资产不在本目录**——维护宪法 / 候选优化清单 / dogfood 覆盖账本 / 变更日志 / 理论底座是**元层账**(运行时不读),住在 skill-forge 仓的 `meta/codebase-exploration/`,**随仓、不随安装分发**。
+
 ## 如何开始
 
 **用它**(在你要探索的项目里):说「带我熟悉下这个项目 / 这代码库怎么分模块」即可触发;跑完产出 `docs/codebase-map.md`,从「⑤ 上手顺序」按标注逐个深入精读。
 
-**优化它**(在 skill-forge 仓):说「优化 codebase-exploration 的 X」(X = `BACKLOG.md` 某条 / 一个新痛点 / dogfood 浮出的问题)——维护流程(理论先行 → 改根因 → dogfood → 立 CHANGELOG)权威在 [MAINTAINING.md](MAINTAINING.md);开放候选看 `BACKLOG.md`、验证覆盖与盲区看 `COVERAGE.md`。
+**优化它**(在 skill-forge 仓):说「优化 codebase-exploration 的 X」(X = `BACKLOG.md` 某条 / 一个新痛点 / dogfood 浮出的问题)——维护流程(理论先行 → 改根因 → dogfood → 立 CHANGELOG)权威在 `meta/codebase-exploration/MAINTAINING.md`;开放候选看同目录 `BACKLOG.md`、验证覆盖与盲区看 `COVERAGE.md`。
