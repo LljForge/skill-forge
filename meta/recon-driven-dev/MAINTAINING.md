@@ -1,7 +1,7 @@
 # recon-driven-dev 维护宪法
 
 > **改本 Skill 自己**(SKILL.md / references / 模板 / 本流程)时读这份;改业务代码不读——那是本 Skill 去编排的事,不是改本 Skill。
-> 这里是**治理规则、不是运行护栏**:运行时跑五阶段流水线的 AI 不需要它们,故不放 SKILL.md 脊柱、不随运行载入。**运行护栏**(报告质量尺 / 回流禁 / 评审边界 / 事实订正等)在 [`SKILL.md`](SKILL.md) 的「全局护栏」。
+> 这里是**治理规则、不是运行护栏**:运行时跑五阶段流水线的 AI 不需要它们,故不放 SKILL.md 脊柱、不随运行载入。**运行护栏**(报告质量尺 / 回流禁 / 评审边界 / 事实订正等)在 [`SKILL.md`](../../skills/recon-driven-dev/SKILL.md) 的「全局护栏」。
 
 ## 守住"薄"——防膨胀
 
@@ -16,7 +16,7 @@
 
 ## 不引持久件(设计取向)
 
-- 🔁 **为什么否决项目级持久件**——读了长期文档反而引入漂移与冲突,故否决持久 `CONTEXT.md` / ADR 库、不发持久编号。(运行约束本身——「不引入跨会话持久件、进度账本随归档清」——在 [`SKILL.md`](SKILL.md) 全局护栏。)
+- 🔁 **为什么否决项目级持久件**——读了长期文档反而引入漂移与冲突,故否决持久 `CONTEXT.md` / ADR 库、不发持久编号。(运行约束本身——「不引入跨会话持久件、进度账本随归档清」——在 [`SKILL.md`](../../skills/recon-driven-dev/SKILL.md) 全局护栏。)
 
 ## 实测打磨协议(实测整个 skill 时读)
 
@@ -121,3 +121,39 @@ B. 改动本身够格(改好了没)
 ### 收敛判定
 
 地板 + 天花板(判据见上「何为实测到位」,此处不复述)皆达 → 宣布「当前版本实测到位」,转入低频维护;skill 后续大改后,受影响路径单元的「触发」重置为 `·未触发`、按本协议重测。
+
+### 启动 Prompt(直接复制)
+
+> 2026-07-17 元层分家时从 `skills/recon-driven-dev/README.md`「如何开始」节迁入——那节内容全是实测打磨(维护者的事、不是使用者入门),且原文让会话去 skill 目录读 MAINTAINING.md,分家后会直接失效。落在这里与上面各节同家:判据细则在上,Prompt 只负责启动、不重述。
+> **路径一律绝对**:实测会话在**被开发的那个项目**里开,相对路径无从解析。
+
+**① 实测会话**(在你要做开发的那个项目里开):
+
+```text
+用 recon-driven-dev skill 跑下面这个开发任务,并读
+/Users/lilongjian/Projects/AI/skill-forge/meta/recon-driven-dev/MAINTAINING.md
+「实测打磨协议」、按其中「实测会话·监督协议」全程监督:每个 ⏸ 用 exception-only
+方式记监督笔记(只在卡住/指令含糊/降级没走通时记一行带现场证据),整任务跑完后
+派一个上下文隔离的复盘 sub-agent 补抓 skill 缺陷。监督笔记与改进点清单产出到
+docs/recon-driven-dev-eval/<今天日期>-<任务短名>/。这一会话只跑、不要顺手改
+skill 本身;结束时把改进点清单路径告诉我。
+
+Skill 位置:`/Users/lilongjian/Projects/AI/skill-forge/skills/recon-driven-dev`
+
+开发任务:<在这里写你这次要做什么>
+```
+
+**② 打磨会话**(在 skill-forge 仓里开):
+
+```text
+读 /Users/lilongjian/Projects/AI/skill-forge/meta/recon-driven-dev/MAINTAINING.md
+「实测打磨协议」,按其中「打磨会话:分诊 → 处置 → 验证 → 沉淀」处理下面这份实测
+改进点清单:逐条三分诊(只有判为 skill 缺陷的才改,任务特例/模型失误不动 skill)→
+按处置门槛决定当场改还是进 meta/recon-driven-dev/BACKLOG.md → 改完按改后验证
+rubric 核 → 回填 meta/recon-driven-dev/EVAL-COVERAGE.md、采纳的沉
+meta/recon-driven-dev/CHANGELOG.md。
+
+改进点清单:<贴上一步产出的 improvements.md 路径或内容>
+```
+
+> 进度看 `EVAL-COVERAGE.md`:每格至少碰一次(地板)、被碰的格连续 2 轮不出新问题(天花板)=「实测到位」。
