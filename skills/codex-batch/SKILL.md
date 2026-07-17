@@ -8,7 +8,7 @@ description: 编排 codex-task 沿实现计划连续推进多任务,遇 checkpoi
 **本 Skill 是 codex-task 的编排层——单向委托 codex-task 的单任务流程,自己只加「循环 + checkpoint + 停车/续跑」。** codex-task 的任务内审查(按其 `references/task-reviewer.md` 派 subagent)与收尾上线闸门均由 codex-task 定义,本 Skill 不另设、不点名外部指令。
 
 ## 与 codex-task 的关系（核心）
-- **委托而非复制**:每个任务都走 **codex-task 定义的单任务流程**(见 `~/.claude/skills/codex-task/SKILL.md` 的「执行流程」step 0–6);本 Skill**不重述**那些步骤,需要细节时 `Read` 该 SKILL.md。codex-task 演进,本 Skill 自动跟随。
+- **委托而非复制**:每个任务都走 **codex-task 定义的单任务流程**(其 SKILL.md 的「执行流程」step 0–6);本 Skill**不重述**那些步骤,需要细节时 `Read` codex-task 的 SKILL.md（**按名找、别假定安装路径**——各 agent 平台的 skills 目录不同）。codex-task 演进,本 Skill 自动跟随。
 - **内联连续跑,不套娃**:主线在循环里逐任务跑 codex-task 流程;codex 实现子代理、codex-task 内部按 `references/task-reviewer.md` 派的审查子代理照旧在**每个任务内部**派发。**不**再 spawn 一层「执行子代理」整包跑 codex-task。
 - **复用同一台账**:不新建台账,直接读写 codex-task 的 sidecar 台账 `<计划目录>/.codex-task/<计划名>/progress.md`;与单独跑 `/codex-task next` 完全互通。
 
