@@ -33,10 +33,6 @@ codebase-exploration/
     └── stack-recipes.md       # 框架约定速查表(派生种子 · 新栈结晶进此、不回灌 SKILL.md)
 ```
 
-> **维护治理资产不在本目录**——维护宪法 / 候选优化清单 / dogfood 覆盖账本 / 变更日志 / 理论底座是**元层账**(运行时不读),住在 skill-forge 仓的 `meta/codebase-exploration/`,**随仓、不随安装分发**。
-
 ## 如何开始
 
-**用它**(在你要探索的项目里):说「带我熟悉下这个项目 / 这代码库怎么分模块」即可触发;跑完产出 `docs/codebase-map.md`,从「⑤ 上手顺序」按标注逐个深入精读。
-
-**优化它**(在 skill-forge 仓):说「优化 codebase-exploration 的 X」(X = `BACKLOG.md` 某条 / 一个新痛点 / dogfood 浮出的问题)——维护流程(理论先行 → 改根因 → dogfood → 立 CHANGELOG)权威在 `meta/codebase-exploration/MAINTAINING.md`;开放候选看同目录 `BACKLOG.md`、验证覆盖与盲区看 `COVERAGE.md`。
+在你要探索的项目里说「带我熟悉下这个项目 / 这代码库怎么分模块」即可触发;跑完产出 `docs/codebase-map.md`,从「⑤ 上手顺序」按标注逐个深入精读。
