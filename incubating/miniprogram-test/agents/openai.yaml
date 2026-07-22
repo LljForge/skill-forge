@@ -1,0 +1,4 @@
+interface:
+  display_name: "微信小程序轻量测试"
+  short_description: "根据小程序测试目标生成脚本、受控执行并交付分层证据报告"
+  default_prompt: "使用 $miniprogram-test 测试当前微信小程序的指定功能并生成测试报告。"

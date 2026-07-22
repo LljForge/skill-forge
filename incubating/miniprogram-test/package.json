@@ -1,0 +1,17 @@
+{
+  "name": "miniprogram-test-skill-runtime",
+  "version": "0.12.0",
+  "private": true,
+  "description": "miniprogram-test Skill 的确定性微信小程序测试运行时",
+  "engines": {
+    "node": ">=22 <23 || >=24 <25"
+  },
+  "dependencies": {
+    "miniprogram-automator": "0.12.1"
+  },
+  "overrides": {
+    "minimist": "0.2.4",
+    "jpeg-js": "0.4.4",
+    "phin": "3.7.1"
+  }
+}

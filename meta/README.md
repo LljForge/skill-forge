@@ -66,3 +66,4 @@ done
 | codex-code-review | `incubating/` | BACKLOG |
 | module-spec-baseline | `incubating/` | CHANGELOG |
 | test-case-design | `incubating/` | CHANGELOG · BACKLOG |
+| miniprogram-test | `incubating/` | MAINTAINING · BACKLOG · COVERAGE · CHANGELOG · HANDOFF |

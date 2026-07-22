@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "id": "TC-FEATURE-001",
+  "title": "功能测试名称",
+  "objective": "用一句话说明要验证的业务结果",
+  "inputSource": "natural-language",
+  "mode": "read-only",
+  "projectPath": "/absolute/path/to/miniprogram",
+  "identity": {
+    "source": "current-devtools-session",
+    "required": false
+  },
+  "preconditions": [
+    "微信开发者工具已打开目标项目"
+  ],
+  "sourceEvidence": [
+    {
+      "path": "pages/home/index.js",
+      "reason": "目标页面和关键交互来源"
+    }
+  ],
+  "verificationLayers": [
+    {
+      "layer": "runtime-ui",
+      "expected": "页面展示预期文案",
+      "status": "planned"
+    },
+    {
+      "layer": "backend",
+      "expected": "后台状态符合业务预期",
+      "status": "not-verified",
+      "reason": "本例未提供后台核对方式"
+    },
+    {
+      "layer": "external",
+      "expected": "本功能不涉及外部系统",
+      "status": "not-applicable"
+    }
+  ],
+  "supplementalChecks": [
+    {
+      "name": "页面静态回归",
+      "kind": "static",
+      "status": "passed",
+      "details": "相关静态测试已通过"
+    }
+  ],
+  "openQuestions": [],
+  "evidenceLevel": "runtime-ui",
+  "evidenceLevels": [
+    "runtime-ui"
+  ],
+  "screenshotPolicy": "safe-only",
+  "stateChanges": [],
+  "cleanupPolicy": "not-applicable",
+  "testData": {
+    "example": {
+      "env": "MINIPROGRAM_TEST_EXAMPLE",
+      "sensitive": true,
+      "description": "运行时测试数据"
+    }
+  },
+  "steps": [
+    {
+      "action": "open",
+      "path": "/pages/home/index"
+    },
+    {
+      "action": "expectText",
+      "text": "预期文案"
+    },
+    {
+      "action": "expectVisible",
+      "target": ".dynamic-result"
+    },
+    {
+      "action": "expectDiagnostic",
+      "kind": "toast",
+      "messageIncludes": "操作成功"
+    },
+    {
+      "action": "screenshot",
+      "name": "result"
+    }
+  ]
+}

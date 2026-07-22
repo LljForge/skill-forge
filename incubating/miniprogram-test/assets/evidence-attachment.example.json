@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "caseId": "TC-FEATURE-001",
+  "summary": "独立只读证据补充了原测试报告未直接证明的后台状态",
+  "layers": [
+    {
+      "layer": "backend",
+      "status": "verified",
+      "method": "read-only-database",
+      "observation": "脱敏查询结果确认唯一目标记录符合预期状态",
+      "artifacts": [
+        {
+          "label": "后台脱敏只读证据",
+          "path": "/absolute/path/to/sanitized-backend-evidence.json",
+          "digest": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+        }
+      ]
+    },
+    {
+      "layer": "external",
+      "status": "not-verified",
+      "method": "manual-review",
+      "observation": "本轮没有取得外部系统直接证据",
+      "artifacts": []
+    }
+  ]
+}

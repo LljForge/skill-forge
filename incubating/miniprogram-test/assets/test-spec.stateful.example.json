@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "id": "TC-STATEFUL-001",
+  "title": "有状态功能测试名称",
+  "objective": "验证一次受控业务提交及其可取得的最终证据",
+  "inputSource": "natural-language",
+  "mode": "stateful",
+  "projectPath": "/absolute/path/to/miniprogram",
+  "identity": {
+    "source": "current-devtools-session",
+    "required": true
+  },
+  "preconditions": [
+    "测试数据和状态变化已经向用户展示并获得批准"
+  ],
+  "sourceEvidence": [
+    {
+      "path": "pages/example/index.js",
+      "reason": "目标页面和提交逻辑来源"
+    },
+    {
+      "path": "api/request.js",
+      "reason": "客户端请求重放策略来源"
+    }
+  ],
+  "verificationLayers": [
+    {
+      "layer": "runtime-ui",
+      "expected": "页面展示提交后的预期结果",
+      "status": "planned"
+    },
+    {
+      "layer": "backend",
+      "expected": "后台最终状态符合预期",
+      "status": "not-verified",
+      "reason": "本例未提供后台只读对账方式"
+    }
+  ],
+  "supplementalChecks": [],
+  "openQuestions": [],
+  "evidenceLevel": "runtime-ui",
+  "evidenceLevels": [
+    "runtime-ui"
+  ],
+  "screenshotPolicy": "safe-only",
+  "stateChanges": [
+    "创建一条业务记录"
+  ],
+  "cleanupPolicy": "not-allowed",
+  "submissionPolicy": {
+    "uiAttempts": 1,
+    "clientReplayRisk": "unknown",
+    "networkAttemptsObservable": false,
+    "reason": "执行前必须从项目请求封装确认是否存在自动重放"
+  },
+  "testData": {
+    "businessValue": {
+      "env": "MINIPROGRAM_TEST_BUSINESS_VALUE",
+      "sensitive": true,
+      "description": "运行时业务数据"
+    }
+  },
+  "steps": [
+    {
+      "action": "open",
+      "path": "/pages/example/index"
+    },
+    {
+      "action": "arrangePageData",
+      "arrangementId": "open-existing-manual-form",
+      "data": {
+        "showManualForm": true
+      },
+      "reason": "原入口依赖无法自动化的原生系统选择器，仅打开页面中已经存在的手工表单",
+      "evidenceImpact": "本用例不覆盖原生系统选择器，只验证手工表单及其后的业务流程"
+    },
+    {
+      "action": "fill",
+      "target": ".business-input",
+      "dataKey": "businessValue"
+    },
+    {
+      "action": "commit",
+      "commitId": "submit-business-change",
+      "target": ".submit-button"
+    },
+    {
+      "action": "expectText",
+      "text": "操作成功"
+    },
+    {
+      "action": "screenshot",
+      "name": "stateful-result"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "caseId": "TC-BUSINESS-WRITE-001",
+  "summary": "提交已经产生后台状态变化，但最终业务状态不符合预期",
+  "commitEffect": "applied",
+  "commitEffects": [
+    {
+      "commitId": "submit-business-change",
+      "effect": "applied",
+      "observation": "只读后台查询确认本轮提交创建了目标记录"
+    }
+  ],
+  "businessOutcome": "failed",
+  "layers": [
+    {
+      "layer": "runtime-ui",
+      "status": "failed",
+      "method": "read-only-ui",
+      "observation": "当前身份的页面仍未展示预期业务记录",
+      "artifacts": [
+        {
+          "label": "认证只读 UI 对账结果",
+          "path": "/absolute/path/to/read-only-ui-result.json",
+          "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ]
+    },
+    {
+      "layer": "backend",
+      "status": "failed",
+      "method": "read-only-database",
+      "observation": "后台记录存在，但身份归属字段不符合预期",
+      "artifacts": [
+        {
+          "label": "脱敏后台只读查询结果",
+          "path": "/absolute/path/to/sanitized-backend-evidence.json",
+          "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      ]
+    },
+    {
+      "layer": "external",
+      "status": "not-verified",
+      "method": "manual-review",
+      "observation": "本轮没有取得外部系统直接证据",
+      "artifacts": []
+    }
+  ]
+}
