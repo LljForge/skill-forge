@@ -2,6 +2,8 @@
 
 更新时间：2026-07-22
 
+单页恢复入口：[STATE.md](STATE.md)。本文件保留详细交接背景与完整续接 Prompt。
+
 ## 当前定位
 
 `miniprogram-test` 是一个孵化中的轻量 Skill：接收自然语言功能目标或现成测试用例，生成测试方案和可读脚本，通过真实微信开发者工具受控执行，并输出截图与分层证据报告。它不在业务项目中搭建或维护重型测试框架。
@@ -42,12 +44,13 @@
 
 1. /Users/lilongjian/Projects/AI/skill-forge/CLAUDE.md
 2. /Users/lilongjian/Projects/AI/skill-forge/meta/README.md
-3. /Users/lilongjian/Projects/AI/skill-forge/meta/miniprogram-test/MAINTAINING.md
-4. /Users/lilongjian/Projects/AI/skill-forge/meta/miniprogram-test/BACKLOG.md
-5. /Users/lilongjian/Projects/AI/skill-forge/meta/miniprogram-test/COVERAGE.md
-6. /Users/lilongjian/Projects/AI/skill-forge/meta/miniprogram-test/CHANGELOG.md
-7. /Users/lilongjian/Projects/AI/skill-forge/meta/miniprogram-test/HANDOFF.md
-8. /Users/lilongjian/Projects/AI/skill-forge/incubating/miniprogram-test/SKILL.md
+3. /Users/lilongjian/Projects/AI/skill-forge/meta/miniprogram-test/STATE.md
+4. /Users/lilongjian/Projects/AI/skill-forge/meta/miniprogram-test/MAINTAINING.md
+5. /Users/lilongjian/Projects/AI/skill-forge/meta/miniprogram-test/BACKLOG.md
+6. /Users/lilongjian/Projects/AI/skill-forge/meta/miniprogram-test/COVERAGE.md
+7. /Users/lilongjian/Projects/AI/skill-forge/meta/miniprogram-test/CHANGELOG.md
+8. /Users/lilongjian/Projects/AI/skill-forge/meta/miniprogram-test/HANDOFF.md
+9. /Users/lilongjian/Projects/AI/skill-forge/incubating/miniprogram-test/SKILL.md
 
 先核对目标 Skill 的实际文件、版本、相对模块引用、资产引用、依赖状态和 Node 22/24 回归结果。Skill 内不得引用旧 GMZB/edoc 业务仓库、旧 miniprogram-testing-plugin、Codex Plugin 缓存或 meta 目录；所有文件引用必须真实存在，不允许符号链接或死链。
 
