@@ -36,7 +36,7 @@ FINISH 前,对本次分支的整支改动做一道宽口径冷视角评审:
 
 ## 收口与归档
 
-6. **FINISH 闭合菜单**:全部任务做完——**先复验全测试绿 → 检测工作区 / 分支态 → 给固定闭合菜单**(本地合并 / push+PR / 保留原样 / **保留分支·回收 worktree** / 丢弃;detached-HEAD / 外部托管则**去掉“本地合并”**,detached-HEAD 无具名分支、另**去掉“保留分支·回收 worktree”**)**→ 精确执行所选一项**。**绝不在收尾抛开放式“接下来干嘛”**。「保留分支·回收 worktree」= 留下本次分支为成果、删掉临时 worktree(区别于「保留原样」的留 worktree 待续做)。
+6. **FINISH 闭合菜单**:全部任务做完——**先复验全测试绿 → 检测工作区 / 分支态 → 给固定闭合菜单**(本地合并 / push+PR / 保留原样 / **保留分支·回收 worktree** / 丢弃;detached-HEAD / 外部托管则**去掉“本地合并”**,detached-HEAD 无具名分支、另**去掉“保留分支·回收 worktree”**;**plain `checkout -b` 隔离〔无 worktree〕则「保留分支·回收 worktree」档呈现为「保留分支」——无 worktree 可回收、仅留本次分支为成果**)**→ 精确执行所选一项**。**绝不在收尾抛开放式“接下来干嘛”**。「保留分支·回收 worktree」= 留下本次分支为成果、删掉临时 worktree(区别于「保留原样」的留 worktree 待续做)。
 7. **归档**:分支收口后把本次目录移进 `docs/recon-driven-dev/_archived/`(目录名已带日期、直接移;产物文档是否 commit 按所在仓惯例一并定)。**⏸ 收尾前确认**。
 
 ## 子 agent 分支:交接护栏 + 吸收
@@ -54,7 +54,7 @@ FINISH 前,对本次分支的整支改动做一道宽口径冷视角评审:
 - **worktree 检测假阳性**:`GIT_DIR != GIT_COMMON` 在 **submodule** 里也成立 → 下结论前用 `git rev-parse --show-superproject-working-tree` 排除(返回路径 = 在 submodule、按普通仓处理)。
 - **项目内 `.worktrees/`** 须**先 gitignore 并提交**,再在其下建 worktree(否则 worktree 内容被提交进仓);用 `git check-ignore` 验。harness / 全局托管的目录不必查。
 - **收口顺序**:要集成则**先合并 → 在合并结果上验测试 → 再移除 worktree → 最后删分支**(先删分支会因 worktree 仍引用而失败)。
-- **清理 provenance 门**:**只清你自己建的** worktree;push+PR 与“保留原样”两档**留着** worktree(push+PR 据 PR 反馈迭代、“保留原样”待稍后回此工作区续做);合并 / 丢弃 / **“保留分支·回收 worktree”** 三档清。**“保留分支·回收 worktree” 档删前先验成果已落分支**:`git status` 干净(无未提交改动 / 未跟踪文件)、分支 tip 已收下本次全部 commit;`git worktree remove` **不带 `--force`**(它遇脏工作区本会拒删、是安全网)——**拒删即停下告知用户**(有未保存内容)、别 force 兜底。`git worktree remove` 前先 `cd` 回主仓根、再 `git worktree prune`。
+- **清理 provenance 门**:**只清你自己建的** worktree;push+PR 与“保留原样”两档**留着** worktree(push+PR 据 PR 反馈迭代、“保留原样”待稍后回此工作区续做);合并 / 丢弃 / **“保留分支·回收 worktree”** 三档清。**(plain `checkout -b` 隔离无 worktree 时,该档即「保留分支」、无 worktree 可清 → 下列 worktree 回收步骤整体跳过、仅留分支为成果。)** **“保留分支·回收 worktree” 档〔有 worktree 时〕删前先验成果已落分支**:`git status` 干净(无未提交改动 / 未跟踪文件)、分支 tip 已收下本次全部 commit;`git worktree remove` **不带 `--force`**(它遇脏工作区本会拒删、是安全网)——**拒删即停下告知用户**(有未保存内容)、别 force 兜底。`git worktree remove` 前先 `cd` 回主仓根、再 `git worktree prune`。
 - **丢弃需打字确认**(如用户键入 `discard`)才执行任何破坏性删除,别凭一句随口的"行"就强删分支 / 移 worktree。
 - **TDD 反合理化红旗**:「待会儿测 / 已手测过 / 太简单不用测 / 删码可惜 / TDD 教条我务实」一律是**红旗、非豁免**;若生产代码先于失败测试写了,**删掉重来**(别"留作参考"或"改改用")。测**真实行为**而非 mock 调用次数;一个测试一个行为;难测 = 设计味道(解耦 / 注入依赖)、非跳过理由。
 - **独立子仓 caveat**:代码在被 `.gitignore` 排除的独立子仓里时,worktree / 提交 / 收口都对**子仓**做(对容器仓做盖不到子仓里的代码)。
